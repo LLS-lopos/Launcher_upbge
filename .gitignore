@@ -1,0 +1,21 @@
+# élément générer
+Linux/
+Windows/
+Moteur/Linux-*
+Moteur/Windows-*
+__pycache__/
+*.sh
+
+# fichier de test
+main.py
+construire_app.py
+
+# environnement
+.idea/
+.venv
+
+# Utilisation de PyInstaller
+*.spec
+dist/
+*.ico
+build/
