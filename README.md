@@ -11,3 +11,6 @@ utilisez la commande suivante:
 ```
 pip install -r dependence.txt
 ```
+
+---
+Projet en cours de conception
