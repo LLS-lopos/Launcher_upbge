@@ -83,11 +83,27 @@ class Lanceur(QMainWindow):
                 ligne.addWidget(bouton)
                 choix_multiple.setLayout(ligne)
                 bouton.clicked.connect(lambda checked, msg=[str(executable)]: self.lancer_editeur(msg))
+            if Path(executable).name == "RangeEngine" and Path(executable).exists() is True:
+                nom = "range" + (Path(executable).parent.name).replace("Linux", "")
+                bouton = QPushButton(QIcon(str(icon.get("linux"))), nom)
+                bouton.setStatusTip(f"Logiciel {nom}")
+                bouton.setFixedHeight(20)
+                ligne.addWidget(bouton)
+                choix_multiple.setLayout(ligne)
+                bouton.clicked.connect(lambda checked, msg=[str(executable)]: self.lancer_editeur(msg))
 
         executables = windows.get("executable", {})
         for cle, executable in executables.items():
             if Path(executable).name == "blender.exe" and Path(executable).exists() is True:
                 nom = "upbge" + (Path(executable).parent.name).replace("Windows", "")
+                bouton = QPushButton(QIcon(str(icon.get("windows"))), nom)
+                bouton.setStatusTip(f"Logiciel {nom}")
+                bouton.setFixedHeight(20)
+                ligne.addWidget(bouton)
+                choix_multiple.setLayout(ligne)
+                bouton.clicked.connect(lambda checked, msg=["wine", str(executable)]: self.lancer_editeur(msg))
+            if Path(executable).name == "RangeEngine.exe" and Path(executable).exists() is True:
+                nom = "range" + (Path(executable).parent.name).replace("Windows", "")
                 bouton = QPushButton(QIcon(str(icon.get("windows"))), nom)
                 bouton.setStatusTip(f"Logiciel {nom}")
                 bouton.setFixedHeight(20)
@@ -122,6 +138,12 @@ class Lanceur(QMainWindow):
             if projet_l4:
                 self.page_l4.addItem(Path(projet_l4).name)
                 self.tableau.addTab(self.page_l4, QIcon(str(icon.get("linux"))), "L4")
+        self.page_lR = QListWidget()
+        self.page_lR.setFont(QFont("Arial", 14))
+        for projet_lR in linux["projet"]["Range"]:
+            if projet_lR:
+                self.page_lR.addItem(Path(projet_lR).name)
+                self.tableau.addTab(self.page_lR, QIcon(str(icon.get("range"))), "LR")
         self.page_w2 = QListWidget()
         self.page_w2.setFont(QFont("Arial", 14))
         for projet_w2 in windows["projet"]["2x"]:
@@ -140,6 +162,12 @@ class Lanceur(QMainWindow):
             if projet_w4:
                 self.page_w4.addItem(Path(projet_w4).name)
                 self.tableau.addTab(self.page_w4, QIcon(str(icon.get("windows"))), "W4")
+        self.page_wR = QListWidget()
+        self.page_wR.setFont(QFont("Arial", 14))
+        for projet_wR in windows["projet"]["Range"]:
+            if projet_wR:
+                self.page_wR.addItem(Path(projet_wR).name)
+                self.tableau.addTab(self.page_wR, QIcon(str(icon.get("range"))), "WR")
 
         col_projet.addWidget(self.tableau)
         widget.setLayout(col_projet)
@@ -172,12 +200,16 @@ class Lanceur(QMainWindow):
             self.page = self.page_l3.selectedItems()
         elif nom_page == "L4":
             self.page = self.page_l4.selectedItems()
+        elif nom_page == "LR":
+            self.page = self.page_lR.selectedItems()
         elif nom_page == "W2":
             self.page = self.page_w2.selectedItems()
         elif nom_page == "W3":
             self.page = self.page_w3.selectedItems()
         elif nom_page == "W4":
             self.page = self.page_w4.selectedItems()
+        elif nom_page == "WR":
+            self.page = self.page_wR.selectedItems()
 
         # Afficher les projets sélectionnés
         if self.page:  # Vérifiez si des éléments sont sélectionnés
@@ -214,7 +246,6 @@ class Lanceur(QMainWindow):
                 subprocess.run(programme, check=True, env=env)
             except:
                 print("Dommage mais ne marche pas XD")
-
 
 if __name__ == "__main__":
     aplis = QApplication(sys.argv)
