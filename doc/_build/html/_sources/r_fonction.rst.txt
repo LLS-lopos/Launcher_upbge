@@ -1,0 +1,7 @@
+r\_fonction module
+==================
+
+.. automodule:: r_fonction
+   :members:
+   :show-inheritance:
+   :undoc-members:

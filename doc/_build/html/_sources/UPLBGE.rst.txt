@@ -1,0 +1,7 @@
+UPLBGE module
+=============
+
+.. automodule:: UPLBGE
+   :members:
+   :show-inheritance:
+   :undoc-members:
