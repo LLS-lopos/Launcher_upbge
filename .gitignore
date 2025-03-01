@@ -27,4 +27,5 @@ doc/*.py
 doc/*.rst
 doc/*.bat
 doc/Makefile
+doc/_static
 imgui.ini
