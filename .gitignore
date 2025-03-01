@@ -1,9 +1,9 @@
 # élément générer
-Linux/
-Windows/
-Moteur/Linux-*
-Moteur/Windows-*
-__pycache__/
+source/Linux/
+source/Windows/
+source/Moteur/Linux-*
+source/Moteur/Windows-*
+source/__pycache__/
 *.sh
 
 # fichier de test
@@ -19,3 +19,12 @@ construire_app.py
 dist/
 *.ico
 build/
+
+# documentation
+doc/_templates
+doc/_build/doctrees
+doc/*.py
+doc/*.rst
+doc/*.bat
+doc/Makefile
+imgui.ini
