@@ -6,6 +6,9 @@ un lanceur et gestionnaire de projet UP(BGE)
         - PySide6
     - optionnel :
         - icecream
+    - pour la documentation:
+        - sphinx
+        - furo
 
 utilisez la commande suivante:
 ```
