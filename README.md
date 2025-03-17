@@ -4,8 +4,6 @@ un lanceur et gestionnaire de projet UP(BGE)
 - dépendence pip :
     - requis :
         - PySide6
-    - optionnel :
-        - icecream
     - pour la documentation:
         - sphinx
         - furo

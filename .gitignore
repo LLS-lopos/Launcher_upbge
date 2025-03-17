@@ -5,6 +5,7 @@ source/Moteur/Linux-*
 source/Moteur/Windows-*
 source/__pycache__/
 *.sh
+*.pyc
 
 # fichier de test
 main.py
