@@ -4,6 +4,7 @@ source/Windows/
 source/Moteur/Linux-*
 source/Moteur/Windows-*
 source/__pycache__/
+source/*/__pycache__/
 *.sh
 *.pyc
 
