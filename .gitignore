@@ -11,6 +11,7 @@ source/*/__pycache__/
 # fichier de test
 main.py
 construire_app.py
+construire_doc.py
 
 # environnement
 .idea/
@@ -24,10 +25,11 @@ build/
 
 # documentation
 doc/_templates
-doc/_build/doctrees
+doc/doctrees
 doc/*.py
 doc/*.rst
 doc/*.bat
 doc/Makefile
 doc/_static
+doc/source
 imgui.ini
