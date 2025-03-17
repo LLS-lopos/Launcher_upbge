@@ -77,12 +77,9 @@ def structure():
 
     # Initialisation des fichiers de configuration
     if not config.exists(): config.mkdir(exist_ok=True)
-    if not (config / linux_json).exists():
-        with open((config / linux_json), "w", encoding="utf-8") as f: json.dump(linux, f, indent=4)
-    if not (config / windows_json).exists():
-        with open((config / windows_json), "w", encoding="utf-8") as f: json.dump(windows, f, indent=4)
-    if not (config / icon_json).exists():
-        with open((config / icon_json), "w", encoding="utf-8") as f: json.dump(icon, f, indent=4)
+    with open((config / linux_json), "w", encoding="utf-8") as f: json.dump(linux, f, indent=4)
+    with open((config / windows_json), "w", encoding="utf-8") as f: json.dump(windows, f, indent=4)
+    with open((config / icon_json), "w", encoding="utf-8") as f: json.dump(icon, f, indent=4)
 
 
 if __name__ == "__main__":

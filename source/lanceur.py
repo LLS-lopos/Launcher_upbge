@@ -5,15 +5,18 @@ from PySide6.QtCore import Slot
 from PySide6.QtGui import QAction, QIcon
 
 # élément graphique
-from GUI.liste_projet import Lprojet
-from GUI.affichage_projet import Affichage_projet
+from source.GUI.creer_projet import Creer
+from source.GUI.liste_projet import Lprojet
+from source.GUI.affichage_projet import Affichage_projet
 # fonction backend
-from program.contruire_structure import structure
+from source.program.construire_structure import structure
+from source.program.manipuler_donner import sauvegarder
 
 class Lanceur(QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
         structure()
+        sauvegarder()
         self.setWindowTitle("Lanceur UPBGE")
         self.setGeometry(0, 0, 1280, 720)
         self.centre()
@@ -28,8 +31,9 @@ class Lanceur(QMainWindow):
         grille.setSpacing(10)
         grille.setContentsMargins(10, 10, 10, 10)
 
-        grille.addWidget(Lprojet(), 0, 0, 1, 1)
-        grille.addWidget(Affichage_projet(), 0, 1, 1, 1)
+        grille.addWidget(Creer(self.commande_secourre), 0, 0, 1, 2)
+        grille.addWidget(Lprojet(), 1, 0, 1, 1)
+        grille.addWidget(Affichage_projet(), 1, 1, 1, 1)
 
     def barre_menu(self):
         self.barreMenu = self.menuBar()  # créer la barre de menu

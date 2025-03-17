@@ -16,7 +16,6 @@ class Lanceur(QMainWindow):
     def __init__(self):
         super().__init__()
         structure()
-        ic(linux, windows)
         self.setWindowTitle("Lanceur UPBGE")
         self.setGeometry(0, 0, 1200, 700)
         self.setWindowIcon(QIcon(str(icon.get("upbge"))))
