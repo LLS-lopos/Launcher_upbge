@@ -21,7 +21,6 @@ construire_doc.py
 *.spec
 dist/
 *.ico
-build/
 
 # documentation
 doc/_templates
@@ -33,3 +32,4 @@ doc/Makefile
 doc/_static
 doc/source
 imgui.ini
+doc/build/*
