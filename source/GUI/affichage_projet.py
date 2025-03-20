@@ -6,7 +6,6 @@ class Affichage_projet(QWidget):
 
         # Créer un QFrame pour contenir la mise en page
         affiche = QFrame()
-        affiche.setMaximumWidth(600)  # Définir la largeur maximale du QFrame
 
         # Créer une QGridLayout
         grille = QGridLayout()
@@ -25,3 +24,4 @@ class Affichage_projet(QWidget):
         main_layout = QGridLayout(self)  # Créer une mise en page pour le widget principal
         main_layout.addWidget(affiche)  # Ajouter le QFrame à la mise en page principale
         self.setLayout(main_layout)  # Définir la mise en page principale pour le widget
+        self.setFixedWidth((1280*0.5))

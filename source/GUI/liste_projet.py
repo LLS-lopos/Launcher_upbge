@@ -32,3 +32,4 @@ class Lprojet(QWidget):
 
         layout.addWidget(tableau)
         self.setLayout(layout)
+        self.setFixedWidth((1280*0.3))

@@ -5,12 +5,14 @@ from subprocess import run
 
 from PySide6.QtWidgets import (QWidget, QHBoxLayout, QLineEdit, QPushButton, QComboBox)
 from PySide6.QtCore import (Slot, Qt)
+from PySide6.QtGui import (QIcon)
 
 from source.program.manipuler_donner import charger
 
 class Creer(QWidget):
     def __init__(self, save):
         super().__init__()
+        icone = charger("icon")
         self.save = save
 
         conteneur = QHBoxLayout()
@@ -28,13 +30,13 @@ class Creer(QWidget):
             if cle == "executable":
                 for p in self.linux[cle]:
                     if p.startswith("Linux"):
-                        self.liste_moteur.addItem(p)
+                        self.liste_moteur.addItem(QIcon(icone.get("linux")), p)
         self.windows = charger("windows")
         for cle in self.windows:
             if cle == "executable":
                 for p in self.windows[cle]:
                     if p.startswith("Windows"):
-                        self.liste_moteur.addItem(p)
+                        self.liste_moteur.addItem(QIcon(icone.get("windows")), p)
 
         b_creer_projet = QPushButton("créer")
         b_creer_projet.setStatusTip("Création du projet")

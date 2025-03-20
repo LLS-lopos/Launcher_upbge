@@ -8,6 +8,7 @@ from PySide6.QtGui import QAction, QIcon
 from source.GUI.creer_projet import Creer
 from source.GUI.liste_projet import Lprojet
 from source.GUI.affichage_projet import Affichage_projet
+from source.GUI.liste_blend import Lblend
 # fonction backend
 from source.program.construire_structure import structure
 from source.program.manipuler_donner import sauvegarder
@@ -28,12 +29,13 @@ class Lanceur(QMainWindow):
         self.barre_status()
 
         grille = QGridLayout(zone_centre)
-        grille.setSpacing(10)
-        grille.setContentsMargins(10, 10, 10, 10)
+        grille.setSpacing(2)
+        grille.setContentsMargins(2, 2, 2, 2)
 
-        grille.addWidget(Creer(self.commande_secourre), 0, 0, 1, 2)
+        grille.addWidget(Creer(self.commande_secourre), 0, 0, 1, 3)
         grille.addWidget(Lprojet(), 1, 0, 1, 1)
         grille.addWidget(Affichage_projet(), 1, 1, 1, 1)
+        grille.addWidget(Lblend(), 1, 2, 1, 1)
 
     def barre_menu(self):
         self.barreMenu = self.menuBar()  # créer la barre de menu
