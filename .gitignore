@@ -15,6 +15,7 @@ construire_doc.py
 # environnement
 .idea/
 .venv
+.vscode
 
 # Utilisation de PyInstaller
 *.spec
@@ -31,4 +32,5 @@ doc/Makefile
 doc/_static
 doc/source
 imgui.ini
+doc/build/doctrees
 doc/build/*
