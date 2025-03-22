@@ -13,7 +13,7 @@ class Lblend(QWidget):
         p1 = QListWidget()
         p1.addItem("test")
         #tableau
-        tableau.addTab(p1, QIcon(""), "P1")
+        tableau.addTab(p1, QIcon(""), "Fichier.blend")
 
         # Bouton Editer Fichier
         b_edition = QPushButton("Edition Fichier")
