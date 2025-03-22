@@ -7,7 +7,6 @@ un lanceur et gestionnaire de projet UP(BGE)
     - pour la documentation:
         - sphinx
         - furo
-        - myst-parser
 
 utilisez la commande suivante:
 ```
