@@ -82,8 +82,6 @@ class Creer(QWidget):
         nom = self.nom_jeu.text()
         moteur = self.liste_moteur.currentText()
         n_moteur = moteur.rsplit("-", 1)[0].lower()
-        print(f"moteur: {n_moteur}")
-        print(projet, nom, moteur)
         if projet and nom:
             self.dos_p = Path(f"source/{moteur.replace('-', '/')}/{projet}")
             self.dos_p.mkdir(parents=True, exist_ok=True)
@@ -94,17 +92,14 @@ class Creer(QWidget):
             elif n_moteur == "windows": command = ["wine", self.windows["executable"].get(moteur), str(fichier)]
 
             if self.save.checkState() == Qt.Unchecked:
-                try:
-                    run(command, check=True)
-                except:
-                    print("active commande de sauvetage dans le menu Option ;)")
+                try: run(command, check=True)
+                except: print("active commande de sauvetage dans le menu Option ;)")
             if self.save.checkState() == Qt.Checked:
                 try:
                     env = os.environ.copy()
                     env["LIBGL_ALWAYS_SOFTWARE"] = "1"
                     run(command, check=True, env=env)
-                except:
-                    print("Dommage mais ne marche pas XD")
+                except: print("Dommage mais ne marche pas XD")
             self.nom_projet.setText("")
             self.nom_jeu.setText("")
             sauvegarder()

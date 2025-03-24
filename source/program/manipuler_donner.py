@@ -2,7 +2,8 @@ import json
 from .construire_structure import (
     config, linux_json, windows_json, 
     icon_json, dos_linux, 
-    dos_moteur, dos_windows
+    dos_moteur, dos_windows,
+    global_json,
     )
 
 def sauvegarder():
@@ -94,4 +95,8 @@ def charger(element):
         with open((config / icon_json), "r") as f:
             icon: dict = json.load(f)
         return icon
+    elif element == "global":
+        with open((config / global_json), "r") as f:
+            glob = json.load(f)
+        return glob
     else: print("choix possible: [linux, windows, icon]")

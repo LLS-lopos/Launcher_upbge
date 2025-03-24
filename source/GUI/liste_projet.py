@@ -1,56 +1,55 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QTabWidget, QListWidget, QPushButton
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import Slot
-
 from pathlib import Path
-
-from source.program.manipuler_donner import charger
+from source.program.manipuler_donner import charger, config, global_json
+import json
 
 class Lprojet(QWidget):
-    def __init__(self, table=None):
+    def __init__(self):
         super().__init__()
         self.projets = {}  # Dictionnaire pour stocker les projets par onglet
-        self.table = table
         self.icone = charger("icon")
         layout = QVBoxLayout()
         self.tableau = QTabWidget(self)
         self.tableau.setMaximumWidth(300)
 
+        # Charger les projets dès l'initialisation
         self.charger_tableau("linux")
         self.charger_tableau("windows")
         
         # Ajouter le bouton "Recharger la liste"
         self.b_recharger = QPushButton("Recharger la liste")
-        self.b_recharger.clicked.connect(lambda: self.recharger_liste())
+        self.b_recharger.clicked.connect(self.recharger_liste)
         self.b_recharger.setMaximumWidth(300)
 
         layout.addWidget(self.tableau)
         layout.addWidget(self.b_recharger)
         self.setLayout(layout)
-        self.setFixedWidth((1280*0.3))
+        self.setFixedWidth((1280 * 0.3))
 
-        self.tableau.currentChanged.connect(self.tab_actif)
-        self.table = self.tableau.tabText(self.tableau.currentIndex())
-        
     def charger_tableau(self, tabeau):
-        projets = charger(tabeau)
+        try: projets = charger(tabeau)  # Charger les projets pour l'onglet spécifié # ... (le reste de votre code)
+        except Exception as e: print(f"Erreur lors du chargement des projets : {e}")
         for v_projet in projets["projet"]:
-            page = QListWidget() # page (élément de tableau)
+            page = QListWidget()  # Créer un nouveau QListWidget pour l'onglet
             self.projets[v_projet] = []  # Initialiser la liste des projets pour cet onglet
             for projet in projets["projet"][v_projet]:
                 if projet:
                     self.projets[v_projet].append(projet)  # Ajouter le projet à la liste
-                    page.addItem(Path(projet).name)
-                self.tableau.addTab(page, QIcon(self.icone.get(tabeau)), str(v_projet)) # ajouter page au tableau
+                    page.addItem(Path(projet).name)  # Ajouter le nom du projet au QListWidget
+                self.tableau.addTab(page, QIcon(self.icone.get(tabeau)), str(v_projet))  # Ajouter la page au widget d'onglets
+            page.itemClicked.connect(lambda item, chemin=Path(projet).parent: self.projet_selectionner(item, chemin))  # Connecter le signal de clic sur l'élément
 
-    def tab_actif(self, index):
-        self.table = self.tableau.tabText(index)
-        print(f"Onglet sélectionné : {self.table}")
-        if self.table in self.projets:
-            print(f"Projets pour l'onglet '{self.table}': {self.projets[self.table]}")
-            for projet in self.projets[self.table]:
-                print(projet)
-    
+    @Slot()
+    def projet_selectionner(self, item, chemin):
+        projet_nom = item.text()
+        dos = Path(chemin) / projet_nom
+        info = {"p_actif": str(dos)}
+        # print(f"Élément cliqué : {projet_nom}\n {type(projet_nom)}\n{dos}\n {type(dos)}")
+        with open((config / global_json), "w", encoding="utf-8") as f:
+            json.dump(info, f, indent=4)
+
     @Slot()
     def recharger_liste(self):
         # Effacer les onglets existants

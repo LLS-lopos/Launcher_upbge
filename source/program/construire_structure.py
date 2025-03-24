@@ -10,6 +10,7 @@ dos_windows = racine / "Windows"
 linux_json = "config_linux.json"
 windows_json = "config_windows.json"
 icon_json = "config_icon.json"
+global_json = "config_global.json"
 
 # Dictionnaires pour stocker les informations sur les projets et les exécutables
 linux = {
@@ -80,6 +81,7 @@ def structure():
     with open((config / linux_json), "w", encoding="utf-8") as f: json.dump(linux, f, indent=4)
     with open((config / windows_json), "w", encoding="utf-8") as f: json.dump(windows, f, indent=4)
     with open((config / icon_json), "w", encoding="utf-8") as f: json.dump(icon, f, indent=4)
+    with open((config / global_json), "w", encoding="utf-8") as f: json.dump("", f, indent=4)
 
 
 if __name__ == "__main__":
