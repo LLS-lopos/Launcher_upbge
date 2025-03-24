@@ -7,13 +7,6 @@ if [ -d ".venv" ]; then
 
     # Vérifiez si l'activation a réussi
     if [ $? -eq 0 ]; then
-        echo "Vérification des dépendances..."
-        if [ -f "dependence.txt" ]; then
-            pip install -r dependence.txt
-        else
-            echo "Le fichier 'dependence.txt' n'existe pas. Aucune dépendance installée."
-        fi
-
         echo "Démarrage du logiciel..."
         python3 -m source.lanceur
 
