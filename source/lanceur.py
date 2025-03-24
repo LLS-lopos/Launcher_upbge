@@ -11,14 +11,16 @@ from source.GUI.affichage_projet import Affichage_projet
 from source.GUI.liste_blend import Lblend
 # fonction backend
 from source.program.construire_structure import structure
-from source.program.manipuler_donner import sauvegarder
+from source.program.manipuler_donner import sauvegarder, charger
 
 class Lanceur(QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
         structure()
         sauvegarder()
+        img = charger("icon")
         self.setWindowTitle("Lanceur UPBGE")
+        self.setWindowIcon(QIcon(img["upbge"]))
         self.setGeometry(0, 0, 1280, 720)
         self.centre()
 
