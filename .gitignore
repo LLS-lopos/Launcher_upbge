@@ -1,8 +1,8 @@
 # élément générer
-source/Linux/
-source/Windows/
-source/Moteur/Linux-*
-source/Moteur/Windows-*
+source/data/Linux/
+source/data/Windows/
+source/data/Moteur/Linux-*
+source/data/Moteur/Windows-*
 source/__pycache__/
 source/*/__pycache__/
 *.pyc
@@ -16,11 +16,6 @@ construire_doc.py
 .idea/
 .venv
 .vscode
-
-# Utilisation de PyInstaller
-*.spec
-dist/
-*.ico
 
 # documentation
 doc/_templates
@@ -38,3 +33,4 @@ doc/build/*
 # déploiment
 Nuitka
 construction_nuitka.txt
+source/sys
