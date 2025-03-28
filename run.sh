@@ -4,11 +4,14 @@
 if [ -d ".venv" ]; then
     echo "Activation de l'environnement Python"
     source .venv/bin/activate
+    
+    # Ajouter le répertoire parent au PYTHONPATH
+    export PYTHONPATH="$PYTHONPATH:$PWD"
 
     # Vérifiez si l'activation a réussi
     if [ $? -eq 0 ]; then
         echo "Démarrage du logiciel..."
-        python3 -m source.lanceur
+        python3 source/lanceur.py
 
         # Vérifiez si le lancement du logiciel a réussi
         if [ $? -eq 0 ]; then
@@ -30,7 +33,7 @@ else
     fi
 
     echo "Démarrage du logiciel sans environnement virtuel..."
-    python3 -m source.lanceur
+    python3 source/lanceur.py
 
     # Vérifiez si le lancement du logiciel a réussi
     if [ $? -eq 0 ]; then

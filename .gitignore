@@ -34,3 +34,7 @@ doc/source
 imgui.ini
 doc/build/doctrees
 doc/build/*
+
+# déploiment
+Nuitka
+construction_nuitka.txt

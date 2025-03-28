@@ -5,13 +5,13 @@ from PySide6.QtCore import Slot
 from PySide6.QtGui import QAction, QIcon
 
 # élément graphique
-from source.GUI.creer_projet import Creer
-from source.GUI.liste_projet import Lprojet
-from source.GUI.affichage_projet import Affichage_projet
-from source.GUI.liste_blend import Lblend
+from GUI.creer_projet import Creer
+from GUI.liste_projet import Lprojet
+from GUI.affichage_projet import Affichage_projet
+from GUI.liste_blend import Lblend
 # fonction backend
-from source.program.construire_structure import structure
-from source.program.manipuler_donner import sauvegarder, charger
+from program.construire_structure import structure
+from program.manipuler_donner import sauvegarder, charger
 
 class Lanceur(QMainWindow):
     def __init__(self, parent=None):

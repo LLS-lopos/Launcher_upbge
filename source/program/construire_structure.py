@@ -1,5 +1,13 @@
 import pathlib
 import json
+import os
+import sys
+
+# Ajouter le répertoire source au PYTHONPATH si nécessaire
+if not any("source" in p for p in sys.path):
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    parent_dir = os.path.dirname(current_dir)
+    sys.path.append(parent_dir)
 
 # variable
 racine = pathlib.Path(__file__).parent.parent

@@ -1,4 +1,11 @@
 import os
+import sys
+
+# Ajouter le répertoire source au PYTHONPATH si nécessaire
+if not any("source" in p for p in sys.path):
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    parent_dir = os.path.dirname(current_dir)
+    sys.path.append(parent_dir)
 
 from pathlib import Path
 from subprocess import run
@@ -8,7 +15,7 @@ from PySide6.QtCore import (Slot, Qt)
 from PySide6.QtGui import (QIcon)
 from PIL import Image
 
-from source.program.manipuler_donner import charger, sauvegarder
+from program.manipuler_donner import charger, sauvegarder
 
 class Creer(QWidget):
     def __init__(self, save):
@@ -105,6 +112,3 @@ class Creer(QWidget):
             self.nom_projet.setText("")
             self.nom_jeu.setText("")
             sauvegarder()
-
-    
-

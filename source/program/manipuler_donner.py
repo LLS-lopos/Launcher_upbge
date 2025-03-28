@@ -1,4 +1,13 @@
 import json
+import os
+import sys
+
+# Ajouter le répertoire source au PYTHONPATH si nécessaire
+if not any("source" in p for p in sys.path):
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    parent_dir = os.path.dirname(current_dir)
+    sys.path.append(parent_dir)
+
 from .construire_structure import (
     config, linux_json, windows_json, 
     icon_json, dos_linux, 

@@ -1,9 +1,19 @@
+import os
+import sys
+
+# Ajouter le répertoire source au PYTHONPATH si nécessaire
+if not any("source" in p for p in sys.path):
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    parent_dir = os.path.dirname(current_dir)
+    sys.path.append(parent_dir)
+
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QTabWidget, QListWidget, QPushButton
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import Slot
 from pathlib import Path
-from source.program.manipuler_donner import charger, config, global_json
 import json
+
+from program.manipuler_donner import charger, config, global_json
 
 class Lprojet(QWidget):
     def __init__(self):
@@ -29,6 +39,7 @@ class Lprojet(QWidget):
         self.setFixedWidth((1280 * 0.3))
 
     def charger_tableau(self, tabeau):
+        projet = None
         try: projets = charger(tabeau)  # Charger les projets pour l'onglet spécifié # ... (le reste de votre code)
         except Exception as e: print(f"Erreur lors du chargement des projets : {e}")
         for v_projet in projets["projet"]:
@@ -37,9 +48,10 @@ class Lprojet(QWidget):
             for projet in projets["projet"][v_projet]:
                 if projet:
                     self.projets[v_projet].append(projet)  # Ajouter le projet à la liste
-                    page.addItem(Path(projet).name)  # Ajouter le nom du projet au QListWidget
-                self.tableau.addTab(page, QIcon(self.icone.get(tabeau)), str(v_projet))  # Ajouter la page au widget d'onglets
-            page.itemClicked.connect(lambda item, chemin=Path(projet).parent: self.projet_selectionner(item, chemin))  # Connecter le signal de clic sur l'élément
+                    item = page.addItem(Path(projet).name)  # Ajouter le nom du projet au QListWidget
+                    chemin_projet = Path(projet).parent
+                    page.itemClicked.connect(lambda item=item, chemin=chemin_projet: self.projet_selectionner(item, chemin))  # Connecter le signal de clic sur l'élément
+            self.tableau.addTab(page, QIcon(self.icone.get(tabeau)), str(v_projet))  # Ajouter la page au widget d'onglets
 
     @Slot()
     def projet_selectionner(self, item, chemin):
