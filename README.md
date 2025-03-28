@@ -30,4 +30,13 @@ python3 -m source.lanceur
 ## Liste de fichier .blend
 ![](./info/img-4.jpg)
 ---
+# Linux
+utilisation de wine pour les projets sous Windows
+
+```bash
+sudo dpkg --add-architecture i386
+sudo apt update
+sudo apt install wine64 wine32 wine winetricks
+```
+---
 Projet en cours de conception
