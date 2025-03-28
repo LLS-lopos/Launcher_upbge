@@ -62,7 +62,7 @@ class Creer(QWidget):
         for i in d_2:
             dos = d_1 / i
             dos.mkdir(exist_ok=True)
-        d_3 = ["Modèle3D", "Scripts", "Textures", "Audio", "Police d'écriture"]
+        d_3 = ["Modèle3D", "Scripts", "Textures", "Audio", "Police d'écriture", "Licences"]
         for i in d_3:
             dos = d_1 / d_2[0] / i
             dos.mkdir(exist_ok=True)
@@ -74,6 +74,8 @@ class Creer(QWidget):
         for i in d_audio:
             dos = d_1 / d_2[0] / d_3[3] / i
             dos.mkdir(exist_ok=True)
+        credit = d_1 / d_2[0] / d_3[-1] / "crédits.txt"
+        credit.touch(exist_ok=True)
         return
 
     @Slot()
