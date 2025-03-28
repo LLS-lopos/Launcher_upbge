@@ -2,12 +2,14 @@ from pathlib import Path
 from subprocess import run
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QTabWidget, QListWidget, QPushButton
 from PySide6.QtGui import QIcon
+from PySide6.QtCore import QTimer
 
 from source.program.manipuler_donner import charger
 
 class Lblend(QWidget):
     def __init__(self):
         super().__init__()
+        self.old_global = None
         self.lister = []
         tableau = QTabWidget(self)
         #page
@@ -18,9 +20,6 @@ class Lblend(QWidget):
         # charger le tableau des que charger_blend est mis à jour
         tableau.currentChanged.connect(self.charger_blend)
         
-        # Bouton charger liste blend
-        b_blend = QPushButton("recharger liste")
-        b_blend.clicked.connect(self.charger_blend)
         # Bouton Editer Fichier
         b_edition = QPushButton("Edition Fichier")
         b_edition.clicked.connect(self.edition_projet)
@@ -29,12 +28,22 @@ class Lblend(QWidget):
         b_test.clicked.connect(self.tester_fichier)
 
         layout = QVBoxLayout()
-        layout.addWidget(b_blend)
         layout.addWidget(tableau)
         layout.addWidget(b_edition)
         layout.addWidget(b_test)
         self.setLayout(layout)
         self.setFixedWidth((1280*0.2))
+
+        # Configurer le timer
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.check_global)  # Connecter le signal timeout à la méthode check_global
+        self.timer.start(60)  # Vérifier toutes les secondes (1000 ms)
+    
+    def check_global(self):
+        self.f_global = charger("global")  # Charger la valeur actuelle de f_global
+        if self.f_global != self.old_global:  # Vérifier si f_global a changé
+            self.old_global = self.f_global  # Mettre à jour la valeur précédente
+            self.charger_blend()  # Recharger l'affichage complet
     
     def charger_blend(self):
         self.lister.clear()
@@ -43,22 +52,17 @@ class Lblend(QWidget):
         for p in self.f_global:
             if self.f_global["p_actif"]:
                 p = self.f_global["p_actif"]
-                print(f"chemin: {self.f_global['p_actif']}")
                 projet = Path(p)
                 break
         if projet:
             l_p = list(projet.glob('**/*.blend'))
             self.lister = l_p
-            print(f"Fichiers trouvés : {self.lister}")  # Débogage
             self.update_list_widget()
-        else:
-            print("Aucun projet actif trouvé.")  # Débogage
 
     def update_list_widget(self):
         self.p1.clear()  # Clear the current items
         for item in self.lister:
             self.p1.addItem(Path(item).name)  # Add the new items
-        print(f"Liste mise à jour avec {len(self.lister)} éléments.")  # Débogage
     
     def tester_fichier(self):
         id_selectionner = self.p1.selectedIndexes()
@@ -117,7 +121,6 @@ class Lblend(QWidget):
                                 commande.append("Z:" + Path(moteur_windows["executable"][cle]).as_posix())  # Chemin de l'exécutable
                                 i = ("Z:" + str(Path(i)).replace("/", "\\"))  # Chemin du fichier .blend
                     commande.append(i)
-            print(commande)
             run(commande, check=True)
 
     def edition_projet(self):
@@ -151,7 +154,7 @@ class Lblend(QWidget):
                         for cle in moteur_linux["executable"]:
                             if cle == "Linux-Range":
                                 moteur = moteur_linux["executable"][cle]
-                                commande.append(moteur)  #######################
+                                commande.append(moteur) 
                     elif parties[base:base+3] == ['source', 'Windows', '2x']:
                         for cle in moteur_windows["executable"]:
                             if cle == "Windows-2x":
@@ -177,7 +180,6 @@ class Lblend(QWidget):
                                 commande.append("Z:" + Path(moteur_windows["executable"][cle]).as_posix())  # Chemin de l'exécutable
                                 i = ("Z:" + str(Path(i)).replace("/", "\\"))  # Chemin du fichier .blend
                     commande.append(i)
-            print(commande)
             run(commande, check=True)
 
         
