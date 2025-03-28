@@ -39,4 +39,13 @@ sudo apt update
 sudo apt install wine64 wine32 wine winetricks
 ```
 ---
+# Construction du projet
+```bash
+mkdir nuitka_build && cd nuitka_build
+# construction standalone
+nuitka3 --standalone --plugin-enable=pyside6 ../source/lanceur.py --include-data-files=../source/data/Moteur/*.svg=./data/Moteur/ --include-package=GUI --include-package=program
+# construction onefile
+nuitka3 --onefile --plugin-enable=pyside6 ../source/lanceur.py --include-data-files=../source/data/Moteur/*.svg=./data/Moteur/ --include-package=GUI --include-package=program
+```
+---
 Projet en cours de conception
