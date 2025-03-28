@@ -129,14 +129,16 @@ class Affichage_projet(QWidget):
             for cle, valeur in f_global.items():
                 if cle == "p_actif":
                     dos = Path(valeur)
-                    #description.txt et Crédits.txt
+                    # description.txt et Crédits.txt
                     txt = list(dos.glob("**/*.txt"))
-                    print(txt)
+                    # print(txt)
 
-                    """if description_file.is_file():
+                    """
+                    if description_file.is_file():
                         with open(description_file, "r") as f:
                             description_text = f.read()
                             description_label = QLabel(description_text)
-                        widget.addWidget(description_label)"""
+                        widget.addWidget(description_label)
+                    """
         return widget
 

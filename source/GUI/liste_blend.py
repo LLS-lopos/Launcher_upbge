@@ -82,48 +82,48 @@ class Lblend(QWidget):
                 if Path(i).name == obj_selectionner:
                     chemin = Path(i).resolve()
                     parties = list(chemin.parts)
-                    base = parties.index('source')
+                    base = parties.index('data')
                     moteur_linux = charger("linux")
                     moteur_windows = charger("windows")
-                    if parties[base:base+3] == ['source', 'Linux', '2x']:
+                    if parties[base:base+3] == ['data', 'Linux', '2x']:
                         for cle in moteur_linux["executable"]:
                             if cle == "game-2x":
                                 moteur = moteur_linux["executable"][cle]
                                 commande.append(moteur)
-                    elif parties[base:base+3] == ['source', 'Linux', '3x']:
+                    elif parties[base:base+3] == ['data', 'Linux', '3x']:
                         for cle in moteur_linux["executable"]:
                             if cle == "game-3x":
                                 moteur = moteur_linux["executable"][cle]
                                 commande.append(moteur)
-                    elif parties[base:base+3] == ['source', 'Linux', '4x']:
+                    elif parties[base:base+3] == ['data', 'Linux', '4x']:
                         for cle in moteur_linux["executable"]:
                             if cle == "game-4x":
                                 moteur = moteur_linux["executable"][cle]
                                 commande.append(moteur)
-                    elif parties[base:base+3] == ['source', 'Linux', 'Range']:
+                    elif parties[base:base+3] == ['data', 'Linux', 'Range']:
                         for cle in moteur_linux["executable"]:
                             if cle == "game-L-Range":
                                 moteur = moteur_linux["executable"][cle]
-                                commande.append(moteur) #################""
-                    elif parties[base:base+3] == ['source', 'Windows', '2x']:
+                                commande.append(moteur) 
+                    elif parties[base:base+3] == ['data', 'Windows', '2x']:
                         for cle in moteur_windows["executable"]:
                             if cle == "game-2x":
                                 commande.append("wine")
                                 commande.append("Z:" + Path(moteur_windows["executable"][cle]).as_posix())  # Chemin de l'exécutable
                                 i = ("Z:" + str(Path(i)).replace("/", "\\"))  # Chemin du fichier .blend
-                    elif parties[base:base+3] == ['source', 'Windows', '3x']:
+                    elif parties[base:base+3] == ['data', 'Windows', '3x']:
                         for cle in moteur_windows["executable"]:
                             if cle == "game-3x":
                                 commande.append("wine")
                                 commande.append("Z:" + Path(moteur_windows["executable"][cle]).as_posix())  # Chemin de l'exécutable
                                 i = ("Z:" + str(Path(i)).replace("/", "\\"))  # Chemin du fichier .blend
-                    elif parties[base:base+3] == ['source', 'Windows', '4x']:
+                    elif parties[base:base+3] == ['data', 'Windows', '4x']:
                         for cle in moteur_windows["executable"]:
                             if cle == "game-4x":
                                 commande.append("wine")
                                 commande.append("Z:" + Path(moteur_windows["executable"][cle]).as_posix())  # Chemin de l'exécutable
                                 i = ("Z:" + str(Path(i)).replace("/", "\\"))  # Chemin du fichier .blend
-                    elif parties[base:base+3] == ['source', 'Windows', 'Range']:
+                    elif parties[base:base+3] == ['data', 'Windows', 'Range']:
                         for cle in moteur_windows["executable"]:
                             if cle == "game-W-Range":
                                 commande.append("wine")
@@ -141,48 +141,48 @@ class Lblend(QWidget):
                 if Path(i).name == obj_selectionner:
                     chemin = Path(i).resolve()
                     parties = list(chemin.parts)
-                    base = parties.index('source')
+                    base = parties.index('data')
                     moteur_linux = charger("linux")
                     moteur_windows = charger("windows")
-                    if parties[base:base+3] == ['source', 'Linux', '2x']:
+                    if parties[base:base+3] == ['data', 'Linux', '2x']:
                         for cle in moteur_linux["executable"]:
                             if cle == "Linux-2x":
                                 moteur = moteur_linux["executable"][cle]
                                 commande.append(moteur)
-                    elif parties[base:base+3] == ['source', 'Linux', '3x']:
+                    elif parties[base:base+3] == ['data', 'Linux', '3x']:
                         for cle in moteur_linux["executable"]:
                             if cle == "Linux-3x":
                                 moteur = moteur_linux["executable"][cle]
                                 commande.append(moteur)
-                    elif parties[base:base+3] == ['source', 'Linux', '4x']:
+                    elif parties[base:base+3] == ['data', 'Linux', '4x']:
                         for cle in moteur_linux["executable"]:
                             if cle == "Linux-4x":
                                 moteur = moteur_linux["executable"][cle]
                                 commande.append(moteur)
-                    elif parties[base:base+3] == ['source', 'Linux', 'Range']:
+                    elif parties[base:base+3] == ['data', 'Linux', 'Range']:
                         for cle in moteur_linux["executable"]:
                             if cle == "Linux-Range":
                                 moteur = moteur_linux["executable"][cle]
                                 commande.append(moteur) 
-                    elif parties[base:base+3] == ['source', 'Windows', '2x']:
+                    elif parties[base:base+3] == ['data', 'Windows', '2x']:
                         for cle in moteur_windows["executable"]:
                             if cle == "Windows-2x":
                                 commande.append("wine")
                                 commande.append("Z:" + Path(moteur_windows["executable"][cle]).as_posix())  # Chemin de l'exécutable
                                 i = ("Z:" + str(Path(i)).replace("/", "\\"))  # Chemin du fichier .blend
-                    elif parties[base:base+3] == ['source', 'Windows', '3x']:
+                    elif parties[base:base+3] == ['data', 'Windows', '3x']:
                         for cle in moteur_windows["executable"]:
                             if cle == "Windows-3x":
                                 commande.append("wine")
                                 commande.append("Z:" + Path(moteur_windows["executable"][cle]).as_posix())  # Chemin de l'exécutable
                                 i = ("Z:" + str(Path(i)).replace("/", "\\"))  # Chemin du fichier .blend
-                    elif parties[base:base+3] == ['source', 'Windows', '4x']:
+                    elif parties[base:base+3] == ['data', 'Windows', '4x']:
                         for cle in moteur_windows["executable"]:
                             if cle == "Windows-4x":
                                 commande.append("wine")
                                 commande.append("Z:" + Path(moteur_windows["executable"][cle]).as_posix())  # Chemin de l'exécutable
                                 i = ("Z:" + str(Path(i)).replace("/", "\\"))  # Chemin du fichier .blend
-                    elif parties[base:base+3] == ['source', 'Windows', 'Range']:
+                    elif parties[base:base+3] == ['data', 'Windows', 'Range']:
                         for cle in moteur_windows["executable"]:
                             if cle == "Windows-Range":
                                 commande.append("wine")

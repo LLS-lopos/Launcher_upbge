@@ -37,14 +37,16 @@ class Creer(QWidget):
         for cle in self.linux:
             if cle == "executable":
                 for p in self.linux[cle]:
-                    if p.startswith("Linux"):
-                        self.liste_moteur.addItem(QIcon(icone.get("linux")), p)
+                    if Path(self.linux[cle][p]).exists():
+                        if p.startswith("Linux"):
+                            self.liste_moteur.addItem(QIcon(icone.get("linux")), p)
         self.windows = charger("windows")
         for cle in self.windows:
             if cle == "executable":
                 for p in self.windows[cle]:
-                    if p.startswith("Windows"):
-                        self.liste_moteur.addItem(QIcon(icone.get("windows")), p)
+                    if Path(self.windows[cle][p]).exists():
+                        if p.startswith("Windows"):
+                            self.liste_moteur.addItem(QIcon(icone.get("windows")), p)
 
         b_creer_projet = QPushButton("créer")
         b_creer_projet.setStatusTip("Création du projet")
@@ -92,7 +94,7 @@ class Creer(QWidget):
         moteur = self.liste_moteur.currentText()
         n_moteur = moteur.rsplit("-", 1)[0].lower()
         if projet and nom:
-            self.dos_p = Path(f"source/{moteur.replace('-', '/')}/{projet}")
+            self.dos_p = Path(f"data/{moteur.replace('-', '/')}/{projet}")
             self.dos_p.mkdir(parents=True, exist_ok=True)
             self.projet_structure()
             fichier = self.dos_p / f"{nom}.blend"

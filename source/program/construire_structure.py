@@ -12,9 +12,10 @@ if not any("source" in p for p in sys.path):
 # variable
 racine = pathlib.Path(__file__).parent.parent
 config = pathlib.Path.home() / ".LanceurUpBGE"
-dos_moteur = racine / "Moteur"
-dos_linux = racine / "Linux"
-dos_windows = racine / "Windows"
+source = racine / "data"
+dos_moteur = source / "Moteur"
+dos_linux = source / "Linux"
+dos_windows = source / "Windows"
 linux_json = "config_linux.json"
 windows_json = "config_windows.json"
 icon_json = "config_icon.json"
@@ -71,6 +72,7 @@ icon = {
 
 def structure():
     # Construction du dossier de projet Linux et des répertoire de version
+    if not source.exists(): source.mkdir(exist_ok=True)
     if not dos_linux.exists(): dos_linux.mkdir(exist_ok=True)
     for version_l in ["2x", "3x", "4x", "Range"]:
         chemin_l = dos_linux / version_l

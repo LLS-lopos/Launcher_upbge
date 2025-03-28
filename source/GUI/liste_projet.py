@@ -39,7 +39,7 @@ class Lprojet(QWidget):
         self.setFixedWidth((1280 * 0.3))
 
     def charger_tableau(self, tabeau):
-        projet = None
+        #projet = None
         try: projets = charger(tabeau)  # Charger les projets pour l'onglet spécifié # ... (le reste de votre code)
         except Exception as e: print(f"Erreur lors du chargement des projets : {e}")
         for v_projet in projets["projet"]:
@@ -51,7 +51,7 @@ class Lprojet(QWidget):
                     item = page.addItem(Path(projet).name)  # Ajouter le nom du projet au QListWidget
                     chemin_projet = Path(projet).parent
                     page.itemClicked.connect(lambda item=item, chemin=chemin_projet: self.projet_selectionner(item, chemin))  # Connecter le signal de clic sur l'élément
-            self.tableau.addTab(page, QIcon(self.icone.get(tabeau)), str(v_projet))  # Ajouter la page au widget d'onglets
+                self.tableau.addTab(page, QIcon(self.icone.get(tabeau)), str(v_projet))  # Ajouter la page au widget d'onglets
 
     @Slot()
     def projet_selectionner(self, item, chemin):

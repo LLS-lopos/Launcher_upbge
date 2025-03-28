@@ -1,4 +1,3 @@
-# This Python file uses the following encoding: utf-8
 import sys
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QGridLayout, QCheckBox, QWidgetAction
 from PySide6.QtCore import Slot
