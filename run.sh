@@ -4,7 +4,7 @@
 if [ -d ".venv" ]; then
     echo "Activation de l'environnement Python"
     source .venv/bin/activate
-    
+
     # Ajouter le répertoire parent au PYTHONPATH
     export PYTHONPATH="$PYTHONPATH:$PWD"
 
@@ -23,7 +23,7 @@ if [ -d ".venv" ]; then
         echo "Échec de l'activation de l'environnement Python."
     fi
 else
-    echo "L'environnement virtuel n'existe pas. Installation des dépendances globalement..."
+    echo "Pas d'environnement virtuel existant. Installation des dépendances..."
     
     # Vérifier si le fichier de dépendances existe
     if [ -f "dependence.txt" ]; then
@@ -42,5 +42,4 @@ else
         echo "Erreur lors du démarrage du logiciel."
     fi
 fi
-
 echo "Fermeture Lanceur"
