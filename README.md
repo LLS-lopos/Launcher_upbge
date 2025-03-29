@@ -7,6 +7,8 @@ un lanceur et gestionnaire de projet UP(BGE)
     - pour la documentation:
         - sphinx
         - furo
+    - pour créer un exécutable:
+        - nuitka
 
 utilisez la commande suivante:
 ```
