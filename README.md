@@ -20,15 +20,6 @@ python3 -m source.lanceur
 ```
 ## interface
 ![](./info/img-1.jpg)
-
-## Zone de création de nouveau projet
-![](./info/img-2.jpg)
-
-## Liste de projet
-![](./info/img-3.jpg)
-
-## Liste de fichier .blend
-![](./info/img-4.jpg)
 ---
 # Linux
 utilisation de wine pour les projets sous Windows
@@ -49,5 +40,9 @@ mkdir nuitka_build && cd nuitka_build
 # construction
 nuitka3 --standalone --plugin-enable=pyside6 ../source/lanceur.py --include-data-files=../source/data/Moteur/*.svg=./data/Moteur/ --include-package=GUI --include-package=program
 ```
+# TODO
+
+- ajouter un support blender
+- rendre plus efficace la reconnaissance des exécutable logiciel
 ---
 Projet en cours de conception
