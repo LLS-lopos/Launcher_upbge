@@ -43,8 +43,7 @@ sudo apt install wine64 wine32 wine winetricks
 ```bash
 # cloner le projet
 git clone https://github.com/LLS-lopos/Launcher_upbge.git
-# naviguer dans le pr
-
+# naviguer dans le projet
 cd Launcher_upbge
 mkdir nuitka_build && cd nuitka_build
 # construction
