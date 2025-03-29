@@ -11,13 +11,14 @@ from pathlib import Path
 from subprocess import run
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QTabWidget, QListWidget, QPushButton
 from PySide6.QtGui import QIcon
-from PySide6.QtCore import QTimer
+from PySide6.QtCore import QTimer, Qt
 
 from program.manipuler_donner import charger
 
 class Lblend(QWidget):
-    def __init__(self):
+    def __init__(self, save):
         super().__init__()
+        self.save = save
         self.old_global = None
         self.lister = []
         tableau = QTabWidget(self)
@@ -130,7 +131,15 @@ class Lblend(QWidget):
                                 commande.append("Z:" + Path(moteur_windows["executable"][cle]).as_posix())  # Chemin de l'exécutable
                                 i = ("Z:" + str(Path(i)).replace("/", "\\"))  # Chemin du fichier .blend
                     commande.append(i)
-            run(commande, check=True)
+            if self.save.checkState() == Qt.Unchecked:
+                try: run(commande, check=True)
+                except: print("active commande de sauvetage dans le menu Option ;)")
+            if self.save.checkState() == Qt.Checked:
+                try:
+                    env = os.environ.copy()
+                    env["LIBGL_ALWAYS_SOFTWARE"] = "1"
+                    run(commande, check=True, env=env)
+                except: print("Dommage mais ne marche pas XD")
 
     def edition_projet(self):
         id_selectionner = self.p1.selectedIndexes()
@@ -189,6 +198,12 @@ class Lblend(QWidget):
                                 commande.append("Z:" + Path(moteur_windows["executable"][cle]).as_posix())  # Chemin de l'exécutable
                                 i = ("Z:" + str(Path(i)).replace("/", "\\"))  # Chemin du fichier .blend
                     commande.append(i)
-            run(commande, check=True)
-
-        
+            if self.save.checkState() == Qt.Unchecked:
+                try: run(commande, check=True)
+                except: print("active commande de sauvetage dans le menu Option ;)")
+            if self.save.checkState() == Qt.Checked:
+                try:
+                    env = os.environ.copy()
+                    env["LIBGL_ALWAYS_SOFTWARE"] = "1"
+                    run(commande, check=True, env=env)
+                except: print("Dommage mais ne marche pas XD")

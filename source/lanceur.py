@@ -36,7 +36,7 @@ class Lanceur(QMainWindow):
         grille.addWidget(Creer(self.commande_secourre), 0, 0, 1, 3)
         grille.addWidget(Lprojet(), 1, 0, 1, 1)
         grille.addWidget(Affichage_projet(), 1, 1, 1, 1)
-        grille.addWidget(Lblend(), 1, 2, 1, 1)
+        grille.addWidget(Lblend(self.commande_secourre), 1, 2, 1, 1)
 
     def barre_menu(self):
         self.barreMenu = self.menuBar()  # créer la barre de menu
