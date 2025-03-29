@@ -7,7 +7,7 @@ if not any("source" in p for p in sys.path):
     parent_dir = os.path.dirname(current_dir)
     sys.path.append(parent_dir)
 
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QScrollArea
 from PySide6.QtCore import QTimer, Qt
 from PySide6.QtGui import QPixmap
 from pathlib import Path
@@ -21,7 +21,20 @@ class Affichage_projet(QWidget):
 
         # Créer un QVBoxLayout pour contenir la mise en page
         self.affiche = QVBoxLayout()
-        self.setLayout(self.affiche)  # Définir la mise en page principale pour le widget
+
+        self.area = QScrollArea()
+        self.area.setWidgetResizable(True)
+        self.area.setLayout(self.affiche)
+
+        # Créer un widget conteneur pour le QScrollArea
+        container_widget = QWidget()
+        container_widget.setLayout(self.affiche)  # Appliquer le layout au widget conteneur
+        self.area.setWidget(container_widget)  # Définir le widget conteneur comme le widget du QScrollArea
+        # Ajouter le QScrollArea au layout principal
+        layout = QVBoxLayout()
+        layout.addWidget(self.area)  # Ajouter le QScrollArea au layout principal
+
+        self.setLayout(layout)  # Définir la mise en page principale pour le widget
         self.setFixedWidth((1280*0.5))
         
         # Configurer le timer
@@ -45,7 +58,7 @@ class Affichage_projet(QWidget):
         
         # Recharger le contenu
         self.affiche.addLayout(self.titre())  # Ajouter le titre
-        self.affiche.addLayout(self.illustration())  # Ajouter les images
+        self.affiche.addWidget(self.illustration())  # Ajouter les images
         self.affiche.addLayout(self.description())  # Ajouter la description
 
     def clear_layout(self, layout):
@@ -105,9 +118,16 @@ class Affichage_projet(QWidget):
         return widget
 
     def illustration(self):  # afficher les images d'illustration de projet
-        widget = QHBoxLayout()
+        widget = QScrollArea()
+        widget.setWidgetResizable(True)
+        widget.setFixedHeight(300)
+
+        conteneur = QWidget()
+        boite_h = QHBoxLayout(conteneur)
+        boite_h.setContentsMargins(0, 0, 0, 0)
+        boite_h.setSpacing(10)
+
         f_global = charger("global")
-        
         if f_global:
             for cle, valeur in f_global.items():
                 if cle == "p_actif":
@@ -116,10 +136,12 @@ class Affichage_projet(QWidget):
                     jpg = list(dos.glob("*.jpg"))
                     for i in png + jpg:
                         icone = QLabel()
-                        icone.setFixedSize(400, 400)
-                        png_pixmap = QPixmap(str(i)).scaled(400, 400, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                        png_pixmap = QPixmap(str(i)).scaled(500, 500, Qt.KeepAspectRatio, Qt.SmoothTransformation)
                         icone.setPixmap(png_pixmap)
-                        widget.addWidget(icone)
+                        icone.setAlignment(Qt.AlignCenter)
+                        boite_h.addWidget(icone)
+        conteneur.setLayout(boite_h)
+        widget.setWidget(conteneur)
         return widget
 
     def description(self):  # afficher les information du fichier de description.txt et Crédits.txt si il existe
@@ -131,14 +153,23 @@ class Affichage_projet(QWidget):
                     dos = Path(valeur)
                     # description.txt et Crédits.txt
                     txt = list(dos.glob("**/*.txt"))
-                    # print(txt)
-
-                    """
-                    if description_file.is_file():
-                        with open(description_file, "r") as f:
-                            description_text = f.read()
-                            description_label = QLabel(description_text)
-                        widget.addWidget(description_label)
-                    """
+                    for fichier in txt:
+                        if fichier.name == "description.txt":
+                            titre = QLabel("Description\n==========")
+                            titre.setStyleSheet("font-size: 20px;")
+                            widget.addWidget(titre)
+                            with open(str(fichier), "r") as f:
+                                id_text = f.readlines()
+                                for ligne in id_text:
+                                    text = QLabel(ligne)
+                                    widget.addWidget(text)
+                        if fichier.name == "crédits.txt":
+                            titre = QLabel("Credits\n========")
+                            titre.setStyleSheet("font-size: 20px;")
+                            widget.addWidget(titre)
+                            with open(str(fichier), "r") as f:
+                                id_text = f.readlines()
+                                for ligne in id_text:
+                                    text = QLabel(ligne)
+                                    widget.addWidget(text)
         return widget
-
