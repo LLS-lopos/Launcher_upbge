@@ -41,11 +41,14 @@ sudo apt install wine64 wine32 wine winetricks
 ---
 # Construction du projet
 ```bash
+# cloner le projet
+git clone https://github.com/LLS-lopos/Launcher_upbge.git
+# naviguer dans le pr
+
+cd Launcher_upbge
 mkdir nuitka_build && cd nuitka_build
-# construction standalone
+# construction
 nuitka3 --standalone --plugin-enable=pyside6 ../source/lanceur.py --include-data-files=../source/data/Moteur/*.svg=./data/Moteur/ --include-package=GUI --include-package=program
-# construction onefile
-nuitka3 --onefile --plugin-enable=pyside6 ../source/lanceur.py --include-data-files=../source/data/Moteur/*.svg=./data/Moteur/ --include-package=GUI --include-package=program
 ```
 ---
 Projet en cours de conception
