@@ -16,7 +16,7 @@ pip install -r dependence.txt
 ## Utilisation
 
 ```
-python3 -m source.lanceur
+python3 source/lanceur.py
 ```
 ## interface
 ![](./info/img-1.jpg)
