@@ -110,7 +110,7 @@ class Affichage_projet(QWidget):
                     # Prendre le premier fichier blend trouvé
                     project_name = blend_files[0].stem  # Nom sans extension
                     
-                titre.setText(f"{prefix} || Jeu : {project_path.name} || Projet : {project_name}")
+                titre.setText(f"{prefix} || Projet : {project_path.name} || Jeu : {project_name}")
                 break  # Sortir après le premier projet valide
 
         widget.addWidget(icone)
