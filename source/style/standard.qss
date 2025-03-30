@@ -1,0 +1,21 @@
+QApplication {
+    color: purple
+}
+QMainWindow {}
+
+QWidget {}
+
+QHBoxLayout, QVBoxLayout {}
+
+QScrollArea {}
+QListWidget {}
+QTabWidget {}
+QGridLayout {}
+
+QPushButton { color: red }
+QLineEdit {}
+QComboBox { color: blue }
+QCheckBox {}
+QLabel {}
+
+QWidgetAction {}
