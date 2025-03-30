@@ -8,6 +8,7 @@ from GUI.creer_projet import Creer
 from GUI.liste_projet import Lprojet
 from GUI.affichage_projet import Affichage_projet
 from GUI.liste_blend import Lblend
+from GUI.theme import Theme
 # fonction backend
 from program.construire_structure import structure
 from program.manipuler_donner import sauvegarder, charger
@@ -30,8 +31,6 @@ class Lanceur(QMainWindow):
         self.barre_status()
 
         grille = QGridLayout(zone_centre)
-        grille.setSpacing(2)
-        grille.setContentsMargins(2, 2, 2, 2)
 
         grille.addWidget(Creer(self.commande_secourre), 0, 0, 1, 3)
         grille.addWidget(Lprojet(), 1, 0, 1, 1)
@@ -43,6 +42,9 @@ class Lanceur(QMainWindow):
         # sous menu
         Menu_fichier = self.barreMenu.addMenu("&Fichier")
         Menu_option = self.barreMenu.addMenu("&Option")
+        #############Theme menu réutilisable#############
+        menu_theme = Theme()
+        self.barreMenu.addMenu(menu_theme)
         # bouton quitter
         act_quitter = QAction(QIcon(""), "&Quitter", self)
         act_quitter.setStatusTip("Fermer le lanceur")

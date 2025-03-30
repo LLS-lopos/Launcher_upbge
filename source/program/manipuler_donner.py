@@ -12,7 +12,7 @@ from .construire_structure import (
     config, linux_json, windows_json, 
     icon_json, dos_linux, 
     dos_moteur, dos_windows,
-    global_json,
+    global_json, config_json,
     )
 
 def sauvegarder():
@@ -90,7 +90,6 @@ def sauvegarder():
     with open((config / windows_json), "w", encoding="utf-8") as f: json.dump(windows, f, indent=4)
     with open((config / icon_json), "w", encoding="utf-8") as f: json.dump(icon, f, indent=4)
 
-
 def charger(element):
     if element == "linux":
         with open((config / linux_json), "r") as f:
@@ -108,4 +107,8 @@ def charger(element):
         with open((config / global_json), "r") as f:
             glob = json.load(f)
         return glob
-    else: print("choix possible: [linux, windows, icon]")
+    elif element == "config":
+        with open((config / config_json), "r") as f:
+            conf = json.load(f)
+        return conf
+    else: print("choix possible: [linux, windows, icon, global, config]")

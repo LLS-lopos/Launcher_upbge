@@ -20,6 +20,7 @@ linux_json = "config_linux.json"
 windows_json = "config_windows.json"
 icon_json = "config_icon.json"
 global_json = "config_global.json"
+config_json = "config.json"
 
 # Dictionnaires pour stocker les informations sur les projets et les exécutables
 linux = {
@@ -69,6 +70,9 @@ icon = {
     "upbge": "",
     "range": "",
 }
+configuration = {
+    "theme": ""
+}
 
 def structure():
     # Construction du dossier de projet Linux et des répertoire de version
@@ -92,7 +96,7 @@ def structure():
     with open((config / windows_json), "w", encoding="utf-8") as f: json.dump(windows, f, indent=4)
     with open((config / icon_json), "w", encoding="utf-8") as f: json.dump(icon, f, indent=4)
     with open((config / global_json), "w", encoding="utf-8") as f: json.dump("", f, indent=4)
-
+    with open((config / config_json), "w", encoding="utf-8") as f: json.dump(configuration, f, indent=4)
 
 if __name__ == "__main__":
     structure()
