@@ -11,13 +11,9 @@ QMenu, QCheckBox {
     padding: 4px;
 }
 
-/*-----QMenuBar-----*/
-QMenuBar {
-    background-color: #ff8500;
-    color: blue;
-}
-QStatusBar {
-    background-color: #ff8500;
+/*-----QMenuBar QStatusBar-----*/
+QMenuBar, QStatusBar {
+    background-color:rgb(223, 108, 0);
     color: blue;
 }
 
@@ -28,15 +24,13 @@ QListWidget, QTabWidget, QTabBar {
     background-color: rgba(45, 45, 45, 0.2);
     color: red;
 }
-QListWidget::item, QTabWidget::item, QTabBar::item {
+QListWidget::item, QTabWidget::item {
     border: 2px solid rgb(28, 150, 79);
-    border-style: solid;
-    border-radius: 6px;
+    border-radius: 4px;
     padding: 2px;
 }
-QListWidget::item:selected, QTabWidget::item:selected, QTabBar::item:selected  {
+QListWidget::item:selected, QTabWidget::item:selected  {
     background-color: #b78620;
-
 	color: #fff;
 }
 
