@@ -88,7 +88,6 @@ class Theme(QMenu):
         app.setStyle(None)
         app.setStyleSheet(stream.readAll())
         file.close()
-        print(f"{qssFileName} applied")
         self.enregistrer_theme(qssFileName)
 
     @Slot()
@@ -98,7 +97,6 @@ class Theme(QMenu):
         app = QApplication.instance()
         app.setStyleSheet(None)
         app.setStyle(QStyleFactory.create(themeName))
-        print(f"{themeName} style applied")
         self.enregistrer_theme(themeName)
 
     def charger_theme(self, themeName):
@@ -109,12 +107,10 @@ class Theme(QMenu):
                 stream = QTextStream(file)
                 app.setStyleSheet(stream.readAll())
                 file.close()
-                print(f"{themeName} style applied")
             else:
                 print(f"Erreur lors de l'ouverture du fichier {themeName}")
         else:
             app.setStyle(QStyleFactory.create(themeName))
-            print(f"{themeName} style applied")
 
     def enregistrer_theme(self, themeName):
         """Enregistre le thème dans le fichier de configuration."""
