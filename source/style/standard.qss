@@ -1,21 +1,88 @@
-QApplication {
-    color: purple
+/*-----QMainWindow-----*/
+QMainWindow {
+    background-color: rgb(45, 45, 45);
 }
-QMainWindow {}
 
-QWidget {}
+/*-----QMenu-----*/
+QMenu, QCheckBox {
+    background-color: rgb(78, 78, 78);
+    color: rgb(0, 152, 199);
+    border-radius: 8px;
+    padding: 4px;
+}
 
-QHBoxLayout, QVBoxLayout {}
+/*-----QMenuBar-----*/
+QMenuBar {
+    background-color: #ff8500;
+    color: blue;
+}
+QStatusBar {
+    background-color: #ff8500;
+    color: blue;
+}
 
-QScrollArea {}
-QListWidget {}
-QTabWidget {}
-QGridLayout {}
+QScrollArea {
+    background-color: #000;
+}
+QListWidget, QTabWidget, QTabBar {
+    background-color: rgba(45, 45, 45, 0.2);
+    color: red;
+}
+QListWidget::item, QTabWidget::item, QTabBar::item {
+    border: 2px solid rgb(28, 150, 79);
+    border-style: solid;
+    border-radius: 6px;
+    padding: 2px;
+}
+QListWidget::item:selected, QTabWidget::item:selected, QTabBar::item:selected  {
+    background-color: #b78620;
 
-QPushButton { color: red }
-QLineEdit {}
-QComboBox { color: blue }
-QCheckBox {}
-QLabel {}
+	color: #fff;
+}
 
-QWidgetAction {}
+/*-----QPushButton-----*/
+QPushButton {
+    background-color: rgb(20, 20, 20);
+    color: rgb(0, 152, 199);
+    border-style: solid;
+    border-radius: 8px;
+    padding: 6px;
+}
+QPushButton::hover {
+    background-color:rgba(255, 0, 0, 0.4);
+	border: 2px solid #ff8500;
+    color: red;
+}
+QPushButton::pressed{
+    background-color: rgba(0, 255, 0, 0.4);
+	border: 2px solid #ff8500;
+    color: lightgreen;
+}
+
+/*-----QLineEdit-----*/
+QLineEdit {
+    color: rgb(0, 152, 199);
+    background-color: rgb(20, 20, 20);
+    border-radius: 8px;
+    padding: 4px;
+}
+
+/*-----QComboBox-----*/
+QComboBox {
+    background-color: rgb(20, 20, 20);
+    color: rgb(0, 152, 199);
+    border: 2px solid #000;
+    border-radius: 8px;
+    padding: 4px;
+}
+QComboBox:on
+{
+    background-color:rgb(168, 0, 0);
+	color: #85ff00;
+}
+
+/*-----QLabel-----*/
+QLabel {
+    background-color: transparent;
+    color: rgb(0, 136, 248);
+}
