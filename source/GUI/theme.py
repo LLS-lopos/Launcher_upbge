@@ -28,7 +28,6 @@ class Theme(QMenu):
 
         # On récupère le theme de démarrage
         app = QApplication.instance()
-        print(choix_theme)
         if choix_theme.get("theme"):
             currentTheme = choix_theme.get("theme")
         else:
