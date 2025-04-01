@@ -130,12 +130,15 @@ class Lblend(QWidget):
                                 commande.append("wine")
                                 commande.append("Z:" + Path(moteur_windows["executable"][cle]).as_posix())  # Chemin de l'exécutable
                                 i = ("Z:" + str(Path(i)).replace("/", "\\"))  # Chemin du fichier .blend
-                    commande.append(i)
+                    commande.append(str(i))
             if self.save.checkState() == Qt.Unchecked:
-                try: run(commande, check=True)
-                except: print("active commande de sauvetage dans le menu Option ;)")
+                try:
+                    os.system(f"nohup '{commande[0]}' '{commande[-1]}' > /dev/null 2>&1 &")
+                except: 
+                    print("active commande de sauvetage dans le menu Option ;)")
             if self.save.checkState() == Qt.Checked:
                 try:
+                    # avec un environement os.system ne fonctionne pas
                     env = os.environ.copy()
                     env["LIBGL_ALWAYS_SOFTWARE"] = "1"
                     run(commande, check=True, env=env)
