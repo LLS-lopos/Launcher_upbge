@@ -24,10 +24,35 @@ python3 source/lanceur.py
 # Linux
 utilisation de wine pour les projets sous Windows
 
+### apt (Debian)
 ```bash
 sudo dpkg --add-architecture i386
 sudo apt update
 sudo apt install wine64 wine32 wine winetricks
+```
+### dnf (Fedora)
+```bash
+sudo dnf install wine.i686 wine.x86_64
+```
+### pacman (Arch Linux)
+```bash
+sudo pacman -S wine
+```
+### zypper (OpenSUSE)
+```bash
+sudo zypper install wine
+```
+### emerge (Gentoo)
+```bash
+sudo emerge app-emulation/wine
+```
+### snap
+```bash
+sudo snap install wine
+```
+### flatpak
+```bash
+flatpak install flathub org.winehq.Wine
 ```
 ---
 # Construction du projet
