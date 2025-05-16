@@ -91,24 +91,33 @@ def sauvegarder():
     with open((config / icon_json), "w", encoding="utf-8") as f: json.dump(icon, f, indent=4)
 
 def charger(element):
-    if element == "linux":
-        with open((config / linux_json), "r") as f:
-            linux: dict = json.load(f)
-        return linux
-    elif element == "windows":
-        with open((config / windows_json), "r") as f:
-            windows: dict = json.load(f)
-        return windows
-    elif element == "icon":
-        with open((config / icon_json), "r") as f:
-            icon: dict = json.load(f)
-        return icon
-    elif element == "global":
-        with open((config / global_json), "r") as f:
-            glob = json.load(f)
-        return glob
-    elif element == "config":
-        with open((config / config_json), "r") as f:
-            conf = json.load(f)
-        return conf
-    else: print("choix possible: [linux, windows, icon, global, config]")
+    try:
+        if element == "linux":
+            with open((config / linux_json), "r") as f:
+                linux: dict = json.load(f)
+            return linux
+        elif element == "windows":
+            with open((config / windows_json), "r") as f:
+                windows: dict = json.load(f)
+            return windows
+        elif element == "icon":
+            with open((config / icon_json), "r") as f:
+                icon: dict = json.load(f)
+            return icon
+        elif element == "global":
+            with open((config / global_json), "r") as f:
+                glob = json.load(f)
+            return glob
+        elif element == "config":
+            with open((config / config_json), "r") as f:
+                conf = json.load(f)
+            return conf
+        else:
+            print(f"Erreur: élément '{element}' non reconnu. Choix possible: [linux, windows, icon, global, config]")
+            return None
+    except FileNotFoundError:
+        print(f"Erreur: Le fichier de configuration pour '{element}' n'existe pas")
+        return None
+    except json.JSONDecodeError:
+        print(f"Erreur: Le fichier de configuration pour '{element}' est invalide")
+        return None

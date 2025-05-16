@@ -24,6 +24,8 @@ class Creer(QWidget):
         self.save = save
 
         conteneur = QHBoxLayout()
+        conteneur.setContentsMargins(0, 0, 0, 0)
+        conteneur.setSpacing(0)
 
         self.nom_projet = QLineEdit()
         self.nom_projet.setStatusTip("nom du projet")
@@ -97,7 +99,10 @@ class Creer(QWidget):
             self.dos_p = Path(f"data/{moteur.replace('-', '/')}/{projet}")
             self.dos_p.mkdir(parents=True, exist_ok=True)
             self.projet_structure()
-            fichier = self.dos_p / f"{nom}.blend"
+            if "Range" in moteur:
+                fichier = self.dos_p / f"{nom}.range"
+            else:
+                fichier = self.dos_p / f"{nom}.blend"
 
             if n_moteur == "linux": command = [self.linux["executable"].get(moteur), str(fichier)]
             elif n_moteur == "windows": command = ["wine", self.windows["executable"].get(moteur), str(fichier)]

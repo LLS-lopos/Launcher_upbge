@@ -32,6 +32,8 @@ class Affichage_projet(QWidget):
         self.area.setWidget(container_widget)  # Définir le widget conteneur comme le widget du QScrollArea
         # Ajouter le QScrollArea au layout principal
         layout = QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
         layout.addWidget(self.area)  # Ajouter le QScrollArea au layout principal
 
         self.setLayout(layout)  # Définir la mise en page principale pour le widget
@@ -104,13 +106,16 @@ class Affichage_projet(QWidget):
                 
                 # Trouver le fichier .blend
                 blend_files = list(project_path.glob("*.blend"))
+                range_files = list(project_path.glob("*.range"))
                 project_name = project_path.name  # Nom par défaut
                 
                 if blend_files:
                     # Prendre le premier fichier blend trouvé
                     project_name = blend_files[0].stem  # Nom sans extension
-                    
-                titre.setText(f"{prefix} || Projet : {project_path.name} || Jeu : {project_name}")
+                elif range_files:
+                    project_name = range_files[0].stem  # Nom sans extension
+                
+                titre.setText(f"{prefix} | Projet : {project_path.name} | Jeu : {project_name}")
                 break  # Sortir après le premier projet valide
 
         widget.addWidget(icone)
@@ -161,8 +166,15 @@ class Affichage_projet(QWidget):
                             with open(str(fichier), "r") as f:
                                 id_text = f.readlines()
                                 for ligne in id_text:
-                                    text = QLabel(ligne)
-                                    widget.addWidget(text)
+                                    if len(ligne) > 1:
+                                        text = QLabel(ligne)
+                                        text.setFixedHeight(16)
+                                        widget.addWidget(text)
+                                    else:
+                                        text = QLabel(ligne)
+                                        text.setFixedHeight(6)
+                                        widget.addWidget(text)
+
                         if fichier.name == "crédits.txt":
                             titre = QLabel("Credits\n========")
                             titre.setStyleSheet("font-size: 20px;")
@@ -170,6 +182,12 @@ class Affichage_projet(QWidget):
                             with open(str(fichier), "r") as f:
                                 id_text = f.readlines()
                                 for ligne in id_text:
-                                    text = QLabel(ligne)
-                                    widget.addWidget(text)
+                                    if len(ligne) > 1:
+                                        text = QLabel(ligne)
+                                        text.setFixedHeight(16)
+                                        widget.addWidget(text)
+                                    else:
+                                        text = QLabel(ligne)
+                                        text.setFixedHeight(6)
+                                        widget.addWidget(text)
         return widget

@@ -38,6 +38,8 @@ class Lblend(QWidget):
         b_test.clicked.connect(self.tester_fichier)
 
         layout = QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
         layout.addWidget(tableau)
         layout.addWidget(b_edition)
         layout.addWidget(b_test)
@@ -66,7 +68,8 @@ class Lblend(QWidget):
                 break
         if projet:
             l_p = list(projet.glob('**/*.blend'))
-            self.lister = l_p
+            r_p = list(projet.glob('**/*.range'))
+            self.lister = l_p + r_p
             self.update_list_widget()
 
     def update_list_widget(self):

@@ -7,13 +7,13 @@ if not any("source" in p for p in sys.path):
     parent_dir = os.path.dirname(current_dir)
     sys.path.append(parent_dir)
 
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QTabWidget, QListWidget, QPushButton
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QTabWidget, QListWidget, QPushButton, QMessageBox
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import Slot
 from pathlib import Path
 import json
 
-from program.manipuler_donner import charger, config, global_json
+from program.manipuler_donner import charger, config, global_json, sauvegarder
 
 class Lprojet(QWidget):
     def __init__(self):
@@ -21,6 +21,8 @@ class Lprojet(QWidget):
         self.projets = {}  # Dictionnaire pour stocker les projets par onglet
         self.icone = charger("icon")
         layout = QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
         self.tableau = QTabWidget(self)
         self.tableau.setMaximumWidth(300)
 
@@ -33,41 +35,83 @@ class Lprojet(QWidget):
         self.b_recharger.clicked.connect(self.recharger_liste)
         self.b_recharger.setMaximumWidth(300)
 
+        # Ajouter le bouton "supprimer projet"
+        self.b_del_projet = QPushButton("Supprimer Projet")
+        self.b_del_projet.clicked.connect(self.supprimer_projet)
+        self.b_del_projet.setMaximumWidth(300)
+
         layout.addWidget(self.tableau)
         layout.addWidget(self.b_recharger)
+        layout.addWidget(self.b_del_projet)
         self.setLayout(layout)
         self.setFixedWidth((1280 * 0.3))
 
     def charger_tableau(self, tabeau):
-        #projet = None
-        try: projets = charger(tabeau)  # Charger les projets pour l'onglet spécifié # ... (le reste de votre code)
-        except Exception as e: print(f"Erreur lors du chargement des projets : {e}")
-        for v_projet in projets["projet"]:
-            page = QListWidget()  # Créer un nouveau QListWidget pour l'onglet
-            self.projets[v_projet] = []  # Initialiser la liste des projets pour cet onglet
-            for projet in projets["projet"][v_projet]:
-                if projet:
-                    self.projets[v_projet].append(projet)  # Ajouter le projet à la liste
+        try:
+            projets = charger(tabeau)  # Charger les projets pour l'onglet spécifié
+        except Exception as e:
+            print(f"Erreur lors du chargement des projets : {e}")
+            return
+
+        # Créer un QListWidget pour chaque version
+        for version in projets["projet"]:
+            page = QListWidget()
+            self.projets[version] = []  # Initialiser la liste des projets pour cette version
+            
+            # Ajouter les projets existants de cette version
+            for projet in projets["projet"][version]:
+                if projet and os.path.exists(projet):
+                    self.projets[version].append(projet)  # Ajouter le projet à la liste
                     item = page.addItem(Path(projet).name)  # Ajouter le nom du projet au QListWidget
                     chemin_projet = Path(projet).parent
-                    page.itemClicked.connect(lambda item=item, chemin=chemin_projet: self.projet_selectionner(item, chemin))  # Connecter le signal de clic sur l'élément
-                self.tableau.addTab(page, QIcon(self.icone.get(tabeau)), str(v_projet))  # Ajouter la page au widget d'onglets
+                    page.itemClicked.connect(lambda item=item, chemin=chemin_projet: self.projet_selectionner(item, chemin))
+            # Ajouter l'onglet avec le nom de la version
+            self.tableau.addTab(page, QIcon(self.icone.get(tabeau)), f"{version} {tabeau}")
 
     @Slot()
     def projet_selectionner(self, item, chemin):
         projet_nom = item.text()
         dos = Path(chemin) / projet_nom
         info = {"p_actif": str(dos)}
-        # print(f"Élément cliqué : {projet_nom}\n {type(projet_nom)}\n{dos}\n {type(dos)}")
         with open((config / global_json), "w", encoding="utf-8") as f:
             json.dump(info, f, indent=4)
 
     @Slot()
     def recharger_liste(self):
-        # Effacer les onglets existants
-        self.tableau.clear()
+        self.tableau.clear()  # Effacer les onglets existants
         self.projets.clear()  # Réinitialiser le dictionnaire des projets
-
         # Recharger les projets
         self.charger_tableau("linux")
         self.charger_tableau("windows")
+
+    @Slot()
+    def supprimer_projet(self):
+        selection = charger("global")
+        print(selection)
+        if selection["p_actif"]:
+            # Demander confirmation à l'utilisateur
+            reponse = QMessageBox.question(
+                self,
+                "Confirmation de suppression",
+                f"Êtes-vous sûr de vouloir supprimer définitivement le projet\n{selection['p_actif']} ?",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No
+            )
+            
+            if reponse == QMessageBox.Yes:
+                try:
+                    import shutil
+                    shutil.rmtree(selection["p_actif"])
+                    sauvegarder()
+                    QMessageBox.information(self, "Succès", "Le projet a été supprimé avec succès.")
+                except Exception as e:
+                    QMessageBox.critical(self, "Erreur", f"Impossible de supprimer le projet {selection["p_actif"]}: {str(e)}")
+                    return
+            else:
+                return
+        
+        index_courant = self.tableau.currentIndex()  # Sauvegarder l'index de l'onglet actif avant le rechargement
+        self.recharger_liste()  # Recharger tous les projets
+        # Rétablir l'index de l'onglet actif
+        if index_courant != -1:
+            self.tableau.setCurrentIndex(index_courant)
