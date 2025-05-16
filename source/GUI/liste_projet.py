@@ -60,13 +60,14 @@ class Lprojet(QWidget):
             
             # Ajouter les projets existants de cette version
             for projet in projets["projet"][version]:
-                if projet and os.path.exists(projet):
-                    self.projets[version].append(projet)  # Ajouter le projet à la liste
-                    item = page.addItem(Path(projet).name)  # Ajouter le nom du projet au QListWidget
-                    chemin_projet = Path(projet).parent
-                    page.itemClicked.connect(lambda item=item, chemin=chemin_projet: self.projet_selectionner(item, chemin))
-            # Ajouter l'onglet avec le nom de la version
-            self.tableau.addTab(page, QIcon(self.icone.get(tabeau)), f"{version} {tabeau}")
+                if os.path.exists(projet):
+                    if projet:
+                        self.projets[version].append(projet)  # Ajouter le projet à la liste
+                        item = page.addItem(Path(projet).name)  # Ajouter le nom du projet au QListWidget
+                        chemin_projet = Path(projet).parent
+                        page.itemClicked.connect(lambda item=item, chemin=chemin_projet: self.projet_selectionner(item, chemin))
+                    # Ajouter l'onglet avec le nom de la version
+                    self.tableau.addTab(page, QIcon(self.icone.get(tabeau)), f"{version} {tabeau}")
 
     @Slot()
     def projet_selectionner(self, item, chemin):
