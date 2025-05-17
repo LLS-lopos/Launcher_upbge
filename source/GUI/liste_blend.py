@@ -67,9 +67,10 @@ class Lblend(QWidget):
                 projet = Path(p)
                 break
         if projet:
-            l_p = list(projet.glob('**/*.blend'))
-            r_p = list(projet.glob('**/*.range'))
-            self.lister = l_p + r_p
+            l_p = []
+            l_p += list(projet.glob('**/*.blend'))
+            l_p += list(projet.glob('**/*.range'))
+            self.lister = l_p
             self.update_list_widget()
 
     def update_list_widget(self):
