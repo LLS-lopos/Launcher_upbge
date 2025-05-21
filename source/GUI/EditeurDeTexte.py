@@ -1,14 +1,14 @@
 import sys
 import os
 
-# Add the project root to Python path
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-sys.path.insert(0, project_root)
+# Add the source directory to Python path
+source_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, source_dir)
 
 from PySide6.QtWidgets import QApplication, QMainWindow, QTextEdit, QVBoxLayout, QWidget, QPushButton, QFileDialog, QHBoxLayout
 from PySide6.QtGui import QGuiApplication
-from source.program.EDT_syntaxe import SyntaxHighlighter
-from source.program.EDT_autocomplession import AutoCompleter
+from program.EDT_syntaxe import SyntaxHighlighter
+from program.EDT_autocomplession import AutoCompleter
 
 class LoposEditor(QMainWindow):
     @classmethod
