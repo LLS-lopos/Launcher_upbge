@@ -9,11 +9,12 @@ if not any("source" in p for p in sys.path):
 
 from pathlib import Path
 from subprocess import run
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QTabWidget, QListWidget, QPushButton
+from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QTabWidget, QListWidget, QPushButton
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import QTimer, Qt
 
 from program.manipuler_donner import charger
+from GUI.EditeurDeTexte import LoposEditor
 
 class Lblend(QWidget):
     def __init__(self, save):
@@ -27,6 +28,7 @@ class Lblend(QWidget):
         self.lister_images = [] # gère les images/texture
         self.lister_video = [] # gère les vidéos
         self.lister_font = [] # gère les chaine de caractère
+        self.editors_ouverts = []
 
         self.tableau = QTabWidget(self)
         #page
@@ -76,8 +78,8 @@ class Lblend(QWidget):
             self.charger_tableau()
     
     def charger_tableau(self):
-        tab_info = [
-        (self.lister_blend_range, self.p_blend_range, "blend/range"),
+        self.tab_info = [
+        (self.lister_blend_range, self.p_blend_range, "Blend/Range"),
         (self.lister_texte, self.p_texte, "Texte"),
         (self.lister_script, self.p_script, "Script"),
         (self.lister_son, self.p_son, "Son"),
@@ -85,7 +87,7 @@ class Lblend(QWidget):
         (self.lister_video, self.p_video, "Video"),
         (self.lister_font, self.p_font, "Font"),
     ]
-        for (liste, page, tableau) in tab_info:
+        for (liste, page, tableau) in self.tab_info:
             if liste:
                 if self.tableau.indexOf(page) == -1:  # Check if tab is already added
                     self.tableau.addTab(page, QIcon(""), tableau)
@@ -280,8 +282,17 @@ class Lblend(QWidget):
         id_blend_range = self.p_blend_range.selectedIndexes()
         id_texte = self.p_texte.selectedIndexes()
         id_script = self.p_script.selectedIndexes()
-        commande = []
-        if id_blend_range:
+
+        onglet = self.tableau.currentIndex()
+        if onglet < len(self.tab_info):
+            type_onglet = self.tab_info[onglet][2]
+        else:
+            type_onglet = None
+        print(type_onglet)
+
+        if type_onglet == "Blend/Range" and id_blend_range:
+            # Traitement blend
+            commande = []
             obj_selectionner = id_blend_range[0].data()
             for i in self.lister_blend_range:
                 if Path(i).name == obj_selectionner:
@@ -335,29 +346,30 @@ class Lblend(QWidget):
                                 commande.append("Z:" + Path(moteur_windows["executable"][cle]).as_posix())  # Chemin de l'exécutable
                                 i = ("Z:" + str(Path(i)).replace("/", "\\"))  # Chemin du fichier .blend
                     commande.append(i)
-        if id_texte:
+            if self.save.checkState() == Qt.Unchecked:
+                try: run(commande, check=True)
+                except: print("active commande de sauvetage dans le menu Option ;)")
+            if self.save.checkState() == Qt.Checked:
+                try:
+                    env = os.environ.copy()
+                    env["LIBGL_ALWAYS_SOFTWARE"] = "1"
+                    run(commande, check=True, env=env)
+                except: print("Dommage mais ne marche pas XD")
+        elif type_onglet == "Texte" and id_texte:
             obj_selectionner = id_texte[0].data()
-            commande.append("gedit")
             for i in self.lister_texte:
                 if Path(i).name == obj_selectionner:
                     chemin = Path(i).resolve()
-                    commande.append(chemin)
-        if id_script:
-            self.lister_script, self.p_script
+                    print(chemin)
+                    editor = LoposEditor.ouvrir_fichier(str(chemin))
+                    self.editors_ouverts.append(editor)
+        elif type_onglet == "Script" and id_script:
             obj_selectionner = id_script[0].data()
-            commande.append("gedit")
             for i in self.lister_script:
                 if Path(i).name == obj_selectionner:
                     chemin = Path(i).resolve()
-                    commande.append(chemin)
-                    
-        print(commande)
-        if self.save.checkState() == Qt.Unchecked:
-            try: run(commande, check=True)
-            except: print("active commande de sauvetage dans le menu Option ;)")
-        if self.save.checkState() == Qt.Checked:
-            try:
-                env = os.environ.copy()
-                env["LIBGL_ALWAYS_SOFTWARE"] = "1"
-                run(commande, check=True, env=env)
-            except: print("Dommage mais ne marche pas XD")
+                    print(chemin)
+                    editor = LoposEditor.ouvrir_fichier(str(chemin))
+                    self.editors_ouverts.append(editor)
+        else:
+            print("Aucune sélection ou onglet inconnu")
