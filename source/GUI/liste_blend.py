@@ -323,8 +323,6 @@ class Lblend(QWidget):
             type_onglet = None
             liste_fichiers = []
             page_widget = None
-        
-        print(f"Onglet : {type_onglet}")
 
         # Vérifier si des fichiers sont disponibles
         if liste_fichiers and page_widget:
@@ -361,8 +359,6 @@ class Lblend(QWidget):
                             commande.append("wine")
                             commande.append("Z:" + Path(moteur).as_posix())  # Chemin de l'exécutable
                             fichier_selectionne = ("Z:" + str(Path(fichier_selectionne)).replace("/", "\\"))  # Chemin du fichier .blend
-                    
-                    # Ajouter le chemin du fichier
                     commande.append(fichier_selectionne)
                     
                     # Gestion de l'exécution avec ou sans commande de vauvetage
