@@ -8,8 +8,8 @@ if not any("source" in p for p in sys.path):
     sys.path.append(parent_dir)
 
 from pathlib import Path
-from subprocess import run
-from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QTabWidget, QListWidget, QPushButton
+from subprocess import run, Popen, PIPE
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QTabWidget, QListWidget, QPushButton
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import QTimer, Qt
 
@@ -300,7 +300,13 @@ class Lblend(QWidget):
                     commande.append(str(i))
         if self.save.checkState() == Qt.Unchecked:
             try:
-                os.system(f"nohup '{commande[0]}' '{commande[-1]}' > /dev/null 2>&1 &")
+                Popen(
+                    commande,
+                    stdin=PIPE,
+                    stdout=PIPE,
+                    stderr=PIPE,
+                    start_new_session=True,
+                    )
             except: 
                 print("Activez la commande de sauvegarde dans le menu Options ;)")
         if self.save.checkState() == Qt.Checked:
@@ -364,7 +370,13 @@ class Lblend(QWidget):
                     # Gestion de l'exécution avec ou sans commande de vauvetage
                     if self.save.checkState() == Qt.Unchecked:
                         try: 
-                            run(commande, check=True)
+                            Popen(
+                                commande,
+                                stdin=PIPE,
+                                stdout=PIPE,
+                                stderr=PIPE,
+                                start_new_session=True,
+                                )
                         except: 
                             print("Activez la commande de sauvegarde dans le menu Options ;)")
                     
