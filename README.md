@@ -87,5 +87,10 @@ nuitka3 --standalone --plugin-enable=pyside6 ../source/lanceur.py --include-data
 
 - ajouter un support blender
 - rendre plus efficace la reconnaissance des exécutable logiciel
+- ajouter un visualiseur d'images
+- ajouter un visualiseur de vidéo
+- ajouter une meilleurs gestion d'affichage (interface/projet)
+- séparation des tâches (création de projet/fichier)
+- ajouter une bibliothèque(nouvelle interface) de jeu (projets exporter)
 ---
 Projet en cours de conception
