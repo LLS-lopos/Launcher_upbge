@@ -312,10 +312,9 @@ class Lblend(QWidget):
             except: print("Dommage mais ne marche pas XD")
 
     def edition_projet(self):
-        # Récupérer l'index de l'onglet actuel
-        onglet = self.tableau.currentIndex()
+        onglet = self.tableau.currentIndex() # Récupérer l'index de l'onglet actuel
         
-        # Utiliser pages_creees au lieu de tab_info
+        # Utilisation pages_creees
         if 0 <= onglet < len(self.pages_creees):
             type_onglet = self.pages_creees[onglet][2]
             liste_fichiers = self.pages_creees[onglet][0]
@@ -327,16 +326,15 @@ class Lblend(QWidget):
         
         print(f"Onglet : {type_onglet}")
 
-        # Vérifier si des fichiers sont disponibles et un élément est sélectionné
+        # Vérifier si des fichiers sont disponibles
         if liste_fichiers and page_widget:
-            # Récupérer l'index de l'élément sélectionné
-            index_selectionne = page_widget.currentRow()
+            index_selectionne = page_widget.currentRow() # Récupérer l'index de l'élément sélectionné
             
             if 0 <= index_selectionne < len(liste_fichiers):
                 fichier_selectionne = liste_fichiers[index_selectionne]
                 
                 if type_onglet == "Blend/Range":
-                    # Traitement blend
+                    # Traitement blend/range
                     commande = []
                     chemin = Path(fichier_selectionne).resolve()
                     parties = list(chemin.parts)
@@ -367,7 +365,7 @@ class Lblend(QWidget):
                     # Ajouter le chemin du fichier
                     commande.append(fichier_selectionne)
                     
-                    # Gestion de l'exécution avec ou sans sauvegarde
+                    # Gestion de l'exécution avec ou sans commande de vauvetage
                     if self.save.checkState() == Qt.Unchecked:
                         try: 
                             run(commande, check=True)
@@ -381,13 +379,11 @@ class Lblend(QWidget):
                             run(commande, check=True, env=env)
                         except: 
                             print("Dommage mais ne marche pas XD")
-                
+                # Ouvrir l'éditeur texte
                 elif type_onglet in ["Texte", "Script"]:
-                    # Ouvrir l'éditeur pour les fichiers texte et script
                     chemin = Path(fichier_selectionne).resolve()
                     print(chemin)
                     editor = LoposEditor.ouvrir_fichier(str(chemin))
                     self.editors_ouverts.append(editor)
-        
         else:
             print("Aucune sélection ou onglet inconnu")
