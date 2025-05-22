@@ -21,13 +21,15 @@ class Lblend(QWidget):
         super().__init__()
         self.save = save
         self.old_global = None
-        self.lister_blend_range = [] # gère les fichier blender et range (ok)
-        self.lister_texte = [] # gère les fichier texte
-        self.lister_script = [] # gère les fichier python
-        self.lister_son = [] # gère les fichier audio
-        self.lister_images = [] # gère les images/texture
-        self.lister_video = [] # gère les vidéos
-        self.lister_font = [] # gère les chaine de caractère
+        self.lister_blend_range = [] # Gère les fichiers Blender et range (ok)
+        self.lister_texte = [] # Gère les fichiers texte
+        self.lister_script = [] # Gère les fichiers Python
+        self.lister_son = [] # Gère les fichiers audio
+        self.lister_images = [] # Gère les images/textures
+        self.lister_video = [] # Gère les vidéos
+        self.lister_font = [] # Gère les chaînes de caractères
+        
+        # Réintroduire la liste des éditeurs ouverts
         self.editors_ouverts = []
 
         self.tableau = QTabWidget(self)
@@ -43,8 +45,8 @@ class Lblend(QWidget):
         # charger le tableau des que charger_blend est mis à jour
         self.tableau.currentChanged.connect(self.charger_blend)
         
-        # Bouton Editer Fichier
-        b_edition = QPushButton("Edition Fichier")
+        # Bouton Éditer Fichier
+        b_edition = QPushButton("Édition Fichier")
         b_edition.clicked.connect(self.edition_projet)
         # Bouton Tester Fichier
         b_test = QPushButton("Tester Fichier")
@@ -78,23 +80,54 @@ class Lblend(QWidget):
             self.charger_tableau()
     
     def charger_tableau(self):
+        # Définir les informations des onglets et leurs données
         self.tab_info = [
-        (self.lister_blend_range, self.p_blend_range, "Blend/Range"),
-        (self.lister_texte, self.p_texte, "Texte"),
-        (self.lister_script, self.p_script, "Script"),
-        (self.lister_son, self.p_son, "Son"),
-        (self.lister_images, self.p_image, "Image"),
-        (self.lister_video, self.p_video, "Video"),
-        (self.lister_font, self.p_font, "Font"),
-    ]
+            (self.lister_blend_range, self.p_blend_range, "Blend/Range"),
+            (self.lister_texte, self.p_texte, "Texte"),
+            (self.lister_script, self.p_script, "Script"),
+            (self.lister_son, self.p_son, "Son"),
+            (self.lister_images, self.p_image, "Image"),
+            (self.lister_video, self.p_video, "Vidéo"),
+            (self.lister_font, self.p_font, "Font"),
+        ]
+        
+        # Stocker les onglets existants avant modification
+        existing_tabs = {}
+        for i in range(self.tableau.count()):
+            existing_tabs[self.tableau.tabText(i)] = self.tableau.widget(i)
+        
+        # Supprimer tous les onglets existants
+        while self.tableau.count() > 0:
+            self.tableau.removeTab(0)
+        
+        # Ajouter dynamiquement les onglets pour les listes non vides
+        pages_creees = []
         for (liste, page, tableau) in self.tab_info:
             if liste:
-                if self.tableau.indexOf(page) == -1:  # Check if tab is already added
+                # Utiliser l'onglet existant si possible, sinon créer un nouveau
+                if tableau in [text for text in existing_tabs.keys()]:
+                    self.tableau.addTab(existing_tabs[tableau], QIcon(""), tableau)
+                    pages_creees.append((liste, existing_tabs[tableau], tableau, "existant"))
+                else:
                     self.tableau.addTab(page, QIcon(""), tableau)
-            else:
-                index = self.tableau.indexOf(page)
-                if index != -1:  # Check if tab exists
-                    self.tableau.removeTab(index)
+                    pages_creees.append((liste, page, tableau, "nouveau"))
+        
+        # Afficher les pages créées
+        print("Pages créées :", [(p[2], p[3]) for p in pages_creees])
+        
+        # Créer l'index à partir de pages_creees
+        index_page = 0
+        for i, page in enumerate(pages_creees):
+            if page[3] == "existant":
+                index_page = i
+                break
+        
+        # Sélectionner l'index trouvé ou le premier onglet
+        if self.tableau.count() > 0:
+            self.tableau.setCurrentIndex(index_page)
+
+        # Stocker pages_creees comme attribut de l'instance
+        self.pages_creees = pages_creees
 
     def charger_blend(self):
         projet = None
@@ -269,107 +302,92 @@ class Lblend(QWidget):
             try:
                 os.system(f"nohup '{commande[0]}' '{commande[-1]}' > /dev/null 2>&1 &")
             except: 
-                print("active commande de sauvetage dans le menu Option ;)")
+                print("Activez la commande de sauvegarde dans le menu Options ;)")
         if self.save.checkState() == Qt.Checked:
             try:
-                # avec un environement os.system ne fonctionne pas
+                # avec un environnement os.system ne fonctionne pas
                 env = os.environ.copy()
                 env["LIBGL_ALWAYS_SOFTWARE"] = "1"
                 run(commande, check=True, env=env)
             except: print("Dommage mais ne marche pas XD")
 
     def edition_projet(self):
-        id_blend_range = self.p_blend_range.selectedIndexes()
-        id_texte = self.p_texte.selectedIndexes()
-        id_script = self.p_script.selectedIndexes()
-
+        # Récupérer l'index de l'onglet actuel
         onglet = self.tableau.currentIndex()
-        if onglet < len(self.tab_info):
-            type_onglet = self.tab_info[onglet][2]
+        
+        # Utiliser pages_creees au lieu de tab_info
+        if 0 <= onglet < len(self.pages_creees):
+            type_onglet = self.pages_creees[onglet][2]
+            liste_fichiers = self.pages_creees[onglet][0]
+            page_widget = self.pages_creees[onglet][1]
         else:
             type_onglet = None
-        print(type_onglet)
+            liste_fichiers = []
+            page_widget = None
+        
+        print(f"Onglet : {type_onglet}")
 
-        if type_onglet == "Blend/Range" and id_blend_range:
-            # Traitement blend
-            commande = []
-            obj_selectionner = id_blend_range[0].data()
-            for i in self.lister_blend_range:
-                if Path(i).name == obj_selectionner:
-                    chemin = Path(i).resolve()
+        # Vérifier si des fichiers sont disponibles et un élément est sélectionné
+        if liste_fichiers and page_widget:
+            # Récupérer l'index de l'élément sélectionné
+            index_selectionne = page_widget.currentRow()
+            
+            if 0 <= index_selectionne < len(liste_fichiers):
+                fichier_selectionne = liste_fichiers[index_selectionne]
+                
+                if type_onglet == "Blend/Range":
+                    # Traitement blend
+                    commande = []
+                    chemin = Path(fichier_selectionne).resolve()
                     parties = list(chemin.parts)
                     base = parties.index('data')
                     moteur_linux = charger("linux")
                     moteur_windows = charger("windows")
-                    if parties[base:base+3] == ['data', 'Linux', '2x']:
-                        for cle in moteur_linux["executable"]:
-                            if cle == "Linux-2x":
-                                moteur = moteur_linux["executable"][cle]
-                                commande.append(moteur)
-                    elif parties[base:base+3] == ['data', 'Linux', '3x']:
-                        for cle in moteur_linux["executable"]:
-                            if cle == "Linux-3x":
-                                moteur = moteur_linux["executable"][cle]
-                                commande.append(moteur)
-                    elif parties[base:base+3] == ['data', 'Linux', '4x']:
-                        for cle in moteur_linux["executable"]:
-                            if cle == "Linux-4x":
-                                moteur = moteur_linux["executable"][cle]
-                                commande.append(moteur)
-                    elif parties[base:base+3] == ['data', 'Linux', 'Range']:
-                        for cle in moteur_linux["executable"]:
-                            if cle == "Linux-Range":
-                                moteur = moteur_linux["executable"][cle]
-                                commande.append(moteur) 
-                    elif parties[base:base+3] == ['data', 'Windows', '2x']:
-                        for cle in moteur_windows["executable"]:
-                            if cle == "Windows-2x":
-                                commande.append("wine")
-                                commande.append("Z:" + Path(moteur_windows["executable"][cle]).as_posix())  # Chemin de l'exécutable
-                                i = ("Z:" + str(Path(i)).replace("/", "\\"))  # Chemin du fichier .blend
-                    elif parties[base:base+3] == ['data', 'Windows', '3x']:
-                        for cle in moteur_windows["executable"]:
-                            if cle == "Windows-3x":
-                                commande.append("wine")
-                                commande.append("Z:" + Path(moteur_windows["executable"][cle]).as_posix())  # Chemin de l'exécutable
-                                i = ("Z:" + str(Path(i)).replace("/", "\\"))  # Chemin du fichier .blend
-                    elif parties[base:base+3] == ['data', 'Windows', '4x']:
-                        for cle in moteur_windows["executable"]:
-                            if cle == "Windows-4x":
-                                commande.append("wine")
-                                commande.append("Z:" + Path(moteur_windows["executable"][cle]).as_posix())  # Chemin de l'exécutable
-                                i = ("Z:" + str(Path(i)).replace("/", "\\"))  # Chemin du fichier .blend
-                    elif parties[base:base+3] == ['data', 'Windows', 'Range']:
-                        for cle in moteur_windows["executable"]:
-                            if cle == "Windows-Range":
-                                commande.append("wine")
-                                commande.append("Z:" + Path(moteur_windows["executable"][cle]).as_posix())  # Chemin de l'exécutable
-                                i = ("Z:" + str(Path(i)).replace("/", "\\"))  # Chemin du fichier .blend
-                    commande.append(i)
-            if self.save.checkState() == Qt.Unchecked:
-                try: run(commande, check=True)
-                except: print("active commande de sauvetage dans le menu Option ;)")
-            if self.save.checkState() == Qt.Checked:
-                try:
-                    env = os.environ.copy()
-                    env["LIBGL_ALWAYS_SOFTWARE"] = "1"
-                    run(commande, check=True, env=env)
-                except: print("Dommage mais ne marche pas XD")
-        elif type_onglet == "Texte" and id_texte:
-            obj_selectionner = id_texte[0].data()
-            for i in self.lister_texte:
-                if Path(i).name == obj_selectionner:
-                    chemin = Path(i).resolve()
+                    
+                    # Déterminer le système d'exploitation et la version
+                    systeme = parties[base+1]  # Linux ou Windows
+                    version = parties[base+2]  # 2x, 3x, 4x, ou Range
+                    
+                    # Clé de recherche pour le moteur
+                    cle_moteur = f"{systeme}-{version}"
+                    
+                    # Sélectionner le bon moteur
+                    if systeme == "Linux":
+                        moteur = moteur_linux["executable"].get(cle_moteur)
+                        if moteur:
+                            commande.append(moteur)
+                    
+                    elif systeme == "Windows":
+                        moteur = moteur_windows["executable"].get(cle_moteur)
+                        if moteur:
+                            commande.append("wine")
+                            commande.append("Z:" + Path(moteur).as_posix())  # Chemin de l'exécutable
+                            fichier_selectionne = ("Z:" + str(Path(fichier_selectionne)).replace("/", "\\"))  # Chemin du fichier .blend
+                    
+                    # Ajouter le chemin du fichier
+                    commande.append(fichier_selectionne)
+                    
+                    # Gestion de l'exécution avec ou sans sauvegarde
+                    if self.save.checkState() == Qt.Unchecked:
+                        try: 
+                            run(commande, check=True)
+                        except: 
+                            print("Activez la commande de sauvegarde dans le menu Options ;)")
+                    
+                    if self.save.checkState() == Qt.Checked:
+                        try:
+                            env = os.environ.copy()
+                            env["LIBGL_ALWAYS_SOFTWARE"] = "1"
+                            run(commande, check=True, env=env)
+                        except: 
+                            print("Dommage mais ne marche pas XD")
+                
+                elif type_onglet in ["Texte", "Script"]:
+                    # Ouvrir l'éditeur pour les fichiers texte et script
+                    chemin = Path(fichier_selectionne).resolve()
                     print(chemin)
                     editor = LoposEditor.ouvrir_fichier(str(chemin))
                     self.editors_ouverts.append(editor)
-        elif type_onglet == "Script" and id_script:
-            obj_selectionner = id_script[0].data()
-            for i in self.lister_script:
-                if Path(i).name == obj_selectionner:
-                    chemin = Path(i).resolve()
-                    print(chemin)
-                    editor = LoposEditor.ouvrir_fichier(str(chemin))
-                    self.editors_ouverts.append(editor)
+        
         else:
             print("Aucune sélection ou onglet inconnu")
