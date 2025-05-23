@@ -88,7 +88,6 @@ class Lprojet(QWidget):
     @Slot()
     def supprimer_projet(self):
         selection = charger("global")
-        print(selection)
         if selection["p_actif"]:
             # Demander confirmation à l'utilisateur
             reponse = QMessageBox.question(

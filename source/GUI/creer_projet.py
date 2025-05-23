@@ -10,7 +10,7 @@ if not any("source" in p for p in sys.path):
 from pathlib import Path
 from subprocess import run
 
-from PySide6.QtWidgets import (QWidget, QHBoxLayout, QLineEdit, QPushButton, QComboBox)
+from PySide6.QtWidgets import (QWidget, QLabel, QLineEdit, QPushButton, QComboBox, QGridLayout)
 from PySide6.QtCore import (Slot, Qt)
 from PySide6.QtGui import (QIcon)
 from PIL import Image
@@ -18,23 +18,44 @@ from PIL import Image
 from program.manipuler_donner import charger, sauvegarder
 
 class Creer(QWidget):
+    """
+    Widget pour créer de nouveaux projets de jeux dans le Lanceur UPBGE.
+
+    Cette classe fournit une interface utilisateur pour créer de nouveaux projets de jeux,
+    permettant aux utilisateurs de spécifier les noms de projet et de jeu, 
+    et de sélectionner un moteur de jeu.
+
+    Attributs:
+        nom_projet (QLineEdit): Champ de saisie pour le nom du projet
+        nom_jeu (QLineEdit): Champ de saisie pour le nom du jeu
+        liste_moteur (QComboBox): Liste déroulante pour sélectionner le moteur de jeu
+        save (callable): Fonction de rappel pour sauvegarder les informations du projet
+    """
+
     def __init__(self, save):
+        """
+        Initialiser le widget de création de projet.
+
+        Args:
+            save (callable): Une fonction de rappel pour sauvegarder les informations du projet
+        """
         super().__init__()
+        # Charger les icônes
         icone = charger("icon")
         self.save = save
 
-        conteneur = QHBoxLayout()
-        conteneur.setContentsMargins(0, 0, 0, 0)
-        conteneur.setSpacing(0)
+        # Créer la disposition de la fenêtre
+        conteneur = QGridLayout()
+        conteneur.setContentsMargins(2, 2, 2, 2)
+        conteneur.setSpacing(2)
 
+        # Créer les champs de saisie
         self.nom_projet = QLineEdit()
-        self.nom_projet.setStatusTip("nom du projet")
-
         self.nom_jeu = QLineEdit()
-        self.nom_jeu.setStatusTip("nom du jeu")
 
+        # Configurer la liste des moteurs de jeu
         self.liste_moteur = QComboBox()
-        self.liste_moteur.setStatusTip("Liste des moteurs disponible")
+        # Charger les moteurs Linux
         self.linux = charger("linux")
         for cle in self.linux:
             if cle == "executable":
@@ -42,6 +63,8 @@ class Creer(QWidget):
                     if Path(self.linux[cle][p]).exists():
                         if p.startswith("Linux"):
                             self.liste_moteur.addItem(QIcon(icone.get("linux")), p)
+        
+        # Charger les moteurs Windows
         self.windows = charger("windows")
         for cle in self.windows:
             if cle == "executable":
@@ -50,19 +73,33 @@ class Creer(QWidget):
                         if p.startswith("Windows"):
                             self.liste_moteur.addItem(QIcon(icone.get("windows")), p)
 
+        # Créer le bouton de création de projet
         b_creer_projet = QPushButton("créer")
-        b_creer_projet.setStatusTip("Création du projet")
         b_creer_projet.clicked.connect(lambda: self.lancer_projet())
 
-        conteneur.addWidget(self.nom_projet)
-        conteneur.addWidget(self.nom_jeu)
-        conteneur.addWidget(self.liste_moteur)
-        conteneur.addWidget(b_creer_projet)
+        # Créer les labels
+        texte_projet = QLabel("nom du projet")
+        texte_jeu = QLabel("nom du jeu")
+        texte_moteur = QLabel("moteur disponible")
 
+        # Disposition des widgets dans la grille
+        conteneur.addWidget(texte_projet, 0, 0, 2, 1)
+        conteneur.addWidget(self.nom_projet, 0, 1, 2, 2)
+        conteneur.addWidget(texte_jeu, 2, 0, 2, 1)
+        conteneur.addWidget(self.nom_jeu, 2, 1, 2, 2)
+        conteneur.addWidget(texte_moteur, 4, 0, 2, 1)
+        conteneur.addWidget(self.liste_moteur, 4, 1, 2, 2)
+        conteneur.addWidget(b_creer_projet, 6, 0, 1, 3)
+
+        # Définir la disposition
         self.setLayout(conteneur)
 
     def projet_structure(self):
-        # créer la structure de donné
+        """
+        Créer la structure du projet.
+
+        Cette méthode crée les répertoires et fichiers nécessaires pour un nouveau projet.
+        """
         description = self.dos_p / "description.txt"
         description.touch(exist_ok=True)
         img = Image.new("RGB", (1280, 720), "white")
@@ -91,18 +128,25 @@ class Creer(QWidget):
 
     @Slot()
     def lancer_projet(self):
+        """
+        Créer un nouveau projet basé sur la saisie de l'utilisateur.
+
+        Valide la saisie, sauvegarde les informations du projet et ferme la boîte de dialogue.
+        Appelle la méthode de sauvegarde de rappel pour conserver les détails du projet.
+        """
+        # Récupérer les valeurs saisies
         projet = self.nom_projet.text()
-        nom = self.nom_jeu.text()
+        jeu = self.nom_jeu.text()
         moteur = self.liste_moteur.currentText()
         n_moteur = moteur.rsplit("-", 1)[0].lower()
-        if projet and nom:
+        if projet and jeu:
             self.dos_p = Path(f"data/{moteur.replace('-', '/')}/{projet}")
             self.dos_p.mkdir(parents=True, exist_ok=True)
             self.projet_structure()
             if "Range" in moteur:
-                fichier = self.dos_p / f"{nom}.range"
+                fichier = self.dos_p / f"{jeu}.range"
             else:
-                fichier = self.dos_p / f"{nom}.blend"
+                fichier = self.dos_p / f"{jeu}.blend"
 
             if n_moteur == "linux": command = [self.linux["executable"].get(moteur), str(fichier)]
             elif n_moteur == "windows": command = ["wine", self.windows["executable"].get(moteur), str(fichier)]
@@ -118,4 +162,5 @@ class Creer(QWidget):
                 except: print("Dommage mais ne marche pas XD")
             self.nom_projet.setText("")
             self.nom_jeu.setText("")
-            sauvegarder()
+        sauvegarder() # Sauvegarder la configuration
+        self.destroy() # Fermer la fenêtre

@@ -113,8 +113,7 @@ class Lblend(QWidget):
                     pages_creees.append((liste, page, tableau, "nouveau"))
         
         # Afficher les pages créées
-        print("Pages créées :", [(p[2], p[3]) for p in pages_creees])
-        
+        #print("Pages créées :", [(p[2], p[3]) for p in pages_creees])
         # Créer l'index à partir de pages_creees
         index_page = 0
         for i, page in enumerate(pages_creees):

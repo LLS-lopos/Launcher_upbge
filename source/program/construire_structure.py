@@ -1,3 +1,10 @@
+"""
+Module de construction et de gestion de la structure du projet pour le Lanceur UPBGE.
+
+Ce module définit la structure des répertoires et de configuration de l'application,
+en configurant les chemins pour différents moteurs de jeu, types de projets et fichiers de configuration.
+"""
+
 import pathlib
 import json
 import os
@@ -9,13 +16,15 @@ if not any("source" in p for p in sys.path):
     parent_dir = os.path.dirname(current_dir)
     sys.path.append(parent_dir)
 
-# variable
+# Définir les chemins de base pour la structure du projet
 racine = pathlib.Path(__file__).parent.parent
 config = pathlib.Path.home() / ".LanceurUpBGE"
 source = racine / "data"
 dos_moteur = source / "Moteur"
 dos_linux = source / "Linux"
 dos_windows = source / "Windows"
+
+# Noms des fichiers de configuration
 linux_json = "config_linux.json"
 windows_json = "config_windows.json"
 icon_json = "config_icon.json"
@@ -24,44 +33,40 @@ config_json = "config.json"
 
 # Dictionnaires pour stocker les informations sur les projets et les exécutables
 linux = {
-    "projet":
-        {
-            "2x": {},
-            "3x": {},
-            "4x": {},
-            "Range": {},
-        },
-    "executable":
-        {
-            "Linux-2x": "",
-            "Linux-3x": "",
-            "Linux-4x": "",
-            "Linux-Range": "",
-            "game-2x": "",
-            "game-3x": "",
-            "game-4x": "",
-            "game-L-Range": "",
-        },
+    "projet": {
+        "2x": {},
+        "3x": {},
+        "4x": {},
+        "Range": {},
+    },
+    "executable": {
+        "Linux-2x": "",
+        "Linux-3x": "",
+        "Linux-4x": "",
+        "Linux-Range": "",
+        "game-2x": "",
+        "game-3x": "",
+        "game-4x": "",
+        "game-L-Range": "",
+    },
 }
 windows = {
-    "projet":
-        {
-            "2x": {},
-            "3x": {},
-            "4x": {},
-            "Range": {},
-        },
-    "executable":
-        {
-            "Windows-2x": "",
-            "Windows-3x": "",
-            "Windows-4x": "",
-            "Windows-Range": "",
-            "game-2x": "",
-            "game-3x": "",
-            "game-4x": "",
-            "game-W-Range": "",
-        },
+    "projet": {
+        "2x": {},
+        "3x": {},
+        "4x": {},
+        "Range": {},
+    },
+    "executable": {
+        "Windows-2x": "",
+        "Windows-3x": "",
+        "Windows-4x": "",
+        "Windows-Range": "",
+        "game-2x": "",
+        "game-3x": "",
+        "game-4x": "",
+        "game-W-Range": "",
+    },
 }
 # Dictionnaire pour stocker les icônes
 icon = {
@@ -75,7 +80,19 @@ configuration = {
 }
 
 def structure():
-    # Construction du dossier de projet Linux et des répertoire de version
+    """
+    Créer la structure de base des répertoires et des fichiers de configuration pour le Lanceur UPBGE.
+
+    Cette fonction garantit que tous les répertoires et fichiers de configuration 
+    nécessaires existent pour le bon fonctionnement de l'application. Elle crée :
+    - Le répertoire de configuration dans le dossier personnel de l'utilisateur
+    - Les répertoires de données pour différents moteurs de jeu et types de projets
+    - Les fichiers de configuration JSON initiaux
+    """
+    # Créer le répertoire de configuration
+    if not config.exists(): config.mkdir(exist_ok=True)
+
+    # Créer les répertoires de données
     if not source.exists(): source.mkdir(exist_ok=True)
     if not dos_linux.exists(): dos_linux.mkdir(exist_ok=True)
     for version_l in ["2x", "3x", "4x", "Range"]:

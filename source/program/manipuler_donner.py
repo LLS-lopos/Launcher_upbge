@@ -1,3 +1,10 @@
+"""
+Module de gestion et de manipulation des configurations de données du Lanceur UPBGE.
+
+Ce module fournit des fonctions pour sauvegarder et charger des données de configuration 
+pour les projets de jeux Linux et Windows, en gérant les informations de fichiers et de projets.
+"""
+
 import json
 import os
 import sys
@@ -16,9 +23,22 @@ from .construire_structure import (
     )
 
 def sauvegarder():
+    """
+    Sauvegarde les informations des projets pour les jeux Linux et Windows.
+
+    Cette fonction met à jour les fichiers de configuration JSON avec l'état actuel 
+    des projets dans les répertoires de données Linux et Windows. Elle analyse 
+    les répertoires de projets et enregistre les fichiers de chaque projet.
+
+    La fonction met à jour deux fichiers de configuration principaux :
+    - config_linux.json : Contient les informations des projets Linux
+    - config_windows.json : Contient les informations des projets Windows
+    """
+    # Charger et mettre à jour la configuration Linux
     with open((config / linux_json), "r") as f:
         linux: dict = json.load(f)
 
+    # Parcourir les projets Linux
     for dossier in dos_linux.iterdir():
         for projet in dossier.iterdir():
             if dossier.name == "2x":
@@ -41,6 +61,7 @@ def sauvegarder():
     with open((config / windows_json), "r") as f:
         windows: dict = json.load(f)
 
+    # Parcourir les projets Windows
     for dossier in dos_windows.iterdir():
         for projet in dossier.iterdir():
             if dossier.name == "2x":
@@ -91,6 +112,21 @@ def sauvegarder():
     with open((config / icon_json), "w", encoding="utf-8") as f: json.dump(icon, f, indent=4)
 
 def charger(element):
+    """
+    Charge les données de configuration pour un élément spécifique.
+
+    Args:
+        element (str): Le type de configuration à charger. 
+                       Valeurs possibles : 'linux', 'windows', 'icon', etc.
+
+    Returns:
+        dict: Les données de configuration pour l'élément spécifié.
+              Retourne un dictionnaire vide si l'élément n'est pas trouvé.
+
+    Raises:
+        FileNotFoundError: Si le fichier de configuration ne peut pas être trouvé.
+        json.JSONDecodeError: Si le fichier de configuration n'est pas un JSON valide.
+    """
     try:
         if element == "linux":
             with open((config / linux_json), "r") as f:
@@ -114,7 +150,7 @@ def charger(element):
             return conf
         else:
             print(f"Erreur: élément '{element}' non reconnu. Choix possible: [linux, windows, icon, global, config]")
-            return None
+        return None
     except FileNotFoundError:
         print(f"Erreur: Le fichier de configuration pour '{element}' n'existe pas")
         return None
