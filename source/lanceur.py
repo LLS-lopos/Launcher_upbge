@@ -1,7 +1,7 @@
 import sys
 from PySide6.QtWidgets import QApplication, QMainWindow, QPushButton, QWidget, QGridLayout, QCheckBox, QWidgetAction
 from PySide6.QtCore import Slot
-from PySide6.QtGui import QAction, QIcon
+from PySide6.QtGui import QAction, QIcon, QGuiApplication
 
 # élément graphique
 from GUI.creer_projet import Creer
@@ -25,7 +25,7 @@ class Lanceur(QMainWindow):
         barreMenu (QMenuBar): Barre de menu principale de l'application
     """
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, m_largeur=0, m_hauteur=0, largeur=1280, hauteur=720):
         """
         Initialiser la fenêtre principale du Lanceur.
 
@@ -36,6 +36,15 @@ class Lanceur(QMainWindow):
             parent (QWidget, optional): Widget parent. Par défaut à None.
         """
         super().__init__(parent)
+        self.largeur = largeur
+        self.hauteur = hauteur
+        self.m_largeur = m_largeur 
+        self.m_hauteur = m_hauteur 
+
+        moniteur = QGuiApplication.primaryScreen()
+        taille_moniteur = moniteur.size()
+        calcul_l = (taille_moniteur.width()//2) - (self.largeur//2)
+        calcul_h = (taille_moniteur.height()//2) - (self.hauteur//2)
         # Créer la structure de projet initiale
         structure()
         # Sauvegarder la configuration initiale
@@ -44,7 +53,7 @@ class Lanceur(QMainWindow):
         img = charger("icon")
         self.setWindowTitle("Lanceur UPBGE")
         self.setWindowIcon(QIcon(img["upbge"]))
-        self.setGeometry(0, 0, 1280, 720)
+        self.setGeometry(int(calcul_l), int(calcul_h), self.largeur, self.hauteur)
         self.centre()
 
     def centre(self):
