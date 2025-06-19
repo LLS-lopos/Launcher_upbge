@@ -5,6 +5,7 @@ from PySide6.QtGui import QAction, QIcon, QGuiApplication
 
 # élément graphique
 from GUI.creer_projet import Creer
+from GUI.export_projet import Exportation
 from GUI.liste_projet import Lprojet
 from GUI.affichage_projet import Affichage_projet
 from GUI.liste_blend import Lblend
@@ -91,10 +92,16 @@ class Lanceur(QMainWindow):
         b_creer_p = QPushButton("+")
         b_creer_p.setStatusTip("créer nouveau projet")
         b_creer_p.clicked.connect(self.fonc_creer_p)
+
+        # Créer un bouton pour exporter un projet
+        b_export_p = QPushButton("export")
+        b_export_p.setStatusTip("exporter le projet")
+        b_export_p.clicked.connect(self.fonc_export_p)
         
         # Ajouter la barre d'outils à la fenêtre principale
         self.tool_barre = self.addToolBar("barre d'outil")
         self.tool_barre.addWidget(b_creer_p)
+        self.tool_barre.addWidget(b_export_p)
 
     def barre_menu(self):
         """
@@ -150,8 +157,19 @@ class Lanceur(QMainWindow):
         Crée et affiche le widget Creer pour créer un nouveau projet,
         en passant la méthode commande_secourre comme rappel de sauvegarde.
         """
-        creer_projet_dialog = Creer(self.commande_secourre)
-        creer_projet_dialog.show()
+        self.creer_projet_dialog = Creer(self.commande_secourre)
+        self.creer_projet_dialog.show()
+    
+    @Slot()
+    def fonc_export_p(self):
+        """
+        Ouvrir la boîte de dialogue d'exportation de projet.
+
+        Crée et affiche le widget Exporter un projet,
+        en passant la méthode commande_secourre comme rappel de sauvegarde.
+        """
+        self.exporter_projet_dialogue = Exportation()
+        self.exporter_projet_dialogue.show()
 
     @Slot()
     def fonc_Quitter(self):  
