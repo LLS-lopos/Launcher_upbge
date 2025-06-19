@@ -1,5 +1,6 @@
 import sys
-from PySide6.QtWidgets import QApplication, QMainWindow, QPushButton, QWidget, QGridLayout, QCheckBox, QWidgetAction
+import platform
+from PySide6.QtWidgets import QApplication, QMainWindow, QPushButton, QWidget, QGridLayout, QCheckBox, QWidgetAction, QMessageBox
 from PySide6.QtCore import Slot
 from PySide6.QtGui import QAction, QIcon, QGuiApplication
 
@@ -168,8 +169,18 @@ class Lanceur(QMainWindow):
         Crée et affiche le widget Exporter un projet,
         en passant la méthode commande_secourre comme rappel de sauvegarde.
         """
-        self.exporter_projet_dialogue = Exportation()
-        self.exporter_projet_dialogue.show()
+        if platform.system() == "Linux":
+            self.exporter_projet_dialogue = Exportation()
+            self.exporter_projet_dialogue.show()
+        else:
+            # Créer une boîte de message d'avertissement
+            msg_box = QMessageBox()
+            msg_box.setIcon(QMessageBox.Warning)
+            msg_box.setText("Avertissement")
+            msg_box.setInformativeText("Cette fonctionnalité est uniquement disponible sur Linux.")
+            msg_box.setWindowTitle("Avertissement")
+            msg_box.setStandardButtons(QMessageBox.Ok)
+            msg_box.exec()  # Afficher la boîte de message
 
     @Slot()
     def fonc_Quitter(self):  
