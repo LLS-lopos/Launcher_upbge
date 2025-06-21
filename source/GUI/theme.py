@@ -117,5 +117,5 @@ class Theme(QMenu):
         with open((config / config_launcher_json), 'r') as f:
             data = json.load(f)
         data["theme"] = choix_theme["theme"]
-        with open((config / config_launcher_json), 'w') as f:
+        with open((config / config_launcher_json), 'w', encoding="utf-8") as f:
             json.dump(data, f, indent=4)

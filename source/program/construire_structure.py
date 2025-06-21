@@ -73,7 +73,17 @@ config_launcher = {
             "game-L-Range": "",
         },
     },
+    "configuration": {
+        "dossier_export": "",
+    },
 }
+
+# vérifier si les éléments de "configuration" existe déjà
+if (config / config_launcher_json).exists():
+    try:
+        with open((config / config_launcher_json), 'r') as f: data = json.load(f)
+        config_launcher["configuration"]["dossier_export"] = data["configuration"]["dossier_export"]
+    except: pass
 
 def structure():
     """

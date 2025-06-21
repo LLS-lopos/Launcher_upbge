@@ -78,7 +78,7 @@ class Creer(QWidget):
 
         # Définir la disposition
         self.setLayout(conteneur)
-        self.setFixedSize(300, (30*5))
+        self.setFixedSize(400, (30*5))
 
     def projet_structure(self):
         """

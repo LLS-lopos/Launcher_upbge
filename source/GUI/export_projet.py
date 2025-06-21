@@ -62,32 +62,30 @@ class Exportation(QWidget):
 
         # Disposition des widgets dans la grille
         conteneur.addWidget(widget_titre, 0, 0, 1, 2)
-        conteneur.addWidget(T_sortie_jeu, 1, 0, 1, 1)
-        conteneur.addWidget(self.sortie_jeu, 1, 1, 1, 1)
-        conteneur.addWidget(self.select_sortie_jeu, 1, 2, 1, 1)
-        conteneur.addWidget(T_dos_projet, 2, 0, 1, 1)
-        conteneur.addWidget(self.projet_jeu, 2, 1, 1, 1)
-        conteneur.addWidget(self.select_projet_jeu, 2, 2, 1, 1)
+        conteneur.addWidget(T_dos_projet, 1, 0, 1, 1)
+        conteneur.addWidget(self.projet_jeu, 1, 1, 1, 1)
+        conteneur.addWidget(self.select_projet_jeu, 1, 2, 1, 1)
 
-        conteneur.addWidget(self.liste_moteur, 3, 0, 1, 3)
-        conteneur.addWidget(self.b_export, 4, 0, 1, 3)
+        conteneur.addWidget(self.liste_moteur, 2, 0, 1, 3)
+        conteneur.addWidget(self.b_export, 3, 0, 1, 3)
         # Définir la disposition
         self.setLayout(conteneur)
-        self.setFixedSize(300, (30*5))
+        self.setFixedSize(400, (30*4))
 
     @Slot()
     def exportation_projet(self):
         dossier_moteur = ""
         projet = pathlib.PosixPath(self.projet_jeu.text())
-        destination = pathlib.PosixPath(self.sortie_jeu.text())
+        destination = pathlib.Path(charger("config_launcher")["configuration"]["dossier_export"])
         moteur = self.liste_moteur.currentText()
         for i in self.dos_moteur:
             if moteur == i.name:
                 dossier_moteur = i
-        print(destination)
+        """print(destination)
         print(projet)
-        print(moteur)
+        print(moteur)"""
         self.copi_element(projet, dossier_moteur, destination)
+        self.lanceurDeJeuSimple(projet, destination)
 
     @Slot()
     def selection_dossier(self, valeur=None):
@@ -99,7 +97,8 @@ class Exportation(QWidget):
             elif valeur == 1:
                 self.projet_jeu.setText(dossier)  # Afficher le chemin du dossier sélectionné
 
-    def copi_element(self, projet, moteur, sortie):
+    def copi_element(self, projet, moteur, sortie: pathlib.Path):
+        #sortie = pathlib.Path(sortie)  # Convert sortie en objet Path
         dos_projet = (sortie / projet.name)
         if not (sortie/projet.name).exists(): (sortie/projet.name).mkdir(exist_ok=True)
 
@@ -116,7 +115,6 @@ class Exportation(QWidget):
                 if i.name != "blenderplayer":
                     run(["rm", i], check=True)
         addons = list(new_dossier.glob('**/scripts'))
-        print(addons)
         for i in addons[0].iterdir():
             if i.is_dir():
                 if i.name not in ["bge", "freestyle", "modules"]:
@@ -124,3 +122,22 @@ class Exportation(QWidget):
         if (dos_projet / "engine").exists():
             run(["rm", "-rf", (dos_projet / "engine")], check=True)
         run(["mv", new_dossier, (new_dossier.parent / "engine")], check=True)
+
+    def lanceurDeJeuSimple(self, jeu, sortie):
+        for i in jeu.iterdir():
+            f_blend = list(jeu.glob("*.blend"))
+        """print(f_blend[0])
+        print(sortie)"""
+        moteur = "./engine/blenderplayer"
+        fichier = f"./data/{str(f_blend[0].name)}"
+        with open((sortie / jeu.name / (str(jeu.name)+".sh")), 'w') as f:
+            f.write(f"#!/bin/bash\n\n")
+            f.write(f"FICHIER_0=\"{fichier}\"\n")
+            f.write(f"MOTEUR=\"{moteur}\"\n\n")
+            f.write(f"# Lancer Le Jeu\n")
+            f.write(f"echo \"Démarrage du jeu\"\n")
+            f.write(f"./$MOTEUR $FICHIER_0")
+
+        try:
+            run(["chmod", "+x", (sortie / jeu.name / (str(jeu.name)+".sh"))], check=True)
+        except: pass
