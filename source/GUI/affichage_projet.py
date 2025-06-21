@@ -85,7 +85,7 @@ class Affichage_projet(QWidget):
     def titre(self):
         widget = QHBoxLayout()
         # Créer un QLabel et définir son texte
-        logo = charger("icon")
+        logo = charger("config_launcher")["icon"]
         f_global = charger("global")
         
         titre = QLabel("Aucun Projet Sélectionné")  # Créer le QLabel sans argument

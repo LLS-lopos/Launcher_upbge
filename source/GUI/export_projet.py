@@ -14,7 +14,8 @@ from program.manipuler_donner import charger
 class Exportation(QWidget):
     def __init__(self):
         super().__init__()
-        icone = charger("icon")
+        self.data_launcher = charger("config_launcher")
+        icone = self.data_launcher['icon']
         self.dos_moteur = []
         # Créer la disposition de la fenêtre
         conteneur = QGridLayout()
@@ -42,7 +43,7 @@ class Exportation(QWidget):
 
         # Configurer la liste des moteurs de jeu
         self.liste_moteur = QComboBox()
-        self.linux = charger("linux")
+        self.linux = self.data_launcher["linux"]
         for cle in self.linux:
             if cle == "executable":
                 for p in self.linux[cle]:
@@ -50,7 +51,7 @@ class Exportation(QWidget):
                         if p.startswith("Linux"):
                             self.liste_moteur.addItem(QIcon(icone.get("linux")), p)
                             self.dos_moteur.append(pathlib.Path(self.linux[cle][p]).parent)
-        self.windows = charger("windows")
+        self.windows = self.data_launcher["windows"]
         for cle in self.windows:
             if cle == "executable":
                 for p in self.windows[cle]:
@@ -72,6 +73,7 @@ class Exportation(QWidget):
         conteneur.addWidget(self.b_export, 4, 0, 1, 3)
         # Définir la disposition
         self.setLayout(conteneur)
+        self.setFixedSize(300, (30*5))
 
     @Slot()
     def exportation_projet(self):

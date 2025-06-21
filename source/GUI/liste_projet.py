@@ -19,7 +19,7 @@ class Lprojet(QWidget):
     def __init__(self):
         super().__init__()
         self.projets = {}  # Dictionnaire pour stocker les projets par onglet
-        self.icone = charger("icon")
+        self.data_launcher = charger("config_launcher")
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
@@ -27,8 +27,8 @@ class Lprojet(QWidget):
         self.tableau.setMaximumWidth(300)
 
         # Charger les projets dès l'initialisation
-        self.charger_tableau("linux")
-        self.charger_tableau("windows")
+        self.charger_tableau(self.data_launcher["linux"], "linux")
+        self.charger_tableau(self.data_launcher["windows"], "windows")
         
         # Ajouter le bouton "Recharger la liste"
         self.b_recharger = QPushButton("Recharger la liste")
@@ -46,9 +46,9 @@ class Lprojet(QWidget):
         self.setLayout(layout)
         self.setFixedWidth((1280 * 0.3))
 
-    def charger_tableau(self, tabeau):
+    def charger_tableau(self, tabeau, district):
         try:
-            projets = charger(tabeau)  # Charger les projets pour l'onglet spécifié
+            projets = tabeau  # Charger les projets pour l'onglet spécifié
         except Exception as e:
             print(f"Erreur lors du chargement des projets : {e}")
             return
@@ -67,7 +67,7 @@ class Lprojet(QWidget):
                         chemin_projet = Path(projet).parent
                         page.itemClicked.connect(lambda item=item, chemin=chemin_projet: self.projet_selectionner(item, chemin))
                     # Ajouter l'onglet avec le nom de la version
-                    self.tableau.addTab(page, QIcon(self.icone.get(tabeau)), f"{version} {tabeau}")
+                    self.tableau.addTab(page, QIcon(self.data_launcher["icon"][district]), f"{version} {district}")
 
     @Slot()
     def projet_selectionner(self, item, chemin):
@@ -82,8 +82,8 @@ class Lprojet(QWidget):
         self.tableau.clear()  # Effacer les onglets existants
         self.projets.clear()  # Réinitialiser le dictionnaire des projets
         # Recharger les projets
-        self.charger_tableau("linux")
-        self.charger_tableau("windows")
+        self.charger_tableau(self.data_launcher["linux"], "linux")
+        self.charger_tableau(self.data_launcher["windows"], "windows")
 
     @Slot()
     def supprimer_projet(self):

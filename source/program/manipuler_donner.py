@@ -16,10 +16,9 @@ if not any("source" in p for p in sys.path):
     sys.path.append(parent_dir)
 
 from .construire_structure import (
-    config, linux_json, windows_json, 
-    icon_json, dos_linux, 
+    config, dos_linux, 
     dos_moteur, dos_windows,
-    global_json, config_json,
+    global_json, config_launcher_json,
     )
 
 def sauvegarder():
@@ -34,82 +33,77 @@ def sauvegarder():
     - config_linux.json : Contient les informations des projets Linux
     - config_windows.json : Contient les informations des projets Windows
     """
-    # Charger et mettre à jour la configuration Linux
-    with open((config / linux_json), "r") as f:
-        linux: dict = json.load(f)
-
+    # Fichier de configuration unique
+    with open((config / config_launcher_json), 'r') as f:
+        config_launcher: dict = json.load(f)
+    
     # Parcourir les projets Linux
     for dossier in dos_linux.iterdir():
         for projet in dossier.iterdir():
             if dossier.name == "2x":
-                linux["projet"]["2x"][str(projet)] = []
+                config_launcher["linux"]["projet"]["2x"][str(projet)] = []
                 for fichier in projet.iterdir():
-                    if fichier.is_file(): linux["projet"]["2x"][str(projet)].append(str(fichier))
+                    if fichier.is_file(): 
+                        config_launcher["linux"]["projet"]["2x"][str(projet)].append(str(fichier))
             elif dossier.name == "3x":
-                linux["projet"]["3x"][str(projet)] = []
+                config_launcher["linux"]["projet"]["3x"][str(projet)] = []
                 for fichier in projet.iterdir():
-                    if fichier.is_file(): linux["projet"]["3x"][str(projet)].append(str(fichier))
+                    if fichier.is_file(): config_launcher["linux"]["projet"]["3x"][str(projet)].append(str(fichier))
             elif dossier.name == "4x":
-                linux["projet"]["4x"][str(projet)] = []
+                config_launcher["linux"]["projet"]["4x"][str(projet)] = []
                 for fichier in projet.iterdir():
-                    if fichier.is_file(): linux["projet"]["4x"][str(projet)].append(str(fichier))
+                    if fichier.is_file(): config_launcher["linux"]["projet"]["4x"][str(projet)].append(str(fichier))
             elif dossier.name == "Range":
-                linux["projet"]["Range"][str(projet)] = []
+                config_launcher["linux"]["projet"]["Range"][str(projet)] = []
                 for fichier in projet.iterdir():
-                    if fichier.is_file(): linux["projet"]["Range"][str(projet)].append(str(fichier))
-    
-    with open((config / windows_json), "r") as f:
-        windows: dict = json.load(f)
+                    if fichier.is_file(): config_launcher["linux"]["projet"]["Range"][str(projet)].append(str(fichier))
 
     # Parcourir les projets Windows
     for dossier in dos_windows.iterdir():
         for projet in dossier.iterdir():
             if dossier.name == "2x":
-                windows["projet"]["2x"][str(projet)] = []
+                config_launcher["windows"]["projet"]["2x"][str(projet)] = []
                 for fichier in projet.iterdir():
-                    if fichier.is_file(): windows["projet"]["2x"][str(projet)].append(str(fichier))
+                    if fichier.is_file(): config_launcher["windows"]["projet"]["2x"][str(projet)].append(str(fichier))
             elif dossier.name == "3x":
-                windows["projet"]["3x"][str(projet)] = []
+                config_launcher["windows"]["projet"]["3x"][str(projet)] = []
                 for fichier in projet.iterdir():
-                    if fichier.is_file(): windows["projet"]["3x"][str(projet)].append(str(fichier))
+                    if fichier.is_file(): config_launcher["windows"]["projet"]["3x"][str(projet)].append(str(fichier))
             elif dossier.name == "4x":
-                windows["projet"]["4x"][str(projet)] = []
+                config_launcher["windows"]["projet"]["4x"][str(projet)] = []
                 for fichier in projet.iterdir():
-                    if fichier.is_file(): windows["projet"]["4x"][str(projet)].append(str(fichier))
+                    if fichier.is_file(): config_launcher["windows"]["projet"]["4x"][str(projet)].append(str(fichier))
             elif dossier.name == "Range":
-                windows["projet"]["Range"][str(projet)] = []
+                config_launcher["windows"]["projet"]["Range"][str(projet)] = []
                 for fichier in projet.iterdir():
-                    if fichier.is_file(): windows["projet"]["Range"][str(projet)].append(str(fichier))
-
-    with open((config / icon_json), "r") as f:
-        icon: dict = json.load(f)
+                    if fichier.is_file(): config_launcher["windows"]["projet"]["Range"][str(projet)].append(str(fichier))
+    
+    # Icone / Exécutable
     for dossier in dos_moteur.iterdir():
         if dossier.is_file():
-            if dossier.name == "linux-svgrepo-com.svg": icon["linux"] = str(dossier)
-            if dossier.name == "microsoft.svg": icon["windows"] = str(dossier)
-            if dossier.name == "upbge.svg": icon["upbge"] = str(dossier)
-            if dossier.name == "range.svg": icon["range"] = str(dossier)
+            if dossier.name == "linux-svgrepo-com.svg": config_launcher["icon"]["linux"] = str(dossier)
+            if dossier.name == "microsoft.svg": config_launcher["icon"]["windows"] = str(dossier)
+            if dossier.name == "upbge.svg": config_launcher["icon"]["upbge"] = str(dossier)
+            if dossier.name == "range.svg": config_launcher["icon"]["range"] = str(dossier)
         if dossier.is_dir():
-            if dossier.name == "Windows-2x": windows["executable"]["Windows-2x"] = str(dossier / "blender.exe")
-            if dossier.name == "Windows-3x": windows["executable"]["Windows-3x"] = str(dossier / "blender.exe")
-            if dossier.name == "Windows-4x": windows["executable"]["Windows-4x"] = str(dossier / "blender.exe")
-            if dossier.name == "Windows-Range": windows["executable"]["Windows-Range"] = str(dossier / "RangeEngine.exe")
-            if dossier.name == "Windows-2x": windows["executable"]["game-2x"] = str(dossier / "blenderplayer.exe")
-            if dossier.name == "Windows-3x": windows["executable"]["game-3x"] = str(dossier / "blenderplayer.exe")
-            if dossier.name == "Windows-4x": windows["executable"]["game-4x"] = str(dossier / "blenderplayer.exe")
-            if dossier.name == "Windows-Range": windows["executable"]["game-W-Range"] = str(dossier / "RangeRuntime.exe")
-            if dossier.name == "Linux-2x": linux["executable"]["Linux-2x"] = str(dossier / "blender")
-            if dossier.name == "Linux-3x": linux["executable"]["Linux-3x"] = str(dossier / "blender")
-            if dossier.name == "Linux-4x": linux["executable"]["Linux-4x"] = str(dossier / "blender")
-            if dossier.name == "Linux-Range": linux["executable"]["Linux-Range"] = str(dossier / "RangeEngine")
-            if dossier.name == "Linux-2x": linux["executable"]["game-2x"] = str(dossier / "blenderplayer")
-            if dossier.name == "Linux-3x": linux["executable"]["game-3x"] = str(dossier / "blenderplayer")
-            if dossier.name == "Linux-4x": linux["executable"]["game-4x"] = str(dossier / "blenderplayer")
-            if dossier.name == "Linux-Range": linux["executable"]["game-L-Range"] = str(dossier / "RangeRuntime")
-    
-    with open((config / linux_json), "w", encoding="utf-8") as f: json.dump(linux, f, indent=4)
-    with open((config / windows_json), "w", encoding="utf-8") as f: json.dump(windows, f, indent=4)
-    with open((config / icon_json), "w", encoding="utf-8") as f: json.dump(icon, f, indent=4)
+            if dossier.name == "Windows-2x": config_launcher["windows"]["executable"]["Windows-2x"] = str(dossier / "blender.exe")
+            if dossier.name == "Windows-3x": config_launcher["windows"]["executable"]["Windows-3x"] = str(dossier / "blender.exe")
+            if dossier.name == "Windows-4x": config_launcher["windows"]["executable"]["Windows-4x"] = str(dossier / "blender.exe")
+            if dossier.name == "Windows-Range": config_launcher["windows"]["executable"]["Windows-Range"] = str(dossier / "RangeEngine.exe")
+            if dossier.name == "Windows-2x": config_launcher["windows"]["executable"]["game-2x"] = str(dossier / "blenderplayer.exe")
+            if dossier.name == "Windows-3x": config_launcher["windows"]["executable"]["game-3x"] = str(dossier / "blenderplayer.exe")
+            if dossier.name == "Windows-4x": config_launcher["windows"]["executable"]["game-4x"] = str(dossier / "blenderplayer.exe")
+            if dossier.name == "Windows-Range": config_launcher["windows"]["executable"]["game-W-Range"] = str(dossier / "RangeRuntime.exe")
+            if dossier.name == "Linux-2x": config_launcher["linux"]["executable"]["Linux-2x"] = str(dossier / "blender")
+            if dossier.name == "Linux-3x": config_launcher["linux"]["executable"]["Linux-3x"] = str(dossier / "blender")
+            if dossier.name == "Linux-4x": config_launcher["linux"]["executable"]["Linux-4x"] = str(dossier / "blender")
+            if dossier.name == "Linux-Range": config_launcher["linux"]["executable"]["Linux-Range"] = str(dossier / "RangeEngine")
+            if dossier.name == "Linux-2x": config_launcher["linux"]["executable"]["game-2x"] = str(dossier / "blenderplayer")
+            if dossier.name == "Linux-3x": config_launcher["linux"]["executable"]["game-3x"] = str(dossier / "blenderplayer")
+            if dossier.name == "Linux-4x": config_launcher["linux"]["executable"]["game-4x"] = str(dossier / "blenderplayer")
+            if dossier.name == "Linux-Range": config_launcher["linux"]["executable"]["game-L-Range"] = str(dossier / "RangeRuntime")
+
+    with open((config / config_launcher_json), 'w', encoding="utf-8") as f: json.dump(config_launcher, f, indent=4)
 
 def charger(element):
     """
@@ -128,26 +122,14 @@ def charger(element):
         json.JSONDecodeError: Si le fichier de configuration n'est pas un JSON valide.
     """
     try:
-        if element == "linux":
-            with open((config / linux_json), "r") as f:
-                linux: dict = json.load(f)
-            return linux
-        elif element == "windows":
-            with open((config / windows_json), "r") as f:
-                windows: dict = json.load(f)
-            return windows
-        elif element == "icon":
-            with open((config / icon_json), "r") as f:
-                icon: dict = json.load(f)
-            return icon
-        elif element == "global":
+        if element == "global":
             with open((config / global_json), "r") as f:
                 glob = json.load(f)
             return glob
-        elif element == "config":
-            with open((config / config_json), "r") as f:
-                conf = json.load(f)
-            return conf
+        elif element == "config_launcher":
+            with open((config / config_launcher_json), 'r') as f:
+                launcher: dict = json.load(f)
+            return launcher
         else:
             print(f"Erreur: élément '{element}' non reconnu. Choix possible: [linux, windows, icon, global, config]")
         return None

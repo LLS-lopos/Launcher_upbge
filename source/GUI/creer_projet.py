@@ -18,30 +18,11 @@ from PIL import Image
 from program.manipuler_donner import charger, sauvegarder
 
 class Creer(QWidget):
-    """
-    Widget pour créer de nouveaux projets de jeux dans le Lanceur UPBGE.
-
-    Cette classe fournit une interface utilisateur pour créer de nouveaux projets de jeux,
-    permettant aux utilisateurs de spécifier les noms de projet et de jeu, 
-    et de sélectionner un moteur de jeu.
-
-    Attributs:
-        nom_projet (QLineEdit): Champ de saisie pour le nom du projet
-        nom_jeu (QLineEdit): Champ de saisie pour le nom du jeu
-        liste_moteur (QComboBox): Liste déroulante pour sélectionner le moteur de jeu
-        save (callable): Fonction de rappel pour sauvegarder les informations du projet
-    """
-
     def __init__(self, save):
-        """
-        Initialiser le widget de création de projet.
-
-        Args:
-            save (callable): Une fonction de rappel pour sauvegarder les informations du projet
-        """
         super().__init__()
         # Charger les icônes
-        icone = charger("icon")
+        self.data_launcher = charger("config_launcher")
+        icone = self.data_launcher["icon"]
         self.save = save
 
         # Créer la disposition de la fenêtre
@@ -59,7 +40,7 @@ class Creer(QWidget):
         # Configurer la liste des moteurs de jeu
         self.liste_moteur = QComboBox()
         # Charger les moteurs Linux
-        self.linux = charger("linux")
+        self.linux = self.data_launcher["linux"]
         for cle in self.linux:
             if cle == "executable":
                 for p in self.linux[cle]:
@@ -68,7 +49,7 @@ class Creer(QWidget):
                             self.liste_moteur.addItem(QIcon(icone.get("linux")), p)
         
         # Charger les moteurs Windows
-        self.windows = charger("windows")
+        self.windows = self.data_launcher["windows"]
         for cle in self.windows:
             if cle == "executable":
                 for p in self.windows[cle]:
@@ -97,11 +78,11 @@ class Creer(QWidget):
 
         # Définir la disposition
         self.setLayout(conteneur)
+        self.setFixedSize(300, (30*5))
 
     def projet_structure(self):
         """
         Créer la structure du projet.
-
         Cette méthode crée les répertoires et fichiers nécessaires pour un nouveau projet.
         """
         description = self.dos_p / "description.txt"
@@ -134,7 +115,6 @@ class Creer(QWidget):
     def lancer_projet(self):
         """
         Créer un nouveau projet basé sur la saisie de l'utilisateur.
-
         Valide la saisie, sauvegarde les informations du projet et ferme la boîte de dialogue.
         Appelle la méthode de sauvegarde de rappel pour conserver les détails du projet.
         """

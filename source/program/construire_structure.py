@@ -25,58 +25,54 @@ dos_linux = source / "Linux"
 dos_windows = source / "Windows"
 
 # Noms des fichiers de configuration
-linux_json = "config_linux.json"
-windows_json = "config_windows.json"
-icon_json = "config_icon.json"
 global_json = "config_global.json"
-config_json = "config.json"
+config_launcher_json = "config_launcher.json"
 
-# Dictionnaires pour stocker les informations sur les projets et les exécutables
-linux = {
-    "projet": {
-        "2x": {},
-        "3x": {},
-        "4x": {},
-        "Range": {},
+# Dictionnaire de configuration logiciel
+config_launcher = {
+    "icon": {
+        "linux": "",
+        "windows": "",
+        "upbge": "",
+        "range": "",
     },
-    "executable": {
-        "Linux-2x": "",
-        "Linux-3x": "",
-        "Linux-4x": "",
-        "Linux-Range": "",
-        "game-2x": "",
-        "game-3x": "",
-        "game-4x": "",
-        "game-L-Range": "",
+    "theme": "",
+    "windows": {
+        "projet": {
+            "2x": {},
+            "3x": {},
+            "4x": {},
+            "Range": {},
+        },
+        "executable": {
+            "Windows-2x": "",
+            "Windows-3x": "",
+            "Windows-4x": "",
+            "Windows-Range": "",
+            "game-2x": "",
+            "game-3x": "",
+            "game-4x": "",
+            "game-W-Range": "",
+        },
     },
-}
-windows = {
-    "projet": {
-        "2x": {},
-        "3x": {},
-        "4x": {},
-        "Range": {},
+    "linux": {
+        "projet": {
+            "2x": {},
+            "3x": {},
+            "4x": {},
+            "Range": {},
+        },
+        "executable": {
+            "Linux-2x": "",
+            "Linux-3x": "",
+            "Linux-4x": "",
+            "Linux-Range": "",
+            "game-2x": "",
+            "game-3x": "",
+            "game-4x": "",
+            "game-L-Range": "",
+        },
     },
-    "executable": {
-        "Windows-2x": "",
-        "Windows-3x": "",
-        "Windows-4x": "",
-        "Windows-Range": "",
-        "game-2x": "",
-        "game-3x": "",
-        "game-4x": "",
-        "game-W-Range": "",
-    },
-}
-# Dictionnaire pour stocker les icônes
-icon = {
-    "linux": "",
-    "windows": "",
-    "upbge": "",
-    "range": "",
-}
-configuration = {
-    "theme": ""
 }
 
 def structure():
@@ -109,11 +105,8 @@ def structure():
 
     # Initialisation des fichiers de configuration
     if not config.exists(): config.mkdir(exist_ok=True)
-    with open((config / linux_json), "w", encoding="utf-8") as f: json.dump(linux, f, indent=4)
-    with open((config / windows_json), "w", encoding="utf-8") as f: json.dump(windows, f, indent=4)
-    with open((config / icon_json), "w", encoding="utf-8") as f: json.dump(icon, f, indent=4)
     with open((config / global_json), "w", encoding="utf-8") as f: json.dump("", f, indent=4)
-    with open((config / config_json), "w", encoding="utf-8") as f: json.dump(configuration, f, indent=4)
+    with open((config / config_launcher_json), 'w', encoding="utf-8") as f: json.dump(config_launcher, f, indent=4)
 
 if __name__ == "__main__":
     structure()

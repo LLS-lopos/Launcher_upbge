@@ -6,10 +6,10 @@ from PySide6.QtCore import QFile, QTextStream, Slot
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import QMenu, QStyleFactory, QApplication
 
-from program.construire_structure import config, config_json
+from program.construire_structure import config, config_launcher_json
 from program.manipuler_donner import charger
 
-choix_theme = charger("config")
+choix_theme = charger("config_launcher")
 
 class Theme(QMenu):
     def __init__(self, text="&Themes", parent=None):
@@ -28,8 +28,8 @@ class Theme(QMenu):
 
         # On récupère le theme de démarrage
         app = QApplication.instance()
-        if choix_theme.get("theme"):
-            currentTheme = choix_theme.get("theme")
+        if choix_theme["theme"]:
+            currentTheme = choix_theme["theme"]
         else:
             currentTheme = app.style().name()
 
@@ -114,8 +114,8 @@ class Theme(QMenu):
     def enregistrer_theme(self, themeName):
         """Enregistre le thème dans le fichier de configuration."""
         choix_theme["theme"] = themeName
-        fichier = choix_theme
-        with open((config / config_json), 'w') as f:
-            json.dump(fichier, f)
-
-
+        with open((config / config_launcher_json), 'r') as f:
+            data = json.load(f)
+        data["theme"] = choix_theme["theme"]
+        with open((config / config_launcher_json), 'w') as f:
+            json.dump(data, f, indent=4)

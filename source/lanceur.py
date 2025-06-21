@@ -5,6 +5,7 @@ from PySide6.QtCore import Slot
 from PySide6.QtGui import QAction, QIcon, QGuiApplication
 
 # élément graphique
+from GUI.configuration import Configuration
 from GUI.creer_projet import Creer
 from GUI.export_projet import Exportation
 from GUI.liste_projet import Lprojet
@@ -16,27 +17,7 @@ from program.construire_structure import structure
 from program.manipuler_donner import sauvegarder, charger
 
 class Lanceur(QMainWindow):
-    """
-    Fenêtre principale de l'application Lanceur UPBGE.
-
-    Cette classe gère l'interface principale du lanceur, incluant 
-    les barres de menu, les barres d'outils et la disposition du widget central.
-
-    Attributs:
-        tool_barre (QToolBar): Barre d'outils pour les actions de l'application
-        barreMenu (QMenuBar): Barre de menu principale de l'application
-    """
-
     def __init__(self, parent=None, m_largeur=0, m_hauteur=0, largeur=1280, hauteur=720):
-        """
-        Initialiser la fenêtre principale du Lanceur.
-
-        Configure les propriétés de base de la fenêtre, crée la structure du projet,
-        sauvegarde la configuration initiale et définit l'icône de la fenêtre.
-
-        Args:
-            parent (QWidget, optional): Widget parent. Par défaut à None.
-        """
         super().__init__(parent)
         self.largeur = largeur
         self.hauteur = hauteur
@@ -52,9 +33,9 @@ class Lanceur(QMainWindow):
         # Sauvegarder la configuration initiale
         sauvegarder()
         # Charger les icônes
-        img = charger("icon")
+        img = charger("config_launcher")
         self.setWindowTitle("Lanceur UPBGE")
-        self.setWindowIcon(QIcon(img["upbge"]))
+        self.setWindowIcon(QIcon(img["icon"]["upbge"]))
         self.setGeometry(int(calcul_l), int(calcul_h), self.largeur, self.hauteur)
         self.centre()
 
@@ -99,10 +80,16 @@ class Lanceur(QMainWindow):
         b_export_p.setStatusTip("exporter le projet")
         b_export_p.clicked.connect(self.fonc_export_p)
         
+        # Créer un bouton pour configurer le logiciel
+        b_config_logi = QPushButton("configuration")
+        b_config_logi.setStatusTip("paramétrer le logiciel")
+        b_config_logi.clicked.connect(self.fonc_config)
+        
         # Ajouter la barre d'outils à la fenêtre principale
         self.tool_barre = self.addToolBar("barre d'outil")
         self.tool_barre.addWidget(b_creer_p)
         self.tool_barre.addWidget(b_export_p)
+        self.tool_barre.addWidget(b_config_logi)
 
     def barre_menu(self):
         """
@@ -181,6 +168,12 @@ class Lanceur(QMainWindow):
             msg_box.setWindowTitle("Avertissement")
             msg_box.setStandardButtons(QMessageBox.Ok)
             msg_box.exec()  # Afficher la boîte de message
+
+    @Slot()
+    def fonc_config(self):
+        self.logi_config = Configuration()
+        self.logi_config.show()
+
 
     @Slot()
     def fonc_Quitter(self):  

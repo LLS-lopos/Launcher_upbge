@@ -11,6 +11,7 @@ source/*/__pycache__/
 main.py
 construire_app.py
 construire_doc.py
+test/
 
 # environnement
 .idea/
