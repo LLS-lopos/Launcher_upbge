@@ -16,7 +16,7 @@ if not any("source" in p for p in sys.path):
     sys.path.append(parent_dir)
 
 from .construire_structure import (
-    config, dos_linux, 
+    config, dos_linux, dos_icon,
     dos_moteur, dos_windows,
     global_json, config_launcher_json,
     )
@@ -79,12 +79,14 @@ def sauvegarder():
                     if fichier.is_file(): config_launcher["windows"]["projet"]["Range"][str(projet)].append(str(fichier))
     
     # Icone / Exécutable
-    for dossier in dos_moteur.iterdir():
+    for dossier in dos_icon.iterdir():
         if dossier.is_file():
             if dossier.name == "linux-svgrepo-com.svg": config_launcher["icon"]["linux"] = str(dossier)
             if dossier.name == "microsoft.svg": config_launcher["icon"]["windows"] = str(dossier)
             if dossier.name == "upbge.svg": config_launcher["icon"]["upbge"] = str(dossier)
             if dossier.name == "range.svg": config_launcher["icon"]["range"] = str(dossier)
+            if dossier.name == "blender.svg": config_launcher["icon"]["blender"] = str(dossier)
+    for dossier in dos_moteur.iterdir():
         if dossier.is_dir():
             if dossier.name == "Windows-2x": config_launcher["windows"]["executable"]["Windows-2x"] = str(dossier / "blender.exe")
             if dossier.name == "Windows-3x": config_launcher["windows"]["executable"]["Windows-3x"] = str(dossier / "blender.exe")

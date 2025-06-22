@@ -33,9 +33,8 @@ class Lanceur(QMainWindow):
         # Sauvegarder la configuration initiale
         sauvegarder()
         # Charger les icônes
-        img = charger("config_launcher")
         self.setWindowTitle("Lanceur UPBGE")
-        self.setWindowIcon(QIcon(img["icon"]["upbge"]))
+        self.setWindowIcon(QIcon(charger("config_launcher")["icon"]["upbge"]))
         self.setGeometry(int(calcul_l), int(calcul_h), self.largeur, self.hauteur)
         self.centre()
 
@@ -72,16 +71,19 @@ class Lanceur(QMainWindow):
         """
         # Créer un bouton pour ajouter un nouveau projet
         b_creer_p = QPushButton("+")
+        b_creer_p.setIcon(QIcon(charger("config_launcher")["icon"]["nouveau_projet"]))
         b_creer_p.setStatusTip("créer nouveau projet")
         b_creer_p.clicked.connect(self.fonc_creer_p)
 
         # Créer un bouton pour exporter un projet
         b_export_p = QPushButton("export")
+        b_export_p.setIcon(QIcon(charger("config_launcher")["icon"]["export_projet"]))
         b_export_p.setStatusTip("exporter le projet")
         b_export_p.clicked.connect(self.fonc_export_p)
         
         # Créer un bouton pour configurer le logiciel
         b_config_logi = QPushButton("configuration")
+        b_config_logi.setIcon(QIcon(charger("config_launcher")["icon"]["config_logiciel"]))
         b_config_logi.setStatusTip("paramétrer le logiciel")
         b_config_logi.clicked.connect(self.fonc_config)
         

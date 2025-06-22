@@ -23,6 +23,7 @@ source = racine / "data"
 dos_moteur = source / "Moteur"
 dos_linux = source / "Linux"
 dos_windows = source / "Windows"
+dos_icon = source / "icone"
 
 # Noms des fichiers de configuration
 global_json = "config_global.json"
@@ -35,6 +36,10 @@ config_launcher = {
         "windows": "",
         "upbge": "",
         "range": "",
+        "blender": "",
+        "nouveau_projet": "",
+        "export_projet": "",
+        "config_logiciel": "",
     },
     "theme": "",
     "windows": {
@@ -112,6 +117,7 @@ def structure():
     for version_m in ["Linux-2x", "Linux-3x", "Linux-4x", "Linux-Range", "Windows-2x", "Windows-3x", "Windows-4x", "Windows-Range"]:
         chemin_m = dos_moteur / version_m
         if not chemin_m.exists(): chemin_m.mkdir(exist_ok=True)
+    if not dos_icon.exists(): dos_icon.mkdir(exist_ok=True)
 
     # Initialisation des fichiers de configuration
     if not config.exists(): config.mkdir(exist_ok=True)
