@@ -19,7 +19,6 @@ from GUI.EditeurDeTexte import LoposEditor
 class Lblend(QWidget):
     def __init__(self, save):
         super().__init__()
-        self.data_launcher = charger("config_launcher")
         self.save = save
         self.old_global = None
         self.lister_blend_range = [] # Gère les fichiers Blender et range (ok)
@@ -251,8 +250,8 @@ class Lblend(QWidget):
                     chemin = Path(i).resolve()
                     parties = list(chemin.parts)
                     base = parties.index('data')
-                    moteur_linux = self.data_launcher["linux"]
-                    moteur_windows = self.data_launcher["windows"]
+                    moteur_linux = charger("config_launcher")["linux"]
+                    moteur_windows = charger("config_launcher")["windows"]
                     if parties[base:base+3] == ['data', 'Linux', '2x']:
                         for cle in moteur_linux["executable"]:
                             if cle == "game-2x":
@@ -343,8 +342,8 @@ class Lblend(QWidget):
                     chemin = Path(fichier_selectionne).resolve()
                     parties = list(chemin.parts)
                     base = parties.index('data')
-                    moteur_linux = self.data_launcher["linux"]
-                    moteur_windows = self.data_launcher["windows"]
+                    moteur_linux = charger("config_launcher")["linux"]
+                    moteur_windows = charger("config_launcher")["windows"]
                     
                     # Déterminer le système d'exploitation et la version
                     systeme = parties[base+1]  # Linux ou Windows

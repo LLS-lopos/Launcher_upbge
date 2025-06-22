@@ -21,8 +21,7 @@ class Creer(QWidget):
     def __init__(self, save):
         super().__init__()
         # Charger les icônes
-        self.data_launcher = charger("config_launcher")
-        icone = self.data_launcher["icon"]
+        icone = charger("config_launcher")["icon"]
         self.save = save
 
         # Créer la disposition de la fenêtre
@@ -40,7 +39,7 @@ class Creer(QWidget):
         # Configurer la liste des moteurs de jeu
         self.liste_moteur = QComboBox()
         # Charger les moteurs Linux
-        self.linux = self.data_launcher["linux"]
+        self.linux = charger("config_launcher")["linux"]
         for cle in self.linux:
             if cle == "executable":
                 for p in self.linux[cle]:
@@ -49,7 +48,7 @@ class Creer(QWidget):
                             self.liste_moteur.addItem(QIcon(icone.get("linux")), p)
         
         # Charger les moteurs Windows
-        self.windows = self.data_launcher["windows"]
+        self.windows = charger("config_launcher")["windows"]
         for cle in self.windows:
             if cle == "executable":
                 for p in self.windows[cle]:
@@ -129,6 +128,9 @@ class Creer(QWidget):
             self.projet_structure()
             if "Range" in moteur:
                 fichier = self.dos_p / f"{jeu}.range"
+                # Création d'un fichier .range vide ou basique
+                if not fichier.exists():
+                    fichier.touch(exist_ok=True)
             else:
                 fichier = self.dos_p / f"{jeu}.blend"
 
