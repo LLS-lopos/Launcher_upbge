@@ -23,7 +23,6 @@ class Exportation(QWidget):
         conteneur.setSpacing(2)
 
         # Titre & Texte
-        widget_titre = QLabel("Exporter")
         T_sortie_jeu = QLabel("dossier d'export: ")
         T_dos_projet = QLabel("dossier projet: ")
 
@@ -61,16 +60,17 @@ class Exportation(QWidget):
                             self.dos_moteur.append(pathlib.Path(self.windows[cle][p]).parent)
 
         # Disposition des widgets dans la grille
-        conteneur.addWidget(widget_titre, 0, 0, 1, 2)
-        conteneur.addWidget(T_dos_projet, 1, 0, 1, 1)
-        conteneur.addWidget(self.projet_jeu, 1, 1, 1, 1)
-        conteneur.addWidget(self.select_projet_jeu, 1, 2, 1, 1)
+        conteneur.addWidget(T_dos_projet, 0, 0, 1, 1)
+        conteneur.addWidget(self.projet_jeu, 0, 1, 1, 1)
+        conteneur.addWidget(self.select_projet_jeu, 0, 2, 1, 1)
 
-        conteneur.addWidget(self.liste_moteur, 2, 0, 1, 3)
-        conteneur.addWidget(self.b_export, 3, 0, 1, 3)
+        conteneur.addWidget(self.liste_moteur, 1, 0, 1, 3)
+        conteneur.addWidget(self.b_export, 2, 0, 1, 3)
         # Définir la disposition
         self.setLayout(conteneur)
-        self.setFixedSize(400, (30*4))
+        self.setFixedSize(400, (30*3))
+        self.setWindowTitle("Exporter")
+        self.setWindowIcon(QIcon(charger("config_launcher")["icon"]["export_projet"]))
 
     @Slot()
     def exportation_projet(self):

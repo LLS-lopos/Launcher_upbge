@@ -86,6 +86,9 @@ def sauvegarder():
             if dossier.name == "upbge.svg": config_launcher["icon"]["upbge"] = str(dossier)
             if dossier.name == "range.svg": config_launcher["icon"]["range"] = str(dossier)
             if dossier.name == "blender.svg": config_launcher["icon"]["blender"] = str(dossier)
+            if dossier.name == "nouveau_projet.svg": config_launcher["icon"]["nouveau_projet"] = str(dossier)
+            if dossier.name == "export_projet.svg": config_launcher["icon"]["export_projet"] = str(dossier)
+            if dossier.name == "config_logiciel.svg": config_launcher["icon"]["config_logiciel"] = str(dossier)
     for dossier in dos_moteur.iterdir():
         if dossier.is_dir():
             if dossier.name == "Windows-2x": config_launcher["windows"]["executable"]["Windows-2x"] = str(dossier / "blender.exe")

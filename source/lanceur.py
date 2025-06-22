@@ -1,7 +1,7 @@
 import sys
 import platform
 from PySide6.QtWidgets import QApplication, QMainWindow, QPushButton, QWidget, QGridLayout, QCheckBox, QWidgetAction, QMessageBox
-from PySide6.QtCore import Slot
+from PySide6.QtCore import Slot, QSize
 from PySide6.QtGui import QAction, QIcon, QGuiApplication
 
 # élément graphique
@@ -70,20 +70,26 @@ class Lanceur(QMainWindow):
         fonction de création de projet.
         """
         # Créer un bouton pour ajouter un nouveau projet
-        b_creer_p = QPushButton("+")
+        b_creer_p = QPushButton()
+        b_creer_p.setFixedSize(40, 40)
         b_creer_p.setIcon(QIcon(charger("config_launcher")["icon"]["nouveau_projet"]))
+        b_creer_p.setIconSize(QSize(35, 35))
         b_creer_p.setStatusTip("créer nouveau projet")
         b_creer_p.clicked.connect(self.fonc_creer_p)
 
         # Créer un bouton pour exporter un projet
-        b_export_p = QPushButton("export")
+        b_export_p = QPushButton()
+        b_export_p.setFixedSize(40, 40)
         b_export_p.setIcon(QIcon(charger("config_launcher")["icon"]["export_projet"]))
+        b_export_p.setIconSize(QSize(35, 35))
         b_export_p.setStatusTip("exporter le projet")
         b_export_p.clicked.connect(self.fonc_export_p)
         
         # Créer un bouton pour configurer le logiciel
-        b_config_logi = QPushButton("configuration")
+        b_config_logi = QPushButton()
+        b_config_logi.setFixedSize(40, 40)
         b_config_logi.setIcon(QIcon(charger("config_launcher")["icon"]["config_logiciel"]))
+        b_config_logi.setIconSize(QSize(35, 35))
         b_config_logi.setStatusTip("paramétrer le logiciel")
         b_config_logi.clicked.connect(self.fonc_config)
         

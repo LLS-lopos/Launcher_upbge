@@ -18,7 +18,7 @@ class LoposEditor(QMainWindow):
         editor.show()
         return editor
 
-    def __init__(self, titre="éditeur de texte", fichier=None, m_largeur=0, m_hauteur=0, largeur=700, hauteur=600):
+    def __init__(self, titre="LPS éditeur", fichier=None, m_largeur=0, m_hauteur=0, largeur=700, hauteur=600):
         super().__init__()
         self.titre = titre
         self.largeur = largeur

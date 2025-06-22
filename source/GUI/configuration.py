@@ -21,7 +21,8 @@
 import json
 from PySide6.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QPushButton, QFileDialog
 from PySide6.QtCore import (Slot)
-from program.manipuler_donner import config_launcher_json, config
+from PySide6.QtGui import QIcon
+from program.manipuler_donner import config_launcher_json, config, charger
 class Configuration(QWidget):
     def __init__(self):
         super().__init__()
@@ -30,24 +31,24 @@ class Configuration(QWidget):
         conteneur.setContentsMargins(2, 2, 2, 2)
         conteneur.setSpacing(2)
 
-        conteneur.addWidget(QLabel("Configuration"), 0, 0, 1, 1)
-
         # dossier d'export
         T_sortie_jeu = QLabel("dossier d'export: ")
         self.sortie_jeu = QLineEdit()
         self.select_sortie_jeu = QPushButton("++")
         self.select_sortie_jeu.clicked.connect(lambda: self.selection_dossier(0))
-        conteneur.addWidget(T_sortie_jeu, 1, 0, 1, 1)
-        conteneur.addWidget(self.sortie_jeu, 1, 1, 1, 1)
-        conteneur.addWidget(self.select_sortie_jeu, 1, 2, 1, 1)
+        conteneur.addWidget(T_sortie_jeu, 0, 0, 1, 1)
+        conteneur.addWidget(self.sortie_jeu, 0, 1, 1, 1)
+        conteneur.addWidget(self.select_sortie_jeu, 0, 2, 1, 1)
 
         # Bouton de sauvegarde
         self.b_save = QPushButton("appliqué")
         self.b_save.clicked.connect(self.appliquer_config)
-        conteneur.addWidget(self.b_save, 2, 2, 1, 1)
+        conteneur.addWidget(self.b_save, 1, 0, 1, 3)
 
         self.setLayout(conteneur)
-        self.setFixedSize(400, (30*3))
+        self.setFixedSize(400, (30*2))
+        self.setWindowTitle("Configuration")
+        self.setWindowIcon(QIcon(charger("config_launcher")["icon"]["config_logiciel"]))
 
     @Slot()
     def selection_dossier(self, valeur=None):

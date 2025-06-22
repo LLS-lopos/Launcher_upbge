@@ -29,9 +29,6 @@ class Creer(QWidget):
         conteneur.setContentsMargins(2, 2, 2, 2)
         conteneur.setSpacing(2)
 
-        # Titre
-        widget_titre = QLabel("Création de Projet")
-
         # Créer les champs de saisie
         self.nom_projet = QLineEdit()
         self.nom_jeu = QLineEdit()
@@ -66,18 +63,19 @@ class Creer(QWidget):
         texte_moteur = QLabel("moteur disponible")
 
         # Disposition des widgets dans la grille
-        conteneur.addWidget(widget_titre, 0, 0, 1, 3)
-        conteneur.addWidget(texte_projet, 1, 0, 2, 1)
-        conteneur.addWidget(self.nom_projet, 1, 1, 2, 2)
-        conteneur.addWidget(texte_jeu, 3, 0, 2, 1)
-        conteneur.addWidget(self.nom_jeu, 3, 1, 2, 2)
-        conteneur.addWidget(texte_moteur, 5, 0, 2, 1)
-        conteneur.addWidget(self.liste_moteur, 5, 1, 2, 2)
-        conteneur.addWidget(b_creer_projet, 7, 0, 1, 3)
+        conteneur.addWidget(texte_projet, 0, 0, 2, 1)
+        conteneur.addWidget(self.nom_projet, 0, 1, 2, 2)
+        conteneur.addWidget(texte_jeu, 2, 0, 2, 1)
+        conteneur.addWidget(self.nom_jeu, 2, 1, 2, 2)
+        conteneur.addWidget(texte_moteur, 4, 0, 2, 1)
+        conteneur.addWidget(self.liste_moteur, 4, 1, 2, 2)
+        conteneur.addWidget(b_creer_projet, 6, 0, 1, 3)
 
         # Définir la disposition
         self.setLayout(conteneur)
-        self.setFixedSize(400, (30*5))
+        self.setFixedSize(400, (30*4))
+        self.setWindowTitle("Création de Projet")
+        self.setWindowIcon(QIcon(charger("config_launcher")["icon"]["nouveau_projet"]))
 
     def projet_structure(self):
         """
