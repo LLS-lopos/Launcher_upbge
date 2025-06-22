@@ -35,3 +35,5 @@ doc/build/*
 Nuitka
 construction_nuitka.txt
 source/sys
+PyInstaller
+construction_pyinstaller.txt

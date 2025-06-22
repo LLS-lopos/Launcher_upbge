@@ -81,11 +81,20 @@ class Exportation(QWidget):
         for i in self.dos_moteur:
             if moteur == i.name:
                 dossier_moteur = i
-        """print(destination)
+        print(destination)
         print(projet)
-        print(moteur)"""
-        self.copi_element(projet, dossier_moteur, destination)
-        self.lanceurDeJeuSimple(projet, destination)
+        print(moteur)
+        lanceur = ""
+        if moteur in ["Linux-2x", "Linux-3x", "Linux-4x"]:
+            lanceur = "blenderplayer"
+        elif moteur in ["Linux-Range"]:
+            lanceur = "RangeRuntime"
+        elif moteur in ["Windows-2x", "Windows-3x", "Windows-4x"]:
+            lanceur = "blenderplayer.exe"
+        elif moteur in ["Windows-Range"]:
+            lanceur = "RangeRuntime.exe"
+        self.copi_element(projet, dossier_moteur, destination, lanceur)
+        self.lanceurDeJeuSimple(projet, destination, lanceur)
 
     @Slot()
     def selection_dossier(self, valeur=None):
@@ -97,7 +106,7 @@ class Exportation(QWidget):
             elif valeur == 1:
                 self.projet_jeu.setText(dossier)  # Afficher le chemin du dossier sélectionné
 
-    def copi_element(self, projet, moteur, sortie: pathlib.Path):
+    def copi_element(self, projet, moteur, sortie: pathlib.Path, executable):
         #sortie = pathlib.Path(sortie)  # Convert sortie en objet Path
         dos_projet = (sortie / projet.name)
         if not (sortie/projet.name).exists(): (sortie/projet.name).mkdir(exist_ok=True)
@@ -112,8 +121,12 @@ class Exportation(QWidget):
         new_dossier = (dos_projet / moteur.name)
         for i in new_dossier.iterdir():
             if i.is_file():
-                if i.name != "blenderplayer":
-                    run(["rm", i], check=True)
+                if i.name != executable:
+                    if executable in ["RangeRuntime", "RangeRuntime.exe"]: print("tous concerver")
+                    elif executable in ["blenderplayer.exe"]:
+                        if not i.name.endswith(".dll"):
+                            run(["rm", i], check=True)
+                    else: run(["rm", i], check=True)
         addons = list(new_dossier.glob('**/scripts'))
         for i in addons[0].iterdir():
             if i.is_dir():
@@ -123,12 +136,18 @@ class Exportation(QWidget):
             run(["rm", "-rf", (dos_projet / "engine")], check=True)
         run(["mv", new_dossier, (new_dossier.parent / "engine")], check=True)
 
-    def lanceurDeJeuSimple(self, jeu, sortie):
+    def lanceurDeJeuSimple(self, jeu, sortie, executable):
         for i in jeu.iterdir():
-            f_blend = list(jeu.glob("*.blend"))
+            if executable in ["blenderplayer", "blenderplayer.exe"]:
+                f_blend = list(jeu.glob("*.blend"))
+            elif executable in ["RangeRuntime", "RangeRuntime.exe"]:
+                f_blend = list(jeu.glob("*.range"))
         """print(f_blend[0])
         print(sortie)"""
-        moteur = "./engine/blenderplayer"
+        wine = None
+        if executable in ["blenderplayer.exe", "RangeRuntime.exe"]:
+            wine = "wine "
+        moteur = f"./engine/{executable}"
         fichier = f"./data/{str(f_blend[0].name)}"
         with open((sortie / jeu.name / (str(jeu.name)+".sh")), 'w') as f:
             f.write(f"#!/bin/bash\n\n")
@@ -136,8 +155,10 @@ class Exportation(QWidget):
             f.write(f"MOTEUR=\"{moteur}\"\n\n")
             f.write(f"# Lancer Le Jeu\n")
             f.write(f"echo \"Démarrage du jeu\"\n")
-            f.write(f"./$MOTEUR $FICHIER_0")
-
+            if wine is not None:
+                f.write(f"{wine}./$MOTEUR $FICHIER_0")
+            else:
+                f.write(f"./$MOTEUR $FICHIER_0")
         try:
             run(["chmod", "+x", (sortie / jeu.name / (str(jeu.name)+".sh"))], check=True)
         except: pass

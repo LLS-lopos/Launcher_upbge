@@ -1,7 +1,23 @@
-# devra être un QWidget dans lequel ce trouvera tous les paramètre de configuration du programme
-# chemin de dossier d'exportation
-# chemin de dossier de projet
-# autre
+# paramètre de configuration du programme
+#
+# élément suivant à ajouter:
+##############################################################################################################
+#                                     Paramètres d'affichage                                                 #
+# Choix de la langue de l'interface.                                                                         #
+# Taille de la police ou style de police.                                                                    #
+#------------------------------------------------------------------------------------------------------------#
+#                                     Paramètres de sauvegarde                                               #
+# Fréquence de sauvegarde automatique.                                                                       #
+# Format de sauvegarde (par exemple, JSON, XML).                                                             #
+#------------------------------------------------------------------------------------------------------------#
+#                                  Paramètres de personnalisation                                            #
+# Options pour personnaliser l'interface utilisateur (par exemple, disposition des fenêtres, couleurs).      #
+#------------------------------------------------------------------------------------------------------------#
+#                                   Paramètres de journalisation                                             #
+# Niveau de détail des journaux (debug, info, warning, error).                                               #
+# Emplacement du fichier de journalisation.                                                                  #
+##############################################################################################################
+
 import json
 from PySide6.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QPushButton, QFileDialog
 from PySide6.QtCore import (Slot)
@@ -43,8 +59,9 @@ class Configuration(QWidget):
 
     @Slot()
     def appliquer_config(self):
-        with open((config / config_launcher_json), 'r') as f:
-            data = json.load(f)
-        data["configuration"]["dossier_export"] = self.sortie_jeu.text()
-        with open((config / config_launcher_json), "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=4)
+        if self.sortie_jeu.text() != "":
+            with open((config / config_launcher_json), 'r') as f:
+                data = json.load(f)
+            data["configuration"]["dossier_export"] = self.sortie_jeu.text()
+            with open((config / config_launcher_json), "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=4)
