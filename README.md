@@ -65,7 +65,7 @@ git clone https://github.com/LLS-lopos/Launcher_upbge.git
 cd Launcher_upbge
 mkdir nuitka_build && cd nuitka_build
 # construction
-nuitka3 --standalone --plugin-enable=pyside6 ../source/lanceur.py --include-data-dir=../source/style=./style --include-data-files=../source/data/Moteur/*.svg=./data/Moteur/ --include-package=GUI --include-package=program
+nuitka3 --standalone --plugin-enable=pyside6 ../source/lanceur.py --include-data-dir=../source/data/icone=./data/icone --include-data-dir=../source/style=./style --include-package=GUI --include-package=program
 ```
 ---
 ## interface && Style
