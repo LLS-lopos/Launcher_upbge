@@ -80,6 +80,7 @@ class Lprojet(QWidget):
     def recharger_liste(self):
         self.tableau.clear()  # Effacer les onglets existants
         self.projets.clear()  # Réinitialiser le dictionnaire des projets
+        sauvegarder()
         # Recharger les projets
         self.charger_tableau(charger("config_launcher")["linux"], "linux")
         self.charger_tableau(charger("config_launcher")["windows"], "windows")
