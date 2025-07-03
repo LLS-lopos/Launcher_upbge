@@ -35,7 +35,6 @@ class CreerFichier(QWidget):
             self.l_niveau.append([texte, position, QLineEdit()])
 
         for b, i in enumerate(self.l_niveau):
-            print(b, i)
             conteneur.addWidget(i[0], b, 0, 1, 1)
             conteneur.addWidget(i[-1], b, 1, 1, 1)
 
@@ -60,7 +59,7 @@ class CreerFichier(QWidget):
         if base is not None:
             print(base)
         else:
-            print("aucun projet sélectionner")
+            return
         
         for dos in base.iterdir():
             if dos.is_dir():
@@ -68,12 +67,15 @@ class CreerFichier(QWidget):
                 for n_1 in dos.iterdir():
                     if n_1.is_dir():
                         nom["N1"].append([n_1.name, n_1])
+                    else: continue
                     for n_2 in n_1.iterdir():
                         if n_2.is_dir():
                             nom["N2"].append([n_2.name, n_2])
+                        else: continue
                         for n_3 in n_2.iterdir():
                             if n_3.is_dir():
                                 nom["N3"].append([n_3.name, n_3])
+                            else: continue
         return nom
 
     def creer_fichier(self):
@@ -83,7 +85,13 @@ class CreerFichier(QWidget):
                 if liste_i != None:
                     for n in liste_i:
                         val = i[1] / n
-                        val.touch(exist_ok = True)
+                        if "/" in str(val):
+                            remix = str(val).split("/")
+                            remix.pop(-1)
+                            n_val = "/".join(remix)
+                            Path(n_val).mkdir(parents=True, exist_ok=True)
+                        val.touch(exist_ok=True)
+        self.l_niveau = []
 
     @Slot()
     def appliquer(self):
