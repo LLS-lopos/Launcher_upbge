@@ -91,6 +91,7 @@ class CreerFichier(QWidget):
                             n_val = "/".join(remix)
                             Path(n_val).mkdir(parents=True, exist_ok=True)
                         val.touch(exist_ok=True)
+                        i[-1].setText("")
         self.l_niveau = []
 
     @Slot()
