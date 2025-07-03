@@ -12,6 +12,8 @@ from GUI.liste_projet import Lprojet
 from GUI.affichage_projet import Affichage_projet
 from GUI.liste_blend import Lblend
 from GUI.theme import Theme
+# app
+from Biblio.librairie_jeux import Jeu
 # fonction backend
 from program.construire_structure import structure
 from program.manipuler_donner import sauvegarder, charger
@@ -92,12 +94,20 @@ class Lanceur(QMainWindow):
         b_config_logi.setIconSize(QSize(35, 35))
         b_config_logi.setStatusTip("paramétrer le logiciel")
         b_config_logi.clicked.connect(self.fonc_config)
+
+        # Créer un bouton pour lancer les jeu exporter
+        b_lib_jeu = QPushButton("LibJeux")
+        b_lib_jeu.setFixedSize(40, 40)
+        b_lib_jeu.setIconSize(QSize(35, 35))
+        b_lib_jeu.setStatusTip("Bibliothèque de jeux")
+        b_lib_jeu.clicked.connect(self.lib_jeu_biblio)
         
         # Ajouter la barre d'outils à la fenêtre principale
         self.tool_barre = self.addToolBar("barre d'outil")
         self.tool_barre.addWidget(b_creer_p)
         self.tool_barre.addWidget(b_export_p)
         self.tool_barre.addWidget(b_config_logi)
+        self.tool_barre.addWidget(b_lib_jeu)
 
     def barre_menu(self):
         """
@@ -155,6 +165,11 @@ class Lanceur(QMainWindow):
         """
         self.creer_projet_dialog = Creer(self.commande_secourre)
         self.creer_projet_dialog.show()
+
+    @Slot()
+    def lib_jeu_biblio(self):
+        self.game = Jeu()
+        self.game.show()
     
     @Slot()
     def fonc_export_p(self):

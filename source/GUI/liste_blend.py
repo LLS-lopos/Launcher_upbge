@@ -15,6 +15,7 @@ from PySide6.QtCore import QTimer, Qt
 
 from program.manipuler_donner import charger
 from GUI.EditeurDeTexte import LoposEditor
+from GUI.creerNouveauFichier import CreerFichier
 
 class Lblend(QWidget):
     def __init__(self, save):
@@ -51,10 +52,14 @@ class Lblend(QWidget):
         # Bouton Tester Fichier
         b_test = QPushButton("Tester Fichier")
         b_test.clicked.connect(self.tester_fichier)
+        # Bouton création de fichier
+        b_nouveau_fichier = QPushButton("Créer Fichier")
+        b_nouveau_fichier.clicked.connect(self.creer_fichier)
 
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
+        layout.addWidget(b_nouveau_fichier)
         layout.addWidget(self.tableau)
         layout.addWidget(b_edition)
         layout.addWidget(b_test)
@@ -394,3 +399,7 @@ class Lblend(QWidget):
                     self.editors_ouverts.append(editor)
         else:
             print("Aucune sélection ou onglet inconnu")
+    
+    def creer_fichier(self):
+        self.new_fichier = CreerFichier()
+        self.new_fichier.show()
