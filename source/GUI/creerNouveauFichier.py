@@ -1,11 +1,12 @@
 import json
+import os
 from PySide6.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QPushButton, QFileDialog
 from PySide6.QtCore import (Slot)
 from PySide6.QtGui import QIcon
-import pathlib
+from subprocess import run
 from pathlib import Path
 from program.manipuler_donner import config_launcher_json, config, charger
-
+from program import creer_blend
 
 class CreerFichier(QWidget):
     def __init__(self):
@@ -90,7 +91,57 @@ class CreerFichier(QWidget):
                             remix.pop(-1)
                             n_val = "/".join(remix)
                             Path(n_val).mkdir(parents=True, exist_ok=True)
-                        val.touch(exist_ok=True)
+
+                        print(f"chemin fichier {val}")
+                        
+                        # Convertir le chemin en chaîne pour la vérification
+                        val_str = str(val)
+                        
+                        executable = None
+                        if "Linux/2x" in val_str:
+                            executable = charger("config_launcher")["linux"]["executable"]["Linux-2x"]
+                        elif "Windows/2x" in val_str:
+                            executable = charger("config_launcher")["windows"]["executable"]["Windows-2x"]
+                        elif "Linux/3x" in val_str:
+                            executable = charger("config_launcher")["linux"]["executable"]["Linux-3x"]
+                        elif "Windows/3x" in val_str:
+                            executable = charger("config_launcher")["windows"]["executable"]["Windows-3x"]
+                        elif "Linux/4x" in val_str:
+                            executable = charger("config_launcher")["linux"]["executable"]["Linux-4x"]
+                        elif "Windows/4x" in val_str:
+                            executable = charger("config_launcher")["windows"]["executable"]["Windows-4x"]
+                        elif "Linux/Range" in val_str:
+                            executable = charger("config_launcher")["linux"]["executable"]["Linux-Range"]
+                        elif "Windows/Range" in val_str:
+                            executable = charger("config_launcher")["windows"]["executable"]["Windows-Range"]
+                        # Vérifier si c'est un fichier .blend
+                        if val_str.endswith('.blend'):
+                            # Créer un fichier .blend vide en utilisant Blender
+                            if executable is not None:
+                                # Obtenir le chemin absolu du script creer_blend.py
+                                script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'program', 'creer_blend.py')
+                                # Construire la commande pour exécuter Blender avec le script
+                                command = [
+                                    executable,
+                                    "-b",  # Mode batch
+                                    "--python-exit-code", "1",  # Pour gérer le code de sortie
+                                    "--python", script_path,  # Exécuter le script Python
+                                    "--",  # Séparateur pour les arguments du script
+                                    str(val)  # Argument du script : le chemin du fichier .blend à créer
+                                ]
+                                print(f"Exécution de la commande: {' '.join(command)}")
+                                # Créer le répertoire parent s'il n'existe pas
+                                os.makedirs(os.path.dirname(os.path.abspath(str(val))), exist_ok=True)
+                                # Exécuter la commande
+                                result = run(command, capture_output=True, text=True)
+                                if result.returncode != 0:
+                                    print(f"Erreur lors de la création du fichier .blend:")
+                                    print(result.stderr)
+                                    raise RuntimeError("Échec de la création du fichier .blend")
+                        else:
+                            # Créer un fichier normal pour les autres extensions
+                            val.touch(exist_ok=True)
+                        
                         i[-1].setText("")
         self.l_niveau = []
 
