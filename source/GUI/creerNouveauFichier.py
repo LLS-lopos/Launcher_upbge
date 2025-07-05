@@ -19,9 +19,11 @@ class CreerFichier(QWidget):
         #### code ####
         text_info = self.lister_dossier()
         self.l_niveau = []
-        texte = QLabel(text_info["N0"][0])
-        position = text_info["N0"][-1]
-        self.l_niveau.append([texte, position, QLineEdit()])
+        try:
+            texte = QLabel(text_info["N0"][0])
+            position = text_info["N0"][-1]
+            self.l_niveau.append([texte, position, QLineEdit()])
+        except: pass
         for n1 in text_info["N1"]:
             texte = QLabel(n1[0])
             position = n1[-1]
