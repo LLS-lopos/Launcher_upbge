@@ -146,3 +146,4 @@ class CreerFichier(QWidget):
     @Slot()
     def appliquer(self):
         self.creer_fichier()
+        self.destroy() # Fermer la fenêtre

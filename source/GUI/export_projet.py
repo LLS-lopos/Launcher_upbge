@@ -95,6 +95,7 @@ class Exportation(QWidget):
             lanceur = "RangeRuntime.exe"
         self.copi_element(projet, dossier_moteur, destination, lanceur)
         self.lanceurDeJeuSimple(projet, destination, lanceur)
+        self.destroy() # Fermer la fenêtre
 
     @Slot()
     def selection_dossier(self, valeur=None):

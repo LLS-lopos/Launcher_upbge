@@ -65,7 +65,7 @@ git clone https://github.com/LLS-lopos/Launcher_upbge.git
 cd Launcher_upbge
 mkdir nuitka_build && cd nuitka_build
 # construction
-nuitka3 --standalone --plugin-enable=pyside6 ../source/lanceur.py --include-data-dir=../source/data/icone=./data/icone --include-data-dir=../source/style=./style --include-package=GUI --include-package=program
+nuitka3 --standalone --plugin-enable=pyside6 ../source/lanceur.py --include-data-dir=../source/data/icone=./data/icone --include-data-files=../source/Scripts/*.py=./Scripts/ --include-data-dir=../source/style=./style --include-package=GUI --include-package=program --include-package=Biblio
 ```
 ---
 ## interface && Style
@@ -85,12 +85,12 @@ nuitka3 --standalone --plugin-enable=pyside6 ../source/lanceur.py --include-data
 ---
 # TODO
 
-- ajouter un support blender
-- rendre plus efficace la reconnaissance des exécutable logiciel
-- ajouter un visualiseur d'images
-- ajouter un visualiseur de vidéo
-- ajouter une meilleurs gestion d'affichage (interface/projet)
-- séparation des tâches (création de projet/fichier)
-- ajouter une bibliothèque(nouvelle interface) de jeu (projets exporter)
+- [] ajouter un support blender
+- [] rendre plus efficace la reconnaissance des exécutable logiciel
+- [] ajouter un visualiseur d'images
+- [] ajouter un visualiseur de vidéo
+- [] ajouter une meilleurs gestion d'affichage (interface/projet)
+- [x] séparation des tâches (création de projet/fichier)
+- [] ajouter une bibliothèque(nouvelle interface) de jeu (projets exporter)
 ---
 Projet en cours de conception

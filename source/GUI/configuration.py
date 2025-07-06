@@ -66,3 +66,4 @@ class Configuration(QWidget):
             data["configuration"]["dossier_export"] = self.sortie_jeu.text()
             with open((config / config_launcher_json), "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=4)
+        self.destroy() # Fermer la fenêtre
