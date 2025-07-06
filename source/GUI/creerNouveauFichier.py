@@ -1,12 +1,10 @@
-import json
 import os
-from PySide6.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QPushButton, QFileDialog
+from PySide6.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QPushButton
 from PySide6.QtCore import (Slot)
 from PySide6.QtGui import QIcon
 from subprocess import run
 from pathlib import Path
-from program.manipuler_donner import config_launcher_json, config, charger
-from Scripts import creer_blend
+from program.manipuler_donner import charger
 
 class CreerFichier(QWidget):
     def __init__(self):
