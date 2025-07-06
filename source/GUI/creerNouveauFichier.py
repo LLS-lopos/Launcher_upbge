@@ -6,7 +6,7 @@ from PySide6.QtGui import QIcon
 from subprocess import run
 from pathlib import Path
 from program.manipuler_donner import config_launcher_json, config, charger
-from program import creer_blend
+from Scripts import creer_blend
 
 class CreerFichier(QWidget):
     def __init__(self):
@@ -19,11 +19,9 @@ class CreerFichier(QWidget):
         #### code ####
         text_info = self.lister_dossier()
         self.l_niveau = []
-        try:
-            texte = QLabel(text_info["N0"][0])
-            position = text_info["N0"][-1]
-            self.l_niveau.append([texte, position, QLineEdit()])
-        except: pass
+        texte = QLabel(text_info["N0"][0])
+        position = text_info["N0"][-1]
+        self.l_niveau.append([texte, position, QLineEdit()])
         for n1 in text_info["N1"]:
             texte = QLabel(n1[0])
             position = n1[-1]
@@ -121,7 +119,7 @@ class CreerFichier(QWidget):
                             # Créer un fichier .blend vide en utilisant Blender
                             if executable is not None:
                                 # Obtenir le chemin absolu du script creer_blend.py
-                                script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'program', 'creer_blend.py')
+                                script_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'Scripts', 'creer_blend.py')
                                 # Construire la commande pour exécuter Blender avec le script
                                 command = [
                                     executable,
