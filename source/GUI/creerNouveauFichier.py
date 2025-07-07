@@ -17,9 +17,11 @@ class CreerFichier(QWidget):
         #### code ####
         text_info = self.lister_dossier()
         self.l_niveau = []
-        texte = QLabel(text_info["N0"][0])
-        position = text_info["N0"][-1]
-        self.l_niveau.append([texte, position, QLineEdit()])
+        try:
+            texte = QLabel(text_info["N0"][0])
+            position = text_info["N0"][-1]
+            self.l_niveau.append([texte, position, QLineEdit()])
+        except: pass
         for n1 in text_info["N1"]:
             texte = QLabel(n1[0])
             position = n1[-1]
@@ -32,10 +34,13 @@ class CreerFichier(QWidget):
             texte = QLabel(n3[0])
             position = n3[-1]
             self.l_niveau.append([texte, position, QLineEdit()])
-
+        
         for b, i in enumerate(self.l_niveau):
-            conteneur.addWidget(i[0], b, 0, 1, 1)
-            conteneur.addWidget(i[-1], b, 1, 1, 1)
+            if i[0].text() in ["Audio", "musique", "sfx", "Modèle 3D", "Police d'écriture", "Texture", "actifs", "donné"]:
+                self.l_niveau.pop(b)
+            else:
+                conteneur.addWidget(i[0], b, 0, 1, 1)
+                conteneur.addWidget(i[-1], b, 1, 1, 1)
 
         bouton_appliquer = QPushButton("Appliquer")
         bouton_appliquer.clicked.connect(lambda: self.appliquer())
