@@ -36,11 +36,10 @@ class CreerFichier(QWidget):
             self.l_niveau.append([texte, position, QLineEdit()])
         
         for b, i in enumerate(self.l_niveau):
-            if i[0].text() in ["Audio", "musique", "sfx", "Modèle 3D", "Police d'écriture", "Texture", "actifs", "donné"]:
-                self.l_niveau.pop(b)
-            else:
+            if i[0].text() in ["scènes", "Licences", "Scripts", "C-Objets", "G-Objets", "Map", "Personnages"]:
                 conteneur.addWidget(i[0], b, 0, 1, 1)
                 conteneur.addWidget(i[-1], b, 1, 1, 1)
+            #else: self.l_niveau.pop(b)
 
         bouton_appliquer = QPushButton("Appliquer")
         bouton_appliquer.clicked.connect(lambda: self.appliquer())
