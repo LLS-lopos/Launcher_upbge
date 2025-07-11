@@ -84,24 +84,34 @@ class LoposEditor(QMainWindow):
             self.current_file = None
 
     def save_file(self):
-        options = QFileDialog.Options()
-        file_name, _ = QFileDialog.getSaveFileName(self, "Sauvegarder le fichier", "", "Text Files (*.txt);;All Files (*)", options=options)
+        file_name, _ = QFileDialog.getSaveFileName(
+            self,
+            "Sauvegarder le fichier",
+            "",
+            "Text Files (*.txt);;All Files (*)",
+            options=QFileDialog.Option(0)  # Use default options
+        )
         if file_name:
             self.current_file = file_name  # Mettre à jour le nom de fichier actuel
-            with open(file_name, 'w') as file:
+            with open(file_name, 'w', encoding='utf-8') as file:
                 file.write(self.text_edit.toPlainText())
 
     def open_file(self):
-        options = QFileDialog.Options()
-        file_name, _ = QFileDialog.getOpenFileName(self, "Ouvrir le fichier", "", "Text Files (*.txt);;All Files (*)", options=options)
+        file_name, _ = QFileDialog.getOpenFileName(
+            self,
+            "Ouvrir le fichier",
+            "",
+            "Text Files (*.txt);;All Files (*)",
+            options=QFileDialog.Option(0)  # Use default options
+        )
         if file_name:
             self.current_file = file_name  # Mettre à jour le nom de fichier actuel
-            with open(file_name, 'r') as file:
+            with open(file_name, 'r', encoding='utf-8') as file:
                 self.text_edit.setPlainText(file.read())
     
     def registre_file(self):
         if self.current_file:  # Vérifier si un fichier a été ouvert ou enregistré
-            with open(self.current_file, 'w') as file:
+            with open(self.current_file, 'w', encoding='utf-8') as file:
                 file.write(self.text_edit.toPlainText())
         else:
             self.save_file()  # Si aucun fichier n'est ouvert, demander à l'utilisateur de sauvegarder
