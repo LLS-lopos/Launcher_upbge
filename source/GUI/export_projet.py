@@ -81,9 +81,7 @@ class Exportation(QWidget):
         for i in self.dos_moteur:
             if moteur == i.name:
                 dossier_moteur = i
-        print(destination)
-        print(projet)
-        print(moteur)
+        print(f"{destination}\n{projet}\n{moteur}")
         lanceur = ""
         if moteur in ["Linux-2x", "Linux-3x", "Linux-4x"]:
             lanceur = "blenderplayer"
@@ -143,8 +141,7 @@ class Exportation(QWidget):
                 f_blend = list(jeu.glob("*.blend"))
             elif executable in ["RangeRuntime", "RangeRuntime.exe"]:
                 f_blend = list(jeu.glob("*.range"))
-        """print(f_blend[0])
-        print(sortie)"""
+        #print(f"{f_blend[0]}\nsortie")
         wine = None
         if executable in ["blenderplayer.exe", "RangeRuntime.exe"]:
             wine = "wine "
@@ -152,9 +149,11 @@ class Exportation(QWidget):
         fichier = f"./data/{str(f_blend[0].name)}"
         with open((sortie / jeu.name / (str(jeu.name)+".sh")), 'w') as f:
             f.write(f"#!/bin/bash\n\n")
+            f.write(f"SOURCE=\"{sortie}/{jeu.name}\"\n")
             f.write(f"FICHIER_0=\"{fichier}\"\n")
             f.write(f"MOTEUR=\"{moteur}\"\n\n")
             f.write(f"# Lancer Le Jeu\n")
+            f.write(f"cd $SOURCE\n")
             f.write(f"echo \"Démarrage du jeu\"\n")
             if wine is not None:
                 f.write(f"{wine}./$MOTEUR $FICHIER_0")
