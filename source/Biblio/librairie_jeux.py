@@ -36,7 +36,7 @@ class Jeu(QWidget):
         self.setLayout(conteneur)
         self.setFixedSize((400+4*conteneur.spacing()), ((60*(len(bouton_lib)//4)+60 if len(bouton_lib)%4 else 60*(len(bouton_lib)//4))+4*conteneur.spacing()))
         self.setWindowTitle("Biblihothèque de Jeu")
-        self.setWindowIcon(QIcon(charger("config_launcher")["icon"]["config_logiciel"]))
+        self.setWindowIcon(QIcon(charger("config_launcher")["icon"]["game"]))
 
     def creation_bouton(self, bouton):
         lib_bibli = []

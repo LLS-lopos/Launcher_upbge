@@ -40,6 +40,7 @@ config_launcher = {
         "nouveau_projet": "",
         "export_projet": "",
         "config_logiciel": "",
+        "game": "",
     },
     "theme": "",
     "windows": {

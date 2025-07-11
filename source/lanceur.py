@@ -96,8 +96,9 @@ class Lanceur(QMainWindow):
         b_config_logi.clicked.connect(self.fonc_config)
 
         # Créer un bouton pour lancer les jeu exporter
-        b_lib_jeu = QPushButton("LibJeux")
+        b_lib_jeu = QPushButton()
         b_lib_jeu.setFixedSize(40, 40)
+        b_lib_jeu.setIcon(QIcon(charger("config_launcher")["icon"]["game"]))
         b_lib_jeu.setIconSize(QSize(35, 35))
         b_lib_jeu.setStatusTip("Bibliothèque de jeux")
         b_lib_jeu.clicked.connect(self.lib_jeu_biblio)
