@@ -39,15 +39,14 @@ class CreerFichier(QWidget):
             if i[0].text() in ["scènes", "Licences", "Scripts", "C-Objets", "G-Objets", "Map", "Personnages"]:
                 conteneur.addWidget(i[0], b, 0, 1, 1)
                 conteneur.addWidget(i[-1], b, 1, 1, 1)
-            #else: self.l_niveau.pop(b)
 
         bouton_appliquer = QPushButton("Appliquer")
         bouton_appliquer.clicked.connect(lambda: self.appliquer())
-        conteneur.addWidget(bouton_appliquer, len(self.l_niveau), 0, 1, 2)
+        conteneur.addWidget(bouton_appliquer, len(self.l_niveau)+1, 0, 1, 2)
         #### code ####
 
         self.setLayout(conteneur)
-        self.setFixedSize(400, (30*(len(self.l_niveau)+1)))
+        self.setFixedSize(400, (16*(len(self.l_niveau))))
         self.setWindowTitle("Création de Fichier")
         self.setWindowIcon(QIcon(charger("config_launcher")["icon"]["config_logiciel"]))
 
