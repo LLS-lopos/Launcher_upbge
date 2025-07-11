@@ -136,29 +136,85 @@ class Exportation(QWidget):
         run(["mv", new_dossier, (new_dossier.parent / "engine")], check=True)
 
     def lanceurDeJeuSimple(self, jeu, sortie, executable):
-        for i in jeu.iterdir():
-            if executable in ["blenderplayer", "blenderplayer.exe"]:
-                f_blend = list(jeu.glob("*.blend"))
-            elif executable in ["RangeRuntime", "RangeRuntime.exe"]:
-                f_blend = list(jeu.glob("*.range"))
-        #print(f"{f_blend[0]}\nsortie")
-        wine = None
-        if executable in ["blenderplayer.exe", "RangeRuntime.exe"]:
-            wine = "wine "
-        moteur = f"./engine/{executable}"
-        fichier = f"./data/{str(f_blend[0].name)}"
-        with open((sortie / jeu.name / (str(jeu.name)+".sh")), 'w') as f:
-            f.write(f"#!/bin/bash\n\n")
-            f.write(f"SOURCE=\"{sortie}/{jeu.name}\"\n")
-            f.write(f"FICHIER_0=\"{fichier}\"\n")
-            f.write(f"MOTEUR=\"{moteur}\"\n\n")
-            f.write(f"# Lancer Le Jeu\n")
-            f.write(f"cd $SOURCE\n")
-            f.write(f"echo \"Démarrage du jeu\"\n")
-            if wine is not None:
-                f.write(f"{wine}./$MOTEUR $FICHIER_0")
-            else:
-                f.write(f"./$MOTEUR $FICHIER_0")
+        # Trouver le fichier .blend ou .range
+        f_blend = []
+        
+        if 'blenderplayer' in executable.lower():
+            f_blend = list(jeu.glob('*.blend'))
+        elif 'rangeruntime' in executable.lower():
+            f_blend = list(jeu.glob('*.range'))
+        
+        if not f_blend:
+            print("Aucun fichier .blend ou .range trouvé dans le projet")
+            return
+            
+        # Préparer les chemins
+        script_path = (sortie / jeu.name / f"{jeu.name}.sh").resolve()
+        data_path = f"./data/{f_blend[0].name}"
+        
+        with open(script_path, 'w', encoding='utf-8') as f:
+            f.write("#!/bin/bash\n\n")
+            f.write("# Obtenir le chemin absolu du script\n")
+            f.write('DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"\n\n')
+            
+            f.write("# Se déplacer dans le répertoire du script\n")
+            f.write('cd "$DIR" || exit 1\n\n')
+            
+            f.write("# Chemins des fichiers\n")
+            f.write('MOTEUR="$DIR/engine/' + executable + '"\n')
+            f.write('FICHIER="$DIR/' + data_path + '"\n\n')
+            
+            f.write("# Vérifier que les fichiers existent\n")
+            f.write('if [ ! -f "$MOTEUR" ]; then\n')
+            f.write('    echo "Erreur: $MOTEUR introuvable" >&2\n')
+            f.write('    echo "Recherche dans: $MOTEUR" >&2\n')
+            f.write('fi\n\n')
+            
+            f.write('echo "Démarrage du jeu depuis: $DIR"\n')
+            f.write('echo "Exécution de: $MOTEUR $FICHIER"\n\n')
+            
+            f.write('# Définir le chemin des bibliothèques\n')
+            f.write('export LD_LIBRARY_PATH="$DIR/engine/lib:$LD_LIBRARY_PATH"\n\n')
+            
+            f.write('# Fonction pour convertir les chemins Linux en chemins Windows pour Wine\n')
+            f.write('wine_path() {\n')
+            f.write('    local path="$1"\n')
+            f.write('    # Convertir le chemin en chemin Windows\n')
+            f.write('    if command -v winepath >/dev/null 2>&1; then\n')
+            f.write('        path=$(winepath -w "$path" 2>/dev/null)\n')
+            f.write('    else\n')
+            f.write('        # Fallback si winepath n\'est pas disponible\n')
+            f.write('        path=$(echo "$path" | sed \'s|^/mnt/\([a-zA-Z]\+\)|\1:|\' | sed \'s|/|\\\\|g\')\n')
+            f.write('    fi\n')
+            f.write('    echo "$path"\n}\n')
+            f.write('\n# Exécuter le jeu avec Wine pour les .exe, sinon directement\n')
+            f.write('if [[ "' + executable + '" == *".exe" ]]; then\n')
+            f.write('    echo "Lancement avec Wine..."\n')
+            f.write('    # Convertir les chemins pour Wine\n')
+            f.write('    WIN_MOTEUR=$(wine_path "$MOTEUR")\n')
+            f.write('    WIN_FICHIER=$(wine_path "$FICHIER")\n')
+            f.write('    # Démarrer en mode fenêtré avec des dimensions fixes\n')
+            f.write('    wine "$WIN_MOTEUR" "$WIN_FICHIER"\n')
+            f.write('else\n')
+            f.write('    # Mode natif\n')
+            f.write('    exec "$MOTEUR" "$FICHIER"\n')
+            f.write('fi\n\n')
+            
+            f.write('# Garder la fenêtre ouverte en cas d\'erreur\n')
+            f.write('if [ $? -ne 0 ]; then\n')
+            f.write('    echo -e "\\nLe jeu s\'est arrêté avec une erreur. Appuyez sur Entrée pour quitter..."\n')
+            f.write('    read -r\n')
+            f.write('fi\n')
+            
+            f.write('# Vérifier si Wine est installé (uniquement pour les .exe)\n')
+            f.write('if [[ "' + executable + '" == *".exe" ]]; then\n')
+            f.write('    if ! command -v wine >/dev/null 2>&1; then\n')
+            f.write('        echo "Erreur: Wine n\'est pas installé. Impossible de lancer les exécutables Windows." >&2\n')
+            f.write('        echo "Installez Wine avec: sudo apt install wine" >&2\n')
+            f.write('        read -p "Appuyez sur Entrée pour quitter..."\n')
+            f.write('        exit 1\n')
+            f.write('    fi\n')
+            f.write('fi\n')
         try:
             run(["chmod", "+x", (sortie / jeu.name / (str(jeu.name)+".sh"))], check=True)
         except: pass
