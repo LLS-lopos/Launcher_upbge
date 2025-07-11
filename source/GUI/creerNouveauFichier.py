@@ -43,7 +43,7 @@ class CreerFichier(QWidget):
 
         bouton_appliquer = QPushButton("Appliquer")
         bouton_appliquer.clicked.connect(lambda: self.appliquer())
-        conteneur.addWidget(bouton_appliquer, len(self.l_niveau)+1, 0, 1, 2)
+        conteneur.addWidget(bouton_appliquer, len(self.l_niveau), 0, 1, 2)
         #### code ####
 
         self.setLayout(conteneur)
