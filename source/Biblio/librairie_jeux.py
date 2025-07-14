@@ -6,7 +6,7 @@ from PySide6.QtCore import (Slot)
 from PySide6.QtGui import QIcon
 from program.manipuler_donner import config_launcher_json, config, charger
 from pathlib import Path
-from subprocess import run
+from subprocess import Popen, PIPE
 
 class Jeu(QWidget):
     def __init__(self):
@@ -66,7 +66,13 @@ class Jeu(QWidget):
             exe.chmod(0o755)
             
             # Lancer le script en spécifiant explicitement le shell
-            run(['/bin/bash', str(exe)], check=True)
+            Popen(
+                ['/bin/bash', str(exe)],
+                stdin=PIPE,
+                stdout=PIPE,
+                stderr=PIPE,
+                start_new_session=True,
+                )
             
         except Exception as e:
             print(f"Erreur lors du lancement du jeu: {e}")
