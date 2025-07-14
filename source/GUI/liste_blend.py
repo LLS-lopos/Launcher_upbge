@@ -169,7 +169,8 @@ class Lblend(QWidget):
         for t in self.f_global:
             if self.f_global["p_actif"]:
                 t = self.f_global["p_actif"]
-                script = Path(t)
+                base = Path(t)
+                script = base / "donné" / "actifs" / "Scripts"
                 break
         if script:
             fichier = []
@@ -184,7 +185,8 @@ class Lblend(QWidget):
         for t in self.f_global:
             if self.f_global["p_actif"]:
                 t = self.f_global["p_actif"]
-                son = Path(t)
+                base = Path(t)
+                son = base / "donné" / "Audio"
                 break
         if son:
             fichier = []
