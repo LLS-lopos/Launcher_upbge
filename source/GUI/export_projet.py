@@ -228,9 +228,7 @@ class Exportation(QWidget):
             f.write('    wine "$WIN_MOTEUR" "$WIN_FICHIER"\n')
             f.write('else\n')
             f.write('    # Mode natif\n')
-            f.write('    # Se placer dans le dossier du moteur pour les dépendances\n')
-            f.write('    cd "$DIR/engine" || exit 1\n')
-            f.write('    exec "./' + executable + '" "../' + data_path + '"\n')
+            f.write('    exec "$MOTEUR" "$FICHIER"\n')
             f.write('fi\n\n')
             
             f.write('# Garder la fenêtre ouverte en cas d\'erreur\n')
