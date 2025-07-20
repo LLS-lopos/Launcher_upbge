@@ -136,7 +136,7 @@ class Affichage_projet(QWidget):
         if f_global:
             for cle, valeur in f_global.items():
                 if cle == "p_actif":
-                    dos = Path(valeur)
+                    dos = Path(valeur) / "data"
                     png = list(dos.glob("*.png"))
                     jpg = list(dos.glob("*.jpg"))
                     for i in png + jpg:
@@ -155,7 +155,7 @@ class Affichage_projet(QWidget):
         if f_global:
             for cle, valeur in f_global.items():
                 if cle == "p_actif":
-                    dos = Path(valeur)
+                    dos = Path(valeur) / "data"
                     # description.txt et Crédits.txt
                     txt = list(dos.glob("**/*.txt"))
                     for fichier in txt:

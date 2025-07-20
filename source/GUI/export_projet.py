@@ -106,50 +106,80 @@ class Exportation(QWidget):
                 self.projet_jeu.setText(dossier)  # Afficher le chemin du dossier sélectionné
 
     def copi_element(self, projet, moteur, sortie: pathlib.Path, executable):
-        #sortie = pathlib.Path(sortie)  # Convert sortie en objet Path
+        """
+        Copie et organise les éléments nécessaires pour l'exportation d'un projet UPBGE.
+        
+        Args:
+            projet (Path): Chemin vers le dossier du projet à exporter
+            moteur (str): Chemin vers le dossier du moteur de jeu (UPBGE)
+            sortie (Path): Dossier de destination pour l'export
+            executable (str): Nom du fichier exécutable du moteur (ex: 'blenderplayer' ou 'RangeRuntime')
+        """
+        # Créer le dossier de destination pour le projet exporté
         dos_projet = (sortie / projet.name)
         if not (sortie/projet.name).exists(): (sortie/projet.name).mkdir(exist_ok=True)
 
-        run(["cp", "-r", projet, dos_projet], check=True)
+        # 1. Copier tout le contenu du projet vers le dossier de destination
+        run(["cp", "-r", (projet / "data"), dos_projet], check=True)
 
-        if (dos_projet / "data").exists():
+        # 2. Réorganiser la structure du projet:
+        #    - Supprimer l'ancien dossier 'data' s'il existe
+        #    - Renommer le dossier du projet en 'data' pour la structure standard UPBGE
+        """if (dos_projet / "data").exists():
             run(["rm", "-rf", (dos_projet / "data")], check=True)
-        run(["mv", (dos_projet / projet.name), (dos_projet / "data")], check=True)
+        run(["mv", (dos_projet / projet.name), (dos_projet / "data")], check=True)"""
 
+        # 3. Copier le moteur de jeu dans le dossier du projet
         run(["cp", "-r", moteur, dos_projet], check=True)
         new_dossier = (dos_projet / moteur.name)
+        
+        # 4. Nettoyer les fichiers inutiles du moteur:
+        #    - Garder uniquement l'exécutable spécifié
+        #    - Pour Windows, conserver les .dll nécessaires
         for i in new_dossier.iterdir():
             if i.is_file():
                 if i.name != executable:
                     if executable in ["RangeRuntime", "RangeRuntime.exe"]: print("tous concerver")
                     elif executable in ["blenderplayer.exe"]:
-                        if not i.name.endswith(".dll"):
-                            run(["rm", i], check=True)
+                        if not i.name.endswith(".dll"): run(["rm", i], check=True)
                     else: run(["rm", i], check=True)
         addons = list(new_dossier.glob('**/scripts'))
-        for i in addons[0].iterdir():
-            if i.is_dir():
-                if i.name not in ["bge", "freestyle", "modules"]:
-                    run(["rm", "-rf", i], check=True)
+        if addons:  # Vérifier si le dossier scripts existe
+            for i in addons[0].iterdir():
+                if i.is_dir():
+                    if i.name not in ["bge", "freestyle", "modules"]:
+                        run(["rm", "-rf", i], check=True)
+        
+        # 6. Renommer le dossier du moteur en 'engine' pour la structure standard
         if (dos_projet / "engine").exists():
             run(["rm", "-rf", (dos_projet / "engine")], check=True)
         run(["mv", new_dossier, (new_dossier.parent / "engine")], check=True)
 
     def lanceurDeJeuSimple(self, jeu, sortie, executable):
-        # Trouver le fichier .blend ou .range
+        """
+        Crée un script shell pour lancer le jeu exporté.
+        
+        Args:
+            jeu (Path): Chemin vers le dossier du projet source
+            sortie (Path): Dossier de destination de l'export
+            executable (str): Nom du fichier exécutable du moteur
+        """
+        # Trouver le fichier .blend ou .range dans le dossier data
+        data_dir = sortie / jeu.name / "data"
         f_blend = []
         
         if 'blenderplayer' in executable.lower():
-            f_blend = list(jeu.glob('*.blend'))
+            f_blend = list(data_dir.glob('*.blend'))
         elif 'rangeruntime' in executable.lower():
-            f_blend = list(jeu.glob('*.range'))
+            f_blend = list(data_dir.glob('*.range'))
         
         if not f_blend:
-            print("Aucun fichier .blend ou .range trouvé dans le projet")
+            print("Aucun fichier .blend ou .range trouvé dans le dossier data du projet")
             return
             
         # Préparer les chemins
         script_path = (sortie / jeu.name / f"{jeu.name}.sh").resolve()
+        # Chemin relatif vers le fichier .blend/.range depuis le dossier racine
         data_path = f"./data/{f_blend[0].name}"
         
         with open(script_path, 'w', encoding='utf-8') as f:
@@ -162,7 +192,8 @@ class Exportation(QWidget):
             
             f.write("# Chemins des fichiers\n")
             f.write('MOTEUR="$DIR/engine/' + executable + '"\n')
-            f.write('FICHIER="$DIR/' + data_path + '"\n\n')
+            f.write('FICHIER="$DIR/' + data_path + '"\n')
+            f.write('DOSSIER_DONNEES="$DIR/data"\n\n')
             
             f.write("# Vérifier que les fichiers existent\n")
             f.write('if [ ! -f "$MOTEUR" ]; then\n')
@@ -197,7 +228,9 @@ class Exportation(QWidget):
             f.write('    wine "$WIN_MOTEUR" "$WIN_FICHIER"\n')
             f.write('else\n')
             f.write('    # Mode natif\n')
-            f.write('    exec "$MOTEUR" "$FICHIER"\n')
+            f.write('    # Se placer dans le dossier du moteur pour les dépendances\n')
+            f.write('    cd "$DIR/engine" || exit 1\n')
+            f.write('    exec "./' + executable + '" "../' + data_path + '"\n')
             f.write('fi\n\n')
             
             f.write('# Garder la fenêtre ouverte en cas d\'erreur\n')

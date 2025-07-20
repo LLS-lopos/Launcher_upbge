@@ -82,13 +82,18 @@ class Creer(QWidget):
         Créer la structure du projet.
         Cette méthode crée les répertoires et fichiers nécessaires pour un nouveau projet.
         """
-        description = self.dos_p / "description.txt"
+        data = self.dos_p / "data"
+        data.mkdir(exist_ok=True)
+
+        description = data / "description.txt"
         description.touch(exist_ok=True)
+
         img = Image.new("RGB", (1280, 720), "white")
-        img.save(self.dos_p / "image.png")
-        d_1 = self.dos_p / "donné"
+        img.save(data / "image.png")
+
+        d_1 = data / "donné"
         d_1.mkdir(exist_ok=True)
-        d_2 = ["actifs", "scènes"]
+        d_2 = ["actifs", "scènes", "save"]
         for i in d_2:
             dos = d_1 / i
             dos.mkdir(exist_ok=True)
@@ -125,12 +130,12 @@ class Creer(QWidget):
             self.dos_p.mkdir(parents=True, exist_ok=True)
             self.projet_structure()
             if "Range" in moteur:
-                fichier = self.dos_p / f"{jeu}.range"
+                fichier = self.dos_p / "data" / f"{jeu}.range"
                 # Création d'un fichier .range vide ou basique
                 if not fichier.exists():
                     fichier.touch(exist_ok=True)
             else:
-                fichier = self.dos_p / f"{jeu}.blend"
+                fichier = self.dos_p / "data" / f"{jeu}.blend"
 
             if n_moteur == "linux": command = [self.linux["executable"].get(moteur), str(fichier)]
             elif n_moteur == "windows": command = ["wine", self.windows["executable"].get(moteur), str(fichier)]

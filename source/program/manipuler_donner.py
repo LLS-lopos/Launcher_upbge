@@ -40,44 +40,27 @@ def sauvegarder():
     # Parcourir les projets Linux
     for dossier in dos_linux.iterdir():
         for projet in dossier.iterdir():
-            if dossier.name == "2x":
-                config_launcher["linux"]["projet"]["2x"][str(projet)] = []
-                for fichier in projet.iterdir():
-                    if fichier.is_file(): 
-                        config_launcher["linux"]["projet"]["2x"][str(projet)].append(str(fichier))
-            elif dossier.name == "3x":
-                config_launcher["linux"]["projet"]["3x"][str(projet)] = []
-                for fichier in projet.iterdir():
-                    if fichier.is_file(): config_launcher["linux"]["projet"]["3x"][str(projet)].append(str(fichier))
-            elif dossier.name == "4x":
-                config_launcher["linux"]["projet"]["4x"][str(projet)] = []
-                for fichier in projet.iterdir():
-                    if fichier.is_file(): config_launcher["linux"]["projet"]["4x"][str(projet)].append(str(fichier))
-            elif dossier.name == "Range":
-                config_launcher["linux"]["projet"]["Range"][str(projet)] = []
-                for fichier in projet.iterdir():
-                    if fichier.is_file(): config_launcher["linux"]["projet"]["Range"][str(projet)].append(str(fichier))
+            if dossier.name in ["2x", "3x", "4x", "Range"]:
+                config_launcher["linux"]["projet"][dossier.name][str(projet)] = []
+                # Ajouter les fichiers du dossier projet/data s'il existe
+                data_dir = projet / "data"
+                if data_dir.exists() and data_dir.is_dir():
+                    for fichier in data_dir.iterdir():
+                        if fichier.is_file():
+                            config_launcher["linux"]["projet"][dossier.name][str(projet)].append(str(fichier))
 
     # Parcourir les projets Windows
     for dossier in dos_windows.iterdir():
         for projet in dossier.iterdir():
-            if dossier.name == "2x":
-                config_launcher["windows"]["projet"]["2x"][str(projet)] = []
-                for fichier in projet.iterdir():
-                    if fichier.is_file(): config_launcher["windows"]["projet"]["2x"][str(projet)].append(str(fichier))
-            elif dossier.name == "3x":
-                config_launcher["windows"]["projet"]["3x"][str(projet)] = []
-                for fichier in projet.iterdir():
-                    if fichier.is_file(): config_launcher["windows"]["projet"]["3x"][str(projet)].append(str(fichier))
-            elif dossier.name == "4x":
-                config_launcher["windows"]["projet"]["4x"][str(projet)] = []
-                for fichier in projet.iterdir():
-                    if fichier.is_file(): config_launcher["windows"]["projet"]["4x"][str(projet)].append(str(fichier))
-            elif dossier.name == "Range":
-                config_launcher["windows"]["projet"]["Range"][str(projet)] = []
-                for fichier in projet.iterdir():
-                    if fichier.is_file(): config_launcher["windows"]["projet"]["Range"][str(projet)].append(str(fichier))
-    
+            if dossier.name in ["2x", "3x", "4x", "Range"]:
+                config_launcher["windows"]["projet"][dossier.name][str(projet)] = []
+                # Ajouter les fichiers du dossier projet/data s'il existe
+                data_dir = projet / "data"
+                if data_dir.exists() and data_dir.is_dir():
+                    for fichier in data_dir.iterdir():
+                        if fichier.is_file():
+                            config_launcher["windows"]["projet"][dossier.name][str(projet)].append(str(fichier))
+            
     # Icone / Exécutable
     for dossier in dos_icon.iterdir():
         if dossier.is_file():

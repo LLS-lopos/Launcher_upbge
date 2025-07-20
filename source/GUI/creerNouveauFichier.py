@@ -34,6 +34,10 @@ class CreerFichier(QWidget):
             texte = QLabel(n3[0])
             position = n3[-1]
             self.l_niveau.append([texte, position, QLineEdit()])
+        for n4 in text_info["N4"]:
+            texte = QLabel(n4[0])
+            position = n4[-1]
+            self.l_niveau.append([texte, position, QLineEdit()])
         
         for b, i in enumerate(self.l_niveau):
             if i[0].text() in ["scènes", "Licences", "Scripts", "C-Objets", "G-Objets", "Map", "Personnages"]:
@@ -56,6 +60,7 @@ class CreerFichier(QWidget):
             "N1": [],
             "N2": [],
             "N3": [],
+            "N4": [],
         }
         base = Path(charger("global")["p_actif"])
         if base is not None:
@@ -78,6 +83,10 @@ class CreerFichier(QWidget):
                             if n_3.is_dir():
                                 nom["N3"].append([n_3.name, n_3])
                             else: continue
+                            for n_4 in n_3.iterdir():
+                                if n_4.is_dir():
+                                    nom["N4"].append([n_4.name, n_4])
+                                else: continue
         return nom
 
     def creer_fichier(self):
