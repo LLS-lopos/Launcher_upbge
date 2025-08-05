@@ -1,4 +1,5 @@
 import sys
+import os
 import platform
 from PySide6.QtWidgets import QApplication, QMainWindow, QPushButton, QWidget, QGridLayout, QCheckBox, QWidgetAction, QMessageBox
 from PySide6.QtCore import Slot, QSize
@@ -12,6 +13,7 @@ from GUI.liste_projet import Lprojet
 from GUI.affichage_projet import Affichage_projet
 from GUI.liste_blend import Lblend
 from GUI.theme import Theme
+from GUI.pybash import PyBash
 # app
 from Biblio.librairie_jeux import Jeu
 # fonction backend
@@ -63,6 +65,11 @@ class Lanceur(QMainWindow):
         grille.addWidget(Lprojet(), 1, 0, 1, 1)
         grille.addWidget(Affichage_projet(), 1, 1, 1, 1)
         grille.addWidget(Lblend(self.commande_secourre), 1, 2, 1, 1)
+        
+        # Ajout du terminal
+        app_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        self.pybash = PyBash(start_dir=app_dir)
+        grille.addWidget(self.pybash, 2, 0, 1, 3)
 
     def barre_outils(self):
         """
