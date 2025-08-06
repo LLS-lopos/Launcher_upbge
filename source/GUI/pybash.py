@@ -7,11 +7,13 @@ import subprocess
 import shlex
 import signal
 from datetime import datetime
-from PySide6.QtCore import QTimer, Signal, Qt, QProcess
-from PySide6.QtGui import QTextCursor, QTextCharFormat, QColor, QFont, QKeyEvent, QTextFormat, QTextCharFormat, QTextDocument
-from PySide6.QtWidgets import (QWidget, QVBoxLayout, QTextEdit, QLineEdit, QApplication, QHBoxLayout, 
-                             QLabel, QPushButton, QScrollBar, QStyle, QSizePolicy, QMessageBox)
-from PySide6.QtGui import QTextCursor, QColor, QTextCharFormat, QFont, QIcon
+from PySide6.QtCore import Qt, QProcess, QProcessEnvironment, Signal, QTimer, QEventLoop
+from PySide6.QtGui import QTextCursor, QTextCharFormat, QColor, QFont
+from PySide6.QtCore import Qt, QProcess, QProcessEnvironment, Signal, QTimer, QEventLoop, QEvent
+from PySide6.QtGui import QTextCursor, QTextCharFormat, QColor, QFont
+from PySide6.QtWidgets import (QTextEdit, QVBoxLayout, QWidget, QLineEdit, 
+                             QHBoxLayout, QPushButton, QApplication, QMessageBox,
+                             QInputDialog, QDialog, QLabel, QDialogButtonBox, QScrollBar, QStyle, QSizePolicy)
 
 # Configuration du logging
 def setup_logging():
@@ -147,14 +149,36 @@ class Terminal(QTextEdit):
         if not self.history:
             return
             
-        if direction < 0 and self.history_index > 0:  # Flèche haut
-            self.history_index -= 1
-        elif direction > 0 and self.history_index < len(self.history) - 1:  # Flèche bas
-            self.history_index += 1
+        # Sauvegarde la commande en cours si on commence à naviguer dans l'historique
+        if not hasattr(self, '_current_unsaved_command') or self.history_index == len(self.history):
+            self._current_unsaved_command = self.get_current_command()
             
-        # Récupère la commande de l'historique
-        cmd = self.history[self.history_index]
-        self.replace_command(cmd)
+        # Navigation dans l'historique
+        if direction < 0:  # Flèche haut
+            if self.history_index > 0:
+                self.history_index -= 1
+            elif self.history_index == -1 and self.history:
+                self.history_index = len(self.history) - 1
+            
+            # Affiche la commande de l'historique
+            if 0 <= self.history_index < len(self.history):
+                cmd = self.history[self.history_index]
+                self.replace_command(cmd)
+                
+        elif direction > 0:  # Flèche bas
+            if self.history_index < len(self.history) - 1:
+                self.history_index += 1
+                # Affiche la commande suivante dans l'historique
+                cmd = self.history[self.history_index]
+                self.replace_command(cmd)
+            else:
+                # Si on est à la fin de l'historique, on restaure la commande non enregistrée
+                if hasattr(self, '_current_unsaved_command'):
+                    self.history_index = len(self.history)
+                    self.replace_command(self._current_unsaved_command)
+                else:
+                    self.history_index = len(self.history)
+                    self.replace_command('')
         
     def replace_command(self, cmd):
         """Remplace la commande en cours par celle spécifiée"""
@@ -198,78 +222,101 @@ class Terminal(QTextEdit):
             return []
             
         # Vérifie si on complète une commande ou un fichier
-        if ' ' in text or text.startswith('cd'):
+        if ' ' in text or text.startswith(('cd', './', '/', '~', '../')):
             # Si la commande commence par 'cd' ou contient un espace, on complète un chemin
             if text.startswith('cd'):
                 # Pour 'cd', on ne complète que les répertoires
                 if text.strip() == 'cd':
-                    # Si juste 'cd', on suggère les dossiers du répertoire courant
                     prefix = 'cd '
                     dirname = '.'
                     basename = ''
                 else:
-                    # Sinon, on extrait le chemin à compléter
+                    # Extraction du chemin à compléter
                     parts = text.split(' ', 1)
-                    prefix = 'cd ' if len(parts) == 1 else 'cd ' + parts[1].rsplit('/', 1)[0] + '/' if '/' in parts[1] else 'cd '
-                    partial = parts[1] if len(parts) > 1 else ''
-                    dirname = os.path.dirname(partial) or '.'
-                    basename = os.path.basename(partial)
+                    if len(parts) > 1:
+                        path = parts[1].strip()
+                        if not path:  # Cas 'cd ' (espace après cd)
+                            dirname = '.'
+                            basename = ''
+                            prefix = 'cd '
+                        else:
+                            # Gestion du ~ pour le home
+                            if path.startswith('~'):
+                                path = os.path.expanduser(path)
+                            # Détermination du répertoire de base et du préfixe
+                            dirname = os.path.dirname(path) or '.'
+                            basename = os.path.basename(path)
+                            prefix = 'cd ' + (os.path.dirname(parts[1]) + '/' if os.path.dirname(parts[1]) else '')
+                    else:
+                        prefix = 'cd '
+                        dirname = '.'
+                        basename = ''
             else:
-                # Pour les autres commandes, on complète fichiers et dossiers
+                # Pour les autres commandes avec des chemins
                 parts = text.rsplit(' ', 1)
                 if len(parts) > 1:
-                    prefix = parts[0] + ' '
-                    partial = parts[-1]
-                    dirname = os.path.dirname(partial) or '.'
-                    basename = os.path.basename(partial)
+                    path = parts[1].strip()
+                    if not path:  # Si le dernier mot est vide après l'espace
+                        dirname = '.'
+                        basename = ''
+                    else:
+                        # Gestion du ~ pour le home
+                        if path.startswith('~'):
+                            path = os.path.expanduser(path)
+                        dirname = os.path.dirname(path) or '.'
+                        basename = os.path.basename(path)
+                    prefix = parts[0] + ' ' + (os.path.dirname(parts[1]) + '/' if os.path.dirname(parts[1]) else '')
                 else:
                     # Si pas d'espace, on complète à partir du répertoire courant
                     prefix = ''
-                    partial = parts[0] if parts[0] else ''
                     dirname = '.'
-                    basename = partial
+                    basename = parts[0]
             
             try:
-                # Liste les fichiers/dossiers correspondants
+                # Normalisation du chemin du répertoire
+                if dirname.startswith('~'):
+                    dirname = os.path.expanduser(dirname)
+                
                 if not os.path.exists(dirname):
                     return []
                     
-                files = os.listdir(dirname)
+                # Liste les fichiers/dossiers correspondants
+                try:
+                    files = os.listdir(dirname)
+                except PermissionError:
+                    return []
                 
-                # Pour 'cd', on ne garde que les dossiers
-                if text.startswith('cd'):
-                    matches = [f + '/' for f in files if f.startswith(basename) 
-                             and os.path.isdir(os.path.join(dirname, f))]
-                else:
-                    # Pour les autres commandes, on garde tout
-                    matches = [f + '/' if os.path.isdir(os.path.join(dirname, f)) else f 
-                              for f in files if f.startswith(basename)]
+                # Filtre les fichiers/dossiers correspondants
+                matches = []
+                for f in files:
+                    if f.startswith(basename):
+                        full_path = os.path.join(dirname, f)
+                        is_dir = os.path.isdir(full_path)
+                        # Pour 'cd', on ne garde que les dossiers
+                        if text.startswith('cd') and not is_dir:
+                            continue
+                        # Ajoute un / à la fin des dossiers
+                        matches.append(f + ('/' if is_dir else ''))
                 
-                # Ajoute le chemin complet si nécessaire
-                if dirname != '.':
-                    base_path = dirname + '/' if not dirname.endswith('/') else dirname
-                    matches = [base_path + f for f in matches]
+                # Si on a un seul match et qu'on est en train de taper un chemin
+                if len(matches) == 1 and (text.endswith('/') or ' ' in text):
+                    single_match = matches[0]
+                    # Si c'est un répertoire, on ouvre directement
+                    if single_match.endswith('/'):
+                        completed = prefix + single_match
+                        return [completed]
                 
-                # Nettoie les chemins (supprime les doubles //)
-                matches = [m.replace('//', '/') for m in matches]
+                # Nettoie les chemins (supprime les doubles // sauf au début)
+                matches = [m.replace('//', '/' if m.startswith('//') else '/') for m in matches]
                 
                 # Ajoute le préfixe de la commande
-                if text.startswith('cd'):
-                    # Pour 'cd', on gère différemment selon si c'est un chemin absolu ou relatif
-                    if not partial.startswith('/') and not partial.startswith('~'):
-                        # Chemin relatif
-                        matches = [prefix + m for m in matches]
-                    else:
-                        # Chemin absolu ou ~
-                        matches = ['cd ' + m for m in matches]
-                else:
-                    # Pour les autres commandes
+                if prefix:
                     matches = [prefix + m for m in matches]
                 
                 return sorted(matches)
                 
             except Exception as e:
-                log(f"Erreur lors de la complétion: {str(e)}", error=True)
+                log(f"Erreur lors de la complétion: {str(e)}\n{traceback.format_exc()}", error=True)
                 return []
         else:
             # Complétion de commande (dans le PATH)
@@ -289,15 +336,26 @@ class Terminal(QTextEdit):
     
     def handle_tab_completion(self):
         """Gère l'auto-complétion avec la touche Tab"""
-        command = self.get_current_command()
-        matches = self.get_completion_matches(command)
-        
-        if not matches:
-            return  # Aucune correspondance
+        try:
+            command = self.get_current_command()
+            if not command.strip() and not self.toPlainText().endswith('$ '):
+                return  # Ne rien faire si pas de commande et pas sur la ligne de commande
+                
+            matches = self.get_completion_matches(command)
             
-        if len(matches) == 1:
-            # Une seule correspondance, on complète
-            self.complete_command(matches[0])
+            if not matches:
+                return  # Aucune correspondance
+                
+            if len(matches) == 1:
+                # Une seule correspondance, on complète
+                self.complete_command(matches[0])
+            else:
+                # Affiche les correspondances possibles
+                self.append_output('\n' + '  '.join(matches) + '\n')
+                # Réaffiche la commande en cours
+                self.append_output(f"{self._prompt_text}{command}", is_command=True)
+        except Exception as e:
+            log(f"Erreur dans handle_tab_completion: {str(e)}\n{traceback.format_exc()}", error=True)
         else:
             # Plusieurs correspondances, on les affiche
             self.append_output("\n" + "  ".join(matches) + "\n")
@@ -360,15 +418,25 @@ class Terminal(QTextEdit):
             self.setTextCursor(cursor)
             return
             
-        # Ajoute la commande à l'historique
-        self.history.append(cmd)
+        # Ajoute la commande à l'historique seulement si elle est différente de la dernière commande
+        if not self.history or cmd != self.history[-1]:
+            self.history.append(cmd)
+            # Limite la taille de l'historique à 1000 commandes
+            if len(self.history) > 1000:
+                self.history.pop(0)
+                
+        # Réinitialise l'index d'historique à la fin de la liste
         self.history_index = len(self.history)
+        
+        # Supprime la commande non enregistrée si elle existe
+        if hasattr(self, '_current_unsaved_command'):
+            delattr(self, '_current_unsaved_command')
         
         # Émet le signal avec la commande
         self.parent().command_entered.emit(cmd)
         
         # Passe à la ligne suivante et affiche un nouveau prompt
-        self.append_output(self._prompt_text, is_prompt=True)
+        self.append_output("\n" + self._prompt_text, is_prompt=True, move_cursor=True)
 
     def append_output(self, text, error=False, move_cursor=True, is_prompt=False, is_separator=False, is_command=False):
         """Ajoute la sortie de la commande
@@ -421,12 +489,18 @@ class PyBash(QWidget):
         self.process = None
         self.terminal = Terminal(self)  # Passer self comme parent
         self.start_dir = start_dir or os.path.expanduser("~")
+        self.current_dir = self.start_dir
+        self.sudo_password = None
+        self.waiting_for_password = False
+        self.pending_commands = []
         self.init_file = None  # Pour stocker le chemin du fichier d'initialisation
+        self.command_history = []  # Historique des commandes
+        self.history_index = -1  # Index de l'historique actuel
         try:
             self.setup_ui()
             self.setup_process()
             self.setMinimumHeight(200)
-            self.setMaximumHeight(300)
+            self.setMaximumHeight(800)
             log("PyBash initialisé avec succès")
         except Exception as e:
             log(f"Erreur lors de l'initialisation de PyBash: {str(e)}\n{traceback.format_exc()}", error=True)
@@ -445,6 +519,8 @@ class PyBash(QWidget):
         self.command_input = QLineEdit()
         self.command_input.setPlaceholderText("Entrez une commande...")
         self.command_input.returnPressed.connect(self.on_command_entered)
+        # Installation d'un filtre d'événement pour gérer les flèches haut/bas
+        self.command_input.installEventFilter(self)
         
         # Layout pour la zone de commande et le bouton
         command_layout = QHBoxLayout()
@@ -463,23 +539,157 @@ class PyBash(QWidget):
     def setup_process(self):
         """Configure le processus pour exécuter les commandes"""
         log("Configuration du processus du terminal...")
-        self.process = None
-        self.process_output = ""
-        self.process_error = ""
+        self.process = QProcess(self)
+        self.process.readyReadStandardOutput.connect(self._read_stdout)
+        self.process.readyReadStandardError.connect(self._read_stderr)
+        self.process.finished.connect(self._process_finished)
         self.current_dir = self.start_dir
         
         # Afficher le prompt initial
         self.show_prompt()
+        
+    def _read_stdout(self):
+        """Lit la sortie standard du processus"""
+        if hasattr(self, 'process') and self.process:
+            try:
+                # Lire toutes les données disponibles
+                while self.process.canReadLine() or self.process.bytesAvailable() > 0:
+                    if self.process.canReadLine():
+                        data = self.process.readLine().data().decode('utf-8', errors='replace')
+                    else:
+                        data = self.process.readAllStandardOutput().data().decode('utf-8', errors='replace')
+                    
+                    if data:
+                        # Filtrer les éventuelles fuites de mot de passe
+                        if hasattr(self, 'sudo_password') and self.sudo_password:
+                            data = data.replace(self.sudo_password, '********')
+                        self.terminal.append_output(data, error=False)
+                        # Forcer la mise à jour de l'interface
+                        QApplication.processEvents()
+                        
+                # Faire défiler vers le bas pour voir les nouvelles sorties
+                cursor = self.terminal.textCursor()
+                cursor.movePosition(QTextCursor.End)
+                self.terminal.setTextCursor(cursor)
+                
+            except Exception as e:
+                log(f"Erreur lors de la lecture de la sortie standard: {str(e)}", error=True)
+    
+    def _read_stderr(self):
+        """Lit la sortie d'erreur du processus"""
+        if hasattr(self, 'process') and self.process:
+            try:
+                # Lire toutes les données d'erreur disponibles
+                while self.process.canReadLine() or self.process.bytesAvailable() > 0:
+                    if self.process.canReadLine():
+                        data = self.process.readLine().data().decode('utf-8', errors='replace')
+                    else:
+                        data = self.process.readAllStandardError().data().decode('utf-8', errors='replace')
+                    
+                    if data:
+                        # Filtrer les éventuelles fuites de mot de passe
+                        if hasattr(self, 'sudo_password') and self.sudo_password:
+                            data = data.replace(self.sudo_password, '********')
+                            # Masquer les messages d'erreur liés à l'authentification
+                            if 'password' in data.lower() and ('incorrect' in data.lower() or 'incorrect' in data.lower()):
+                                data = "[sudo] erreur d'authentification\n"
+                        self.terminal.append_output(data, error=True)
+                        # Forcer la mise à jour de l'interface
+                        QApplication.processEvents()
+                
+                # Faire défiler vers le bas pour voir les nouvelles sorties
+                cursor = self.terminal.textCursor()
+                cursor.movePosition(QTextCursor.End)
+                self.terminal.setTextCursor(cursor)
+                
+            except Exception as e:
+                log(f"Erreur lors de la lecture de la sortie d'erreur: {str(e)}", error=True)
+    
+    def _process_finished(self, exit_code, exit_status):
+        """Appelé quand le processus est terminé"""
+        # Arrêter le timer de timeout
+        if hasattr(self, 'process_timer') and self.process_timer.isActive():
+            self.process_timer.stop()
+        
+        # Lire les dernières données qui pourraient rester dans les buffers
+        self._read_stdout()
+        self._read_stderr()
+        
+        # Afficher le code de sortie si différent de 0
+        if exit_code != 0:
+            # Vérifier s'il s'agit d'une erreur d'authentification
+            if exit_code == 1 and hasattr(self, 'sudo_password') and self.sudo_password:
+                self.terminal.append_output("\n[Erreur d'authentification: mot de passe incorrect]\n", error=True)
+            else:
+                self.terminal.append_output(f"\n[Processus terminé avec le code de sortie {exit_code}]\n", error=True)
+        else:
+            self.terminal.append_output("\n[Processus terminé avec succès]\n")
+            
+        # Nettoyer le script temporaire s'il existe
+        temp_script = "/tmp/temp_sudo_script.sh"
+        if os.path.exists(temp_script):
+            try:
+                os.remove(temp_script)
+            except Exception as e:
+                log(f"Erreur lors de la suppression du script temporaire: {str(e)}", error=True)
+        
+        # Réinitialiser le mot de passe après chaque commande sudo
+        if hasattr(self, 'process') and self.process and 'sudo' in self.process.program():
+            self.sudo_password = None
+            
+        # Exécuter les commandes en attente
+        if self.pending_commands:
+            next_cmd = self.pending_commands.pop(0)
+            QTimer.singleShot(100, lambda: self.execute_command(next_cmd))
+        else:
+            self.show_prompt()
+
+    def is_sudo_required(self, cmd):
+        """Vérifie si la commande nécessite des droits sudo"""
+        return cmd.strip().startswith('sudo ')
+
+    def get_sudo_password(self):
+        """Affiche une boîte de dialogue pour saisir le mot de passe sudo"""
+        password, ok = QInputDialog.getText(
+            self, 
+            'Authentification requise',
+            '[sudo] Mot de passe pour ' + os.getenv('USER', 'utilisateur') + ':',
+            QLineEdit.Password
+        )
+        return password if ok else None
 
     def execute_command(self, cmd):
-        """Exécute une commande dans le terminal"""
+        """Exécute une commande dans le terminal de manière asynchrone"""
         if not cmd.strip():
             return
             
         # Nettoyer la commande
+        original_cmd = cmd
         cmd = self.clean_command(cmd)
-        log(f"Exécution de la commande: {cmd}")
         
+        # Ne pas logger les commandes contenant des mots de passe
+        safe_to_log = not any(sensitive in cmd.lower() for sensitive in ['pass', 'pwd', 'secret', 'token', 'key'])
+        if safe_to_log:
+            log(f"Exécution de la commande: {cmd}")
+        else:
+            log("Exécution d'une commande sensible (masquée dans les logs)")
+        
+        # Si on attend déjà un mot de passe, ajouter à la file d'attente
+        if self.waiting_for_password:
+            self.pending_commands.append(original_cmd)
+            return
+            
+        # Vérifier si la commande nécessite sudo
+        if self.is_sudo_required(cmd) and not self.sudo_password:
+            self.waiting_for_password = True
+            self.sudo_password = self.get_sudo_password()
+            self.waiting_for_password = False
+            
+            if not self.sudo_password:
+                self.terminal.append_output("\n[commande sudo annulée]\n", error=True)
+                self.show_prompt()
+                return
+                
         try:
             # Gestion spéciale pour la commande cd
             if cmd.startswith('cd '):
@@ -487,32 +697,71 @@ class PyBash(QWidget):
                 self._change_directory(new_dir)
                 return
                 
-            # Exécuter la commande avec subprocess
-            process = subprocess.Popen(
-                cmd,
-                shell=True,
-                cwd=self.current_dir,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                executable='/bin/bash'
-            )
+            # Arrêter le processus en cours s'il y en a un
+            if hasattr(self, 'process') and self.process and self.process.state() == QProcess.Running:
+                self.process.kill()
+                self.process.waitForFinished()
             
-            # Lire la sortie complète
-            stdout, stderr = process.communicate()
+            # Créer un nouveau processus
+            self.process = QProcess(self)
+            self.process.readyReadStandardOutput.connect(self._read_stdout)
+            self.process.readyReadStandardError.connect(self._read_stderr)
+            self.process.finished.connect(self._process_finished)
             
-            # Afficher la sortie standard
-            if stdout.strip():
-                self.terminal.append_output(stdout, error=False)
+            # Configurer le processus
+            self.process.setWorkingDirectory(self.current_dir)
+            
+            # Configurer l'environnement pour utiliser bash
+            env = QProcessEnvironment.systemEnvironment()
+            env.insert("SHELL", "/bin/bash")
+            env.insert("PYTHONUNBUFFERED", "1")  # Désactiver la mise en buffer de Python
+            env.insert("PYTHONIOENCODING", "utf-8")
+            env.insert("PYTHONNOUSERSITE", "1")
+            self.process.setProcessEnvironment(env)
+            
+            # Configurer les canaux de sortie
+            self.process.setProcessChannelMode(QProcess.SeparateChannels)  # Pour gérer séparément stdout et stderr
+            self.process.setReadChannel(QProcess.StandardOutput)
+            
+            # Préparer la commande avec sudo si nécessaire
+            if self.is_sudo_required(cmd) and self.sudo_password:
+                # Créer un script temporaire pour exécuter la commande sudo
+                temp_script = "/tmp/temp_sudo_script.sh"
+                cmd_to_execute = cmd[5:].lstrip()
                 
-            # Afficher les erreurs
-            if stderr.strip():
-                self.terminal.append_output(stderr, error=True)
+                # Créer le script avec la commande sudo
+                with open(temp_script, 'w') as f:
+                    f.write('#!/bin/bash\n')
+                    f.write(f'echo "{self.sudo_password}" | sudo -S {cmd_to_execute} 2>/dev/null\n')
+                    f.write('exit $?\n')
+                
+                # Rendre le script exécutable
+                os.chmod(temp_script, 0o700)
+                
+                # Utiliser le script temporaire
+                cmd = f'/bin/bash {temp_script}'
+            
+            # Lancer la commande avec le mode non-bloquant
+            self.process.start("/bin/bash", ["-c", f"set -o pipefail; stdbuf -oL -eL {cmd}"])
+            
+            # Configurer un timer pour gérer les timeouts
+            self.process_timer = QTimer(self)
+            self.process_timer.setSingleShot(True)
+            self.process_timer.timeout.connect(self._handle_process_timeout)
+            self.process_timer.start(30000)  # 30 secondes de timeout
             
         except Exception as e:
             error_msg = f"Erreur lors de l'exécution de la commande: {str(e)}"
             log(error_msg, error=True)
             self.terminal.append_output(f"{error_msg}\n", error=True)
+            self.show_prompt()
+            
+    def _handle_process_timeout(self):
+        """Gère le timeout d'un processus en cours d'exécution"""
+        if hasattr(self, 'process') and self.process and self.process.state() == QProcess.Running:
+            self.process.kill()
+            self.terminal.append_output("\n[Commande interrompue: délai d'attente dépassé]\n", error=True)
+            self.show_prompt()
             
     def _change_directory(self, new_dir):
         """Change le répertoire de travail"""
@@ -578,6 +827,54 @@ class PyBash(QWidget):
         # Afficher le prompt
         self.terminal.append_output(prompt_text, is_prompt=True)
         
+    def eventFilter(self, obj, event):
+        """Filtre les événements pour gérer la navigation dans l'historique"""
+        if obj is self.command_input and event.type() == QEvent.KeyPress:
+            if event.key() == Qt.Key_Up:  # Flèche haut
+                self.navigate_history(-1)
+                return True
+            elif event.key() == Qt.Key_Down:  # Flèche bas
+                self.navigate_history(1)
+                return True
+        return super().eventFilter(obj, event)
+        
+    def navigate_history(self, direction):
+        """Navigue dans l'historique des commandes"""
+        if not self.command_history:
+            return
+            
+        # Sauvegarde la commande en cours si on commence à naviguer dans l'historique
+        if not hasattr(self, '_current_unsaved_command') or self.history_index == len(self.command_history):
+            self._current_unsaved_command = self.command_input.text()
+            
+        # Navigation dans l'historique
+        if direction < 0:  # Flèche haut
+            if self.history_index > 0:
+                self.history_index -= 1
+            elif self.history_index == -1 and self.command_history:
+                self.history_index = len(self.command_history) - 1
+            
+            # Affiche la commande de l'historique
+            if 0 <= self.history_index < len(self.command_history):
+                self.command_input.setText(self.command_history[self.history_index])
+                # Place le curseur à la fin du texte
+                self.command_input.setCursorPosition(len(self.command_input.text()))
+                
+        elif direction > 0:  # Flèche bas
+            if self.history_index < len(self.command_history) - 1:
+                self.history_index += 1
+                # Affiche la commande suivante dans l'historique
+                self.command_input.setText(self.command_history[self.history_index])
+                # Place le curseur à la fin du texte
+                self.command_input.setCursorPosition(len(self.command_input.text()))
+            else:
+                # Si on est à la fin de l'historique, on restaure la commande non enregistrée
+                if hasattr(self, '_current_unsaved_command'):
+                    self.history_index = len(self.command_history)
+                    self.command_input.setText(self._current_unsaved_command)
+                    # Place le curseur à la fin du texte
+                    self.command_input.setCursorPosition(len(self.command_input.text()))
+        
     def on_command_entered(self):
         """Appelé quand une commande est entrée dans le champ de saisie"""
         cmd = self.command_input.text().strip()
@@ -585,6 +882,16 @@ class PyBash(QWidget):
             return
             
         try:
+            # Ajouter la commande à l'historique si elle est différente de la dernière commande
+            if not self.command_history or cmd != self.command_history[-1]:
+                self.command_history.append(cmd)
+                # Limiter la taille de l'historique à 100 commandes
+                if len(self.command_history) > 100:
+                    self.command_history.pop(0)
+            
+            # Réinitialiser l'index d'historique
+            self.history_index = len(self.command_history)
+            
             # Effacer le champ de saisie
             self.command_input.clear()
             
@@ -601,6 +908,10 @@ class PyBash(QWidget):
             
             # Afficher un séparateur après la commande
             self._add_separator()
+            
+            # Supprimer la commande non enregistrée si elle existe
+            if hasattr(self, '_current_unsaved_command'):
+                delattr(self, '_current_unsaved_command')
             
         except Exception as e:
             # En cas d'erreur, afficher l'erreur
@@ -626,19 +937,16 @@ class PyBash(QWidget):
         if hasattr(self, 'process') and self.process:
             log(f"État du processus avant nettoyage: {self.process.state()}")
             if self.process.state() == QProcess.Running:
-                log("Envoi de la commande exit au shell...")
+                log("Détachement du processus pour qu'il continue en arrière-plan...")
                 try:
-                    self.process.write(b'exit\n')
-                    if not self.process.waitForFinished(1000):
-                        log("Le processus ne s'est pas arrêté, tentative de terminaison...")
-                        self.process.terminate()
-                        if not self.process.waitForFinished(1000):
-                            log("Le processus ne répond pas, tentative de kill...")
-                            self.process.kill()
+                    # Détacher le processus pour qu'il continue de s'exécuter
+                    self.process.setParent(None)
+                    self.process.detach()
+                    log("Processus détaché avec succès")
                 except Exception as e:
-                    log(f"Erreur lors de l'arrêt du processus: {str(e)}\n{traceback.format_exc()}", error=True)
+                    log(f"Erreur lors du détachement du processus: {str(e)}\n{traceback.format_exc()}", error=True)
             self.process = None
-            log("Processus nettoyé")
+            log("Nettoyage du terminal terminé")
             
         # Nettoyer le fichier d'initialisation s'il existe
         if hasattr(self, 'init_file') and self.init_file:
@@ -664,6 +972,6 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = PyBash()
     window.setWindowTitle("Terminal Intégré")
-    window.resize(800, 500)
+    window.resize(800, 600)
     window.show()
     sys.exit(app.exec())
