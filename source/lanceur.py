@@ -21,12 +21,10 @@ from program.construire_structure import structure
 from program.manipuler_donner import sauvegarder, charger
 
 class Lanceur(QMainWindow):
-    def __init__(self, parent=None, m_largeur=0, m_hauteur=0, largeur=1280, hauteur=720):
+    def __init__(self, parent=None, largeur=1280, hauteur=720):
         super().__init__(parent)
         self.largeur = largeur
         self.hauteur = hauteur
-        self.m_largeur = m_largeur 
-        self.m_hauteur = m_hauteur 
 
         moniteur = QGuiApplication.primaryScreen()
         taille_moniteur = moniteur.size()
