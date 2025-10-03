@@ -38,7 +38,7 @@ class Exportation(QWidget):
 
         # bouton exportation
         self.b_export = QPushButton("Export")
-        self.b_export.clicked.connect(self.exportation_projet)
+        self.b_export.clicked.connect(lambda: self.exportation_projet())
 
         # Configurer la liste des moteurs de jeu
         self.liste_moteur = QComboBox()
@@ -122,10 +122,9 @@ class Exportation(QWidget):
         if not (sortie/projet.name).exists(): (sortie/projet.name).mkdir(exist_ok=True)
 
         # 1. Copier tout le contenu du projet vers le dossier de destination
-        try:
-            run(["cp", "-r", (projet / "data"), dos_projet], check=True)
-        except:
-            run(["xcopy", (projet / "data"), dos_projet], check=True)
+        if platform.system() == "Windows": run(["xcopy", (projet / "data"), dos_projet], check=True)
+        else: run(["cp", "-r", (projet / "data"), dos_projet], check=True)
+            
 
         # 2. Réorganiser la structure du projet:
         #    - Supprimer l'ancien dossier 'data' s'il existe
@@ -135,10 +134,8 @@ class Exportation(QWidget):
         run(["mv", (dos_projet / projet.name), (dos_projet / "data")], check=True)"""
 
         # 3. Copier le moteur de jeu dans le dossier du projet
-        try:
-            run(["cp", "-r", moteur, dos_projet], check=True)
-        except:
-            run(["xcopy", moteur, dos_projet], check=True)
+        if platform.system() == "Windows": run(["xcopy", moteur, dos_projet], check=True)
+        else: run(["cp", "-r", moteur, dos_projet], check=True)
         new_dossier = (dos_projet / moteur.name)
         
         # 4. Nettoyer les fichiers inutiles du moteur:
@@ -149,11 +146,9 @@ class Exportation(QWidget):
                 if i.name != executable:
                     if executable in ["RangeRuntime", "RangeRuntime.exe"]: print("tous concerver")
                     elif executable in ["blenderplayer.exe"]:
-                        if not i.name.endswith(".dll"): 
-                            try:
-                                run(["rm", i], check=True)
-                            except:
-                                run(["del", i], check=True)                                
+                        if not i.name.endswith(".dll"):
+                            if platform.system() == "Windows": run(["del", i], check=True)     
+                            else: run(["rm", i], check=True)                        
                     else: 
                         try:
                             run(["rm", i], check=True)
@@ -163,21 +158,15 @@ class Exportation(QWidget):
             for i in addons[0].iterdir():
                 if i.is_dir():
                     if i.name not in ["bge", "freestyle", "modules"]:
-                        try:
-                            run(["rm", "-rf", i], check=True)
-                        except:
-                        	run(["rmdir", "/s", "/q", i], check=True)
+                        if platform.system() == "Windows": run(["rmdir", "/s", "/q", i], check=True)
+                        else: run(["rm", "-rf", i], check=True)
         
         # 6. Renommer le dossier du moteur en 'engine' pour la structure standard
         if (dos_projet / "engine").exists():
-            try:
-                run(["rm", "-rf", (dos_projet / "engine")], check=True)
-            except:
-                run(["rmdir", "/s", "/q", (dos_projet / "engine")], check=True)
-        try:
-            run(["mv", new_dossier, (new_dossier.parent / "engine")], check=True)
-        except:
-            run(["MOVE", new_dossier, (new_dossier.parent / "engine")], check=True)
+            if platform.system() == "Windows": run(["rmdir", "/s", "/q", (dos_projet / "engine")], check=True)
+            else: run(["rm", "-rf", (dos_projet / "engine")], check=True)
+        if platform.system() == "Windows": run(["MOVE", new_dossier, (new_dossier.parent / "engine")], check=True)
+        else: run(["mv", new_dossier, (new_dossier.parent / "engine")], check=True)
 
     def lanceurDeJeuSimple(self, jeu, sortie, executable):
         """
