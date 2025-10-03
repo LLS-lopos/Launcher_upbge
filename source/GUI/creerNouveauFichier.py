@@ -121,16 +121,17 @@ class CreerFichier(QWidget):
                         script_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'Scripts', 'creer_blend.py')
 
                         # Créer un fichier .blend vide en utilisant Blender
-                        if executable is not None:
-                            # Construire la commande pour exécuter Blender avec le script
-                            command = [executable,"-b", "--python-exit-code", "1", "--python", script_path, val]
-                            # S'assurer que le dossier parent existe (portable)
-                            Path(val).parent.mkdir(parents=True, exist_ok=True)
-                            result = run(command, capture_output=True, text=True)
-                            if result.returncode != 0:
-                                #print(f"Erreur lors de la création du fichier .blend:")
-                                #print(result.stderr)
-                                raise RuntimeError("Échec de la création du fichier .blend")
+                        if val_str.endswith('.blend'):
+                            if executable is not None:
+                                # Construire la commande pour exécuter Blender avec le script
+                                command = [executable,"-b", "--python-exit-code", "1", "--python", script_path, "--", val]
+                                # S'assurer que le dossier parent existe (portable)
+                                Path(val).parent.mkdir(parents=True, exist_ok=True)
+                                result = run(command, capture_output=True, text=True)
+                                if result.returncode != 0:
+                                    #print(f"Erreur lors de la création du fichier .blend:")
+                                    #print(result.stderr)
+                                    raise RuntimeError("Échec de la création du fichier .blend")
                         else:
                             # Créer un fichier normal pour les autres extensions
                             Path(val).parent.mkdir(parents=True, exist_ok=True)
