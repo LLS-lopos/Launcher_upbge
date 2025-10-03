@@ -4,7 +4,6 @@ import re
 import time
 import traceback
 from datetime import datetime
-from PySide6.QtCore import Qt, QProcess, QProcessEnvironment, Signal, QTimer
 from PySide6.QtGui import QTextCursor, QTextCharFormat, QColor, QFont
 from PySide6.QtCore import Qt, QProcess, QProcessEnvironment, Signal, QTimer, QEvent
 from PySide6.QtGui import QTextCursor, QTextCharFormat, QColor, QFont
