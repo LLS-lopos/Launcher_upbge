@@ -1,5 +1,4 @@
-import os
-import sys
+import os, sys, platform
 
 # Ajouter le répertoire source au PYTHONPATH si nécessaire
 if not any("source" in p for p in sys.path):
@@ -36,13 +35,14 @@ class Creer(QWidget):
         # Configurer la liste des moteurs de jeu
         self.liste_moteur = QComboBox()
         # Charger les moteurs Linux
-        self.linux = charger("config_launcher")["linux"]
-        for cle in self.linux:
-            if cle == "executable":
-                for p in self.linux[cle]:
-                    if Path(self.linux[cle][p]).exists():
-                        if p.startswith("Linux"):
-                            self.liste_moteur.addItem(QIcon(icone.get("linux")), p)
+        if platform.system() == "Linux":
+            self.linux = charger("config_launcher")["linux"]
+            for cle in self.linux:
+                if cle == "executable":
+                    for p in self.linux[cle]:
+                        if Path(self.linux[cle][p]).exists():
+                            if p.startswith("Linux"):
+                                self.liste_moteur.addItem(QIcon(icone.get("linux")), p)
         
         # Charger les moteurs Windows
         self.windows = charger("config_launcher")["windows"]
@@ -137,8 +137,10 @@ class Creer(QWidget):
             else:
                 fichier = self.dos_p / "data" / f"{jeu}.blend"
 
-            if n_moteur == "linux": command = [self.linux["executable"].get(moteur), str(fichier)]
-            elif n_moteur == "windows": command = ["wine", self.windows["executable"].get(moteur), str(fichier)]
+            if platform.system() == "Linux":
+                if n_moteur == "linux": command = [self.linux["executable"].get(moteur), str(fichier)]
+                elif n_moteur == "windows": command = ["wine", self.windows["executable"].get(moteur), str(fichier)]
+            elif platform.system() == "Windows": command = [self.windows["executable"].get(moteur), str(fichier)]
 
             if self.save.checkState() == Qt.Unchecked:
                 try: run(command, check=True)

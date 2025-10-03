@@ -1,4 +1,5 @@
 import os
+import platform
 import re
 import time
 import traceback
@@ -817,7 +818,7 @@ class PyBash(QWidget):
         cwd = os.path.basename(self.current_dir) if self.current_dir != os.path.expanduser('~') else '~'
         
         # Créer le texte du prompt
-        prompt_text = f"{os.getenv('USER', 'user')}@{os.uname().nodename.split('.')[0]}:{cwd}$ "
+        prompt_text = f"{os.getenv('USER', 'user')}@{platform.uname().node.split('.')[0]}:{cwd}$ "
         
         # Afficher le prompt
         self.terminal.append_output(prompt_text, is_prompt=True)

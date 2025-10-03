@@ -1,5 +1,4 @@
-import os
-import sys
+import os, sys, platform
 
 # Ajouter le répertoire source au PYTHONPATH si nécessaire
 if not any("source" in p for p in sys.path):
@@ -143,6 +142,7 @@ class Lblend(QWidget):
         if projet:
             l_p = []
             l_p += list(projet.glob('**/*.blend'))
+            l_p += list(projet.glob('**/*.blend@'))
             l_p += list(projet.glob('**/*.range'))
             self.lister_blend_range = l_p
             self.p_blend_range.clear()
@@ -257,52 +257,69 @@ class Lblend(QWidget):
                     chemin = Path(i).resolve()
                     parties = list(chemin.parts)
                     base = parties.index('data')
-                    moteur_linux = charger("config_launcher")["linux"]
                     moteur_windows = charger("config_launcher")["windows"]
-                    if parties[base:base+3] == ['data', 'Linux', '2x']:
-                        for cle in moteur_linux["executable"]:
-                            if cle == "game-2x":
-                                moteur = moteur_linux["executable"][cle]
-                                commande.append(moteur)
-                    elif parties[base:base+3] == ['data', 'Linux', '3x']:
-                        for cle in moteur_linux["executable"]:
-                            if cle == "game-3x":
-                                moteur = moteur_linux["executable"][cle]
-                                commande.append(moteur)
-                    elif parties[base:base+3] == ['data', 'Linux', '4x']:
-                        for cle in moteur_linux["executable"]:
-                            if cle == "game-4x":
-                                moteur = moteur_linux["executable"][cle]
-                                commande.append(moteur)
-                    elif parties[base:base+3] == ['data', 'Linux', 'Range']:
-                        for cle in moteur_linux["executable"]:
-                            if cle == "game-L-Range":
-                                moteur = moteur_linux["executable"][cle]
-                                commande.append(moteur) 
-                    elif parties[base:base+3] == ['data', 'Windows', '2x']:
-                        for cle in moteur_windows["executable"]:
-                            if cle == "game-2x":
-                                commande.append("wine")
-                                commande.append("Z:" + Path(moteur_windows["executable"][cle]).as_posix())  # Chemin de l'exécutable
-                                i = ("Z:" + str(Path(i)).replace("/", "\\"))  # Chemin du fichier .blend
-                    elif parties[base:base+3] == ['data', 'Windows', '3x']:
-                        for cle in moteur_windows["executable"]:
-                            if cle == "game-3x":
-                                commande.append("wine")
-                                commande.append("Z:" + Path(moteur_windows["executable"][cle]).as_posix())  # Chemin de l'exécutable
-                                i = ("Z:" + str(Path(i)).replace("/", "\\"))  # Chemin du fichier .blend
-                    elif parties[base:base+3] == ['data', 'Windows', '4x']:
-                        for cle in moteur_windows["executable"]:
-                            if cle == "game-4x":
-                                commande.append("wine")
-                                commande.append("Z:" + Path(moteur_windows["executable"][cle]).as_posix())  # Chemin de l'exécutable
-                                i = ("Z:" + str(Path(i)).replace("/", "\\"))  # Chemin du fichier .blend
-                    elif parties[base:base+3] == ['data', 'Windows', 'Range']:
-                        for cle in moteur_windows["executable"]:
-                            if cle == "game-W-Range":
-                                commande.append("wine")
-                                commande.append("Z:" + Path(moteur_windows["executable"][cle]).as_posix())  # Chemin de l'exécutable
-                                i = ("Z:" + str(Path(i)).replace("/", "\\"))  # Chemin du fichier .blend
+                    if platform.system() == "Linux":
+                        moteur_linux = charger("config_launcher")["linux"]
+                        if parties[base:base+3] == ['data', 'Linux', '2x']:
+                            for cle in moteur_linux["executable"]:
+                                if cle == "game-2x":
+                                    moteur = moteur_linux["executable"][cle]
+                                    commande.append(moteur)
+                        elif parties[base:base+3] == ['data', 'Linux', '3x']:
+                            for cle in moteur_linux["executable"]:
+                                if cle == "game-3x":
+                                    moteur = moteur_linux["executable"][cle]
+                                    commande.append(moteur)
+                        elif parties[base:base+3] == ['data', 'Linux', '4x']:
+                            for cle in moteur_linux["executable"]:
+                                if cle == "game-4x":
+                                    moteur = moteur_linux["executable"][cle]
+                                    commande.append(moteur)
+                        elif parties[base:base+3] == ['data', 'Linux', 'Range']:
+                            for cle in moteur_linux["executable"]:
+                                if cle == "game-L-Range":
+                                    moteur = moteur_linux["executable"][cle]
+                                    commande.append(moteur) 
+                        elif parties[base:base+3] == ['data', 'Windows', '2x']:
+                            for cle in moteur_windows["executable"]:
+                                if cle == "game-2x":
+                                    commande.append("wine")
+                                    commande.append("Z:" + Path(moteur_windows["executable"][cle]).as_posix())  # Chemin de l'exécutable
+                                    i = ("Z:" + str(Path(i)).replace("/", "\\"))  # Chemin du fichier .blend
+                        elif parties[base:base+3] == ['data', 'Windows', '3x']:
+                            for cle in moteur_windows["executable"]:
+                                if cle == "game-3x":
+                                    commande.append("wine")
+                                    commande.append("Z:" + Path(moteur_windows["executable"][cle]).as_posix())  # Chemin de l'exécutable
+                                    i = ("Z:" + str(Path(i)).replace("/", "\\"))  # Chemin du fichier .blend
+                        elif parties[base:base+3] == ['data', 'Windows', '4x']:
+                            for cle in moteur_windows["executable"]:
+                                if cle == "game-4x":
+                                    commande.append("wine")
+                                    commande.append("Z:" + Path(moteur_windows["executable"][cle]).as_posix())  # Chemin de l'exécutable
+                                    i = ("Z:" + str(Path(i)).replace("/", "\\"))  # Chemin du fichier .blend
+                        elif parties[base:base+3] == ['data', 'Windows', 'Range']:
+                            for cle in moteur_windows["executable"]:
+                                if cle == "game-W-Range":
+                                    commande.append("wine")
+                                    commande.append("Z:" + Path(moteur_windows["executable"][cle]).as_posix())  # Chemin de l'exécutable
+                                    i = ("Z:" + str(Path(i)).replace("/", "\\"))  # Chemin du fichier .blend
+                    elif platform.system() == "Windows":
+                        if parties[base:base+3] == ['data', 'Windows', '2x']:
+                            for cle in moteur_windows["executable"]:
+                                if cle == "game-2x":
+                                    moteur = moteur_windows["executable"][cle]
+                                    commande.append(moteur)
+                        elif parties[base:base+3] == ['data', 'Windows', '3x']:
+                            for cle in moteur_windows["executable"]:
+                                if cle == "game-3x":
+                                    moteur = moteur_windows["executable"][cle]
+                                    commande.append(moteur)
+                        elif parties[base:base+3] == ['data', 'Windows', '4x']:
+                            for cle in moteur_windows["executable"]:
+                                if cle == "game-4x":
+                                    moteur = moteur_windows["executable"][cle]
+                                    commande.append(moteur)
                     commande.append(str(i))
         if self.save.checkState() == Qt.Unchecked:
             try:
@@ -349,7 +366,7 @@ class Lblend(QWidget):
                     chemin = Path(fichier_selectionne).resolve()
                     parties = list(chemin.parts)
                     base = parties.index('data')
-                    moteur_linux = charger("config_launcher")["linux"]
+                    if platform.system() == "Linux": moteur_linux = charger("config_launcher")["linux"]
                     moteur_windows = charger("config_launcher")["windows"]
                     
                     # Déterminer le système d'exploitation et la version
@@ -360,17 +377,22 @@ class Lblend(QWidget):
                     cle_moteur = f"{systeme}-{version}"
                     
                     # Sélectionner le bon moteur
-                    if systeme == "Linux":
-                        moteur = moteur_linux["executable"].get(cle_moteur)
-                        if moteur:
-                            commande.append(moteur)
-                    
-                    elif systeme == "Windows":
+                    if platform.system() == "Linux":
+                        if systeme == "Linux":
+                            moteur = moteur_linux["executable"].get(cle_moteur)
+                            if moteur:
+                                commande.append(moteur)
+                        
+                        elif systeme == "Windows":
+                            moteur = moteur_windows["executable"].get(cle_moteur)
+                            if moteur:
+                                commande.append("wine")
+                                commande.append("Z:" + Path(moteur).as_posix())  # Chemin de l'exécutable
+                                fichier_selectionne = ("Z:" + str(Path(fichier_selectionne)).replace("/", "\\"))  # Chemin du fichier .blend
+                    elif platform.system() == "Windows":
                         moteur = moteur_windows["executable"].get(cle_moteur)
                         if moteur:
-                            commande.append("wine")
-                            commande.append("Z:" + Path(moteur).as_posix())  # Chemin de l'exécutable
-                            fichier_selectionne = ("Z:" + str(Path(fichier_selectionne)).replace("/", "\\"))  # Chemin du fichier .blend
+                            commande.append(moteur)  # Chemin de l'exécutable
                     commande.append(fichier_selectionne)
                     
                     # Gestion de l'exécution avec ou sans commande de vauvetage

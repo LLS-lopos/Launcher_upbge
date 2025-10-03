@@ -1,5 +1,6 @@
 import sys
 import os
+from pathlib import Path
 
 def creation(fichier):
     """
@@ -8,13 +9,13 @@ def creation(fichier):
     """
     try:
         import bpy
-        # (Optionnel) Supprimer tous les objets de la scène par défaut
-        bpy.ops.object.select_all(action='SELECT')
-        bpy.ops.object.delete(use_global=False)
-        # Créer le répertoire parent s'il n'existe pas
-        os.makedirs(os.path.dirname(os.path.abspath(fichier)), exist_ok=True)
+        # Démarrer avec une scène vide propre
+        bpy.ops.wm.read_factory_settings(use_empty=True)
+        # Préparer le chemin de sortie de manière portable
+        p = Path(fichier).resolve()
+        p.parent.mkdir(parents=True, exist_ok=True)
         # Sauvegarder le fichier .blend à l'emplacement souhaité
-        bpy.ops.wm.save_as_mainfile(filepath=fichier)
+        bpy.ops.wm.save_as_mainfile(filepath=str(p))
         return True
     except Exception as e:
         print(f"Erreur lors de la création du fichier .blend: {e}", file=sys.stderr)

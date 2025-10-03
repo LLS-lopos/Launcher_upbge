@@ -185,7 +185,9 @@ class Lanceur(QMainWindow):
         Crée et affiche le widget Exporter un projet,
         en passant la méthode commande_secourre comme rappel de sauvegarde.
         """
-        if platform.system() == "Linux":
+        self.exporter_projet_dialogue = Exportation()
+        self.exporter_projet_dialogue.show()
+        """if platform.system() == "Linux":
             self.exporter_projet_dialogue = Exportation()
             self.exporter_projet_dialogue.show()
         else:
@@ -196,7 +198,7 @@ class Lanceur(QMainWindow):
             msg_box.setInformativeText("Cette fonctionnalité est uniquement disponible sur Linux.")
             msg_box.setWindowTitle("Avertissement")
             msg_box.setStandardButtons(QMessageBox.Ok)
-            msg_box.exec()  # Afficher la boîte de message
+            msg_box.exec()  # Afficher la boîte de message"""
 
     @Slot()
     def fonc_config(self):

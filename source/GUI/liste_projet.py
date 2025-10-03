@@ -1,5 +1,6 @@
 import os
 import sys
+import platform
 
 # Ajouter le répertoire source au PYTHONPATH si nécessaire
 if not any("source" in p for p in sys.path):
@@ -26,7 +27,7 @@ class Lprojet(QWidget):
         self.tableau.setMaximumWidth(300)
 
         # Charger les projets dès l'initialisation
-        self.charger_tableau(charger("config_launcher")["linux"], "linux")
+        if platform.system() == "Linux": self.charger_tableau(charger("config_launcher")["linux"], "linux")
         self.charger_tableau(charger("config_launcher")["windows"], "windows")
         
         # Ajouter le bouton "Recharger la liste"
@@ -82,7 +83,7 @@ class Lprojet(QWidget):
         self.projets.clear()  # Réinitialiser le dictionnaire des projets
         sauvegarder()
         # Recharger les projets
-        self.charger_tableau(charger("config_launcher")["linux"], "linux")
+        if platform.system() == "Linux": self.charger_tableau(charger("config_launcher")["linux"], "linux")
         self.charger_tableau(charger("config_launcher")["windows"], "windows")
 
     @Slot()

@@ -1,6 +1,6 @@
 # sera une fenêtre de bibliothèque de jeu créer avec le Lanceur
 
-import json
+import json, platform
 from PySide6.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QPushButton, QFileDialog
 from PySide6.QtCore import (Slot)
 from PySide6.QtGui import QIcon
@@ -17,9 +17,6 @@ class Jeu(QWidget):
         conteneur.setSpacing(4)
 
         ### code ###
-        texte1 = QLabel("Toto")
-        conteneur.addWidget(texte1, 0, 0, 1, 1)
-
         lib = Path(charger("config_launcher")["configuration"]["dossier_export"])
         dossier = []
         for i in lib.iterdir():
@@ -48,6 +45,11 @@ class Jeu(QWidget):
                         b.setFixedSize(100, 60)
                         b.clicked.connect(lambda checked, f=fichier: self.lancer_jeu(f))
                         lib_bibli.append([b, fichier])
+                    elif fichier.name.endswith(".bat"):
+                        b = QPushButton(fichier.name.replace(".bat", ""))
+                        b.setFixedSize(100, 60)
+                        b.clicked.connect(lambda checked, f=fichier: self.lancer_jeu(f))
+                        lib_bibli.append([b, fichier])
         return lib_bibli
     
     @Slot()
@@ -66,13 +68,16 @@ class Jeu(QWidget):
             exe.chmod(0o755)
             
             # Lancer le script en spécifiant explicitement le shell
-            Popen(
-                ['/bin/bash', str(exe)],
-                stdin=PIPE,
-                stdout=PIPE,
-                stderr=PIPE,
-                start_new_session=True,
-                )
+            if platform.system() == "Windows":
+                Popen([str(exe)])
+            else:
+                Popen(
+                    ['/bin/bash', str(exe)],
+                    stdin=PIPE,
+                    stdout=PIPE,
+                    stderr=PIPE,
+                    start_new_session=True,
+                    )
             
         except Exception as e:
             print(f"Erreur lors du lancement du jeu: {e}")
