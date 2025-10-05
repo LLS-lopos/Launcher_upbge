@@ -17,6 +17,7 @@ test/
 .idea/
 .venv
 .vscode
+.vs
 
 # documentation
 doc/_templates

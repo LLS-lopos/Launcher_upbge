@@ -1,5 +1,5 @@
 # Lanceur_upbge
-un lanceur et gestionnaire de projet UP(BGE)
+### un lanceur et gestionnaire de projet UP(BGE) *Python 3.12 recommendé*
 
 [demo YT](https://www.youtube.com/watch?v=n0BAvpPFKBU)
 
@@ -64,8 +64,15 @@ git clone https://github.com/LLS-lopos/Launcher_upbge.git
 # naviguer dans le projet
 cd Launcher_upbge
 mkdir nuitka_build && cd nuitka_build
-# construction
+```
+
+## build linux
+```bash
 nuitka3 --standalone --plugin-enable=pyside6 ../source/lanceur.py --include-data-dir=../source/data/icone=./data/icone --include-data-files=../source/Scripts/*.py=./Scripts/ --include-data-dir=../source/style=./style --include-package=GUI --include-package=program --include-package=Biblio
+```
+## build windows
+```bash
+python -m nuitka --mingw64 --standalone --disable-ccache --lto=no --plugin-enable=pyside6 --include-package=PIL ../source/lanceur.py --include-data-dir=../source/data/icone=./data/icone --include-data-files=../source/Scripts/*.py=./Scripts/ --include-data-dir=../source/style=./style --include-package=GUI --include-package=program --include-package=Biblio --verbose
 ```
 ---
 ## interface && Style
@@ -82,6 +89,8 @@ nuitka3 --standalone --plugin-enable=pyside6 ../source/lanceur.py --include-data
 ![](./info/theme-diffnes.jpeg)
 - genetive
 ![](./info/theme-genetive.jpeg)
+- Windows Vista (Windows)
+![](./info/theme-windows-vista.png)
 ---
 # TODO
 
