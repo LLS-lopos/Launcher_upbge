@@ -1,5 +1,5 @@
 /*-----QMainWindow-----*/
-QMainWindow {
+QMainWindow, QHBoxLayout, QVBoxLayout, QScrollArea, QWidget {
     background-color: rgb(45, 45, 45);
 }
 
@@ -17,9 +17,6 @@ QMenuBar, QStatusBar {
     color: blue;
 }
 
-QScrollArea {
-    background-color: #000;
-}
 QListWidget, QTabWidget, QTabBar {
     background-color: rgba(45, 45, 45, 0.2);
     color: red;
@@ -56,7 +53,7 @@ QPushButton::pressed{
 /*-----QLineEdit-----*/
 QLineEdit {
     color: rgb(0, 152, 199);
-    background-color: rgb(20, 20, 20);
+    background-color: rgb(40, 40, 40);
     border-radius: 8px;
     padding: 4px;
 }
@@ -69,8 +66,7 @@ QComboBox {
     border-radius: 8px;
     padding: 4px;
 }
-QComboBox:on
-{
+QComboBox:on {
     background-color:rgb(168, 0, 0);
 	color: #85ff00;
 }
@@ -79,4 +75,26 @@ QComboBox:on
 QLabel {
     background-color: transparent;
     color: rgb(0, 136, 248);
+}
+/*-----QTreeWidget QTreeWidgetItem-----*/
+QTreeWidget {
+    show-decoration-selected: 0;
+    selection-color: #ff0000ff;
+    color: #ffffffff;
+    background-color: rgba(68, 68, 68, 1);
+    font-weight: bold;
+	font-size: 14px;
+}
+
+/*-----QToolBar-----*/
+QToolBar {
+	background-color: qlineargradient(spread:repeat, x1:1, y1:0, x2:1, y2:1, stop:0 rgba(69, 69, 69, 255),stop:1 rgba(58, 58, 58, 255));
+	border-top: none;
+	border-bottom: 1px solid #4f4f4f;
+	border-left: 1px solid #4f4f4f;
+	border-right: 1px solid #4f4f4f;
+}
+QToolBar::separator {
+	background-color: #2e2e2e;
+	width: 2px;
 }
