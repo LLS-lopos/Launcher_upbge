@@ -24,7 +24,6 @@ class Lprojet(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
         self.tableau = QTabWidget(self)
-        self.tableau.setMaximumWidth(300)
 
         # Charger les projets dès l'initialisation
         if platform.system() == "Linux": self.charger_tableau(charger("config_launcher")["linux"], "linux")
@@ -33,18 +32,15 @@ class Lprojet(QWidget):
         # Ajouter le bouton "Recharger la liste"
         self.b_recharger = QPushButton("Recharger la liste")
         self.b_recharger.clicked.connect(self.recharger_liste)
-        self.b_recharger.setMaximumWidth(300)
 
         # Ajouter le bouton "supprimer projet"
         self.b_del_projet = QPushButton("Supprimer Projet")
         self.b_del_projet.clicked.connect(self.supprimer_projet)
-        self.b_del_projet.setMaximumWidth(300)
 
         layout.addWidget(self.tableau)
         layout.addWidget(self.b_recharger)
         layout.addWidget(self.b_del_projet)
         self.setLayout(layout)
-        self.setFixedWidth((1280 * 0.3))
 
     def charger_tableau(self, tabeau, district):
         try:

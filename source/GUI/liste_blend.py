@@ -63,7 +63,6 @@ class Lblend(QWidget):
         layout.addWidget(b_edition)
         layout.addWidget(b_test)
         self.setLayout(layout)
-        self.setFixedWidth((1280*0.2))
 
         # Configurer le timer
         self.timer = QTimer(self)

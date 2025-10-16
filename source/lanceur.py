@@ -3,6 +3,7 @@ import os
 import platform
 from PySide6.QtWidgets import QApplication, QMainWindow, QPushButton, QWidget, QGridLayout, QCheckBox, QWidgetAction, QMessageBox
 from PySide6.QtCore import Slot, QSize
+from PySide6.QtWidgets import QSizePolicy
 from PySide6.QtGui import QAction, QIcon, QGuiApplication
 
 # élément graphique
@@ -14,6 +15,7 @@ from GUI.affichage_projet import Affichage_projet
 from GUI.liste_blend import Lblend
 from GUI.theme import Theme
 from GUI.pybash import PyBash
+from GUI.struct_dossier import DosStructure
 # app
 from Biblio.librairie_jeux import Jeu
 # fonction backend
@@ -59,15 +61,43 @@ class Lanceur(QMainWindow):
         # Créer une disposition en grille pour les widgets
         grille = QGridLayout(zone_centre)
 
-        # Ajouter les widgets de projet à la grille
-        grille.addWidget(Lprojet(), 1, 0, 1, 1)
-        grille.addWidget(Affichage_projet(), 1, 1, 1, 1)
-        grille.addWidget(Lblend(self.commande_secourre), 1, 2, 1, 1)
-        
-        # Ajout du terminal
+        # Configurer l'espacement et les marges de la grille
+        grille.setSpacing(2)  # Espacement entre les cellules
+        grille.setContentsMargins(2, 2, 2, 2)  # Marges autour de la grille
+
+        # Créer les widgets avec leurs politiques de taille
+        projet_widget = Lprojet()
+        projet_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+
+        blend_widget = Lblend(self.commande_secourre)
+        blend_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+
+        affichage_widget = Affichage_projet()
+        affichage_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+
+        structure_widget = DosStructure()
+        structure_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+
+        # Ajout du terminal avec politique de taille
         app_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         self.pybash = PyBash(start_dir=app_dir)
-        grille.addWidget(self.pybash, 2, 0, 1, 3)
+        self.pybash.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+
+        # Ajouter les widgets de projet à la grille
+        grille.addWidget(projet_widget, 0, 0, 1, 1)
+        grille.addWidget(blend_widget, 1, 0, 1, 1)
+
+        grille.addWidget(affichage_widget, 0, 1, 1, 2)
+        grille.addWidget(structure_widget, 0, 3, 1, 1)
+
+        # Ajout du terminal
+        grille.addWidget(self.pybash, 1, 1, 1, 3)
+
+        # Configurer les facteurs d'étirement des colonnes pour équilibrer l'espace
+        grille.setColumnStretch(0, 1)  # Colonne 0 : Lprojet et Lblend
+        grille.setColumnStretch(1, 3)  # Colonne 1 : Affichage_projet (span 2 colonnes)
+        grille.setColumnStretch(2, 0)  # Colonne 2 : partie droite d'Affichage_projet
+        grille.setColumnStretch(3, 1)  # Colonne 3 : DosStructure
 
     def barre_outils(self):
         """

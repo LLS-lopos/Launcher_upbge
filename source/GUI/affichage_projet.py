@@ -37,7 +37,6 @@ class Affichage_projet(QWidget):
         layout.addWidget(self.area)  # Ajouter le QScrollArea au layout principal
 
         self.setLayout(layout)  # Définir la mise en page principale pour le widget
-        self.setFixedWidth((1280*0.5))
         
         # Configurer le timer
         self.timer = QTimer(self)
