@@ -7,15 +7,17 @@ from PySide6.QtWidgets import QSizePolicy
 from PySide6.QtGui import QAction, QIcon, QGuiApplication
 
 # élément graphique
-from GUI.configuration import Configuration
-from GUI.creer_projet import Creer
-from GUI.export_projet import Exportation
+
 from GUI.liste_projet import Lprojet
 from GUI.affichage_projet import Affichage_projet
 from GUI.liste_blend import Lblend
-from GUI.theme import Theme
 from GUI.pybash import PyBash
 from GUI.struct_dossier import DosStructure
+# autre fonction
+from Fonction.configuration import Configuration
+from Fonction.creer_projet import Creer
+from Fonction.export_projet import Exportation
+from Fonction.theme import Theme
 # app
 from Biblio.librairie_jeux import Jeu
 # fonction backend

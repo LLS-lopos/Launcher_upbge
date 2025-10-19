@@ -19,8 +19,8 @@ class DosStructure(QWidget):
 
         # Créer l'arbre avec ses propriétés
         self.arbre = QTreeWidget(self)
-        self.arbre.setColumnCount(2)
-        self.arbre.setHeaderLabels(["Nom", "Type"])
+        self.arbre.setColumnCount(1) # 2
+        self.arbre.setHeaderLabels(["Nom"]) # ["Nom", "Type"]
 
         # Ajouter l'arbre au layout
         layout.addWidget(self.arbre)
@@ -87,13 +87,13 @@ class DosStructure(QWidget):
             # Déterminer si c'est un fichier ou un dossier
             if content is None:
                 # C'est un fichier
-                extension = name.split('.')[-1].upper() if '.' in name else ""
-                item = QTreeWidgetItem([name, extension])
+                # extension = name.split('.')[-1].upper() if '.' in name else ""
+                item = QTreeWidgetItem([name]) # [name, extension]
                 item.setData(0, Qt.UserRole, "file")  # Marquer comme fichier
                 parent_item.addChild(item)
             else:
                 # C'est un dossier
-                item = QTreeWidgetItem([name, "Dossier"])
+                item = QTreeWidgetItem([name]) # [name, "Dossier"]
                 item.setData(0, Qt.UserRole, "folder")  # Marquer comme dossier
                 parent_item.addChild(item)
                 

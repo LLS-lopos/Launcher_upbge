@@ -13,8 +13,8 @@ from PySide6.QtGui import QIcon
 from PySide6.QtCore import QTimer, Qt
 
 from program.manipuler_donner import charger
-from GUI.EditeurDeTexte import LoposEditor
-from GUI.creerNouveauFichier import CreerFichier
+from Fonction.EditeurDeTexte import LoposEditor
+from Fonction.creerNouveauFichier import CreerFichier
 
 class Lblend(QWidget):
     def __init__(self, save):

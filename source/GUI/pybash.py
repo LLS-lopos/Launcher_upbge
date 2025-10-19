@@ -42,7 +42,7 @@ class Terminal(QTextEdit):
         self.setReadOnly(False)  # Permettre l'édition
         self.setLineWrapMode(QTextEdit.WidgetWidth)
         self.setAcceptRichText(False)
-        self.setFont(QFont("Monospace", 10))
+        self.setFont(QFont("Monospace", 12))
         
         # Initialisation des variables d'instance
         self.history = []
@@ -52,7 +52,7 @@ class Terminal(QTextEdit):
         # Configuration supplémentaire du widget
         self.setUndoRedoEnabled(False)
         self.setContextMenuPolicy(Qt.NoContextMenu)
-        self.setFont(QFont("Courier New", 10))
+        self.setFont(QFont("Courier New", 12))
         
         # Affiche le prompt initial
         cursor = self.textCursor()
