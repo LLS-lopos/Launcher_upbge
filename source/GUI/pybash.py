@@ -43,15 +43,6 @@ class Terminal(QTextEdit):
         self.setLineWrapMode(QTextEdit.WidgetWidth)
         self.setAcceptRichText(False)
         self.setFont(QFont("Monospace", 10))
-        self.setStyleSheet("""
-            QTextEdit {
-                background-color: #2b2b2b;
-                color: #f8f8f2;
-                border: 1px solid #3e3e3e;
-                border-radius: 4px;
-                padding: 5px;
-            }
-        """)
         
         # Initialisation des variables d'instance
         self.history = []

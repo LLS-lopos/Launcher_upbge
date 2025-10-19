@@ -1,6 +1,7 @@
 /*-----QMainWindow-----*/
 QMainWindow, QHBoxLayout, QVBoxLayout, QScrollArea, QWidget {
     background-color: rgb(45, 45, 45);
+    color: #fff;
 }
 
 /*-----QMenu-----*/
@@ -97,4 +98,12 @@ QToolBar {
 QToolBar::separator {
 	background-color: #2e2e2e;
 	width: 2px;
+}
+
+QTextEdit {
+    background-color: #2b2b2b;
+    color: #f8f8f2;
+    border: 1px solid #3e3e3e;
+    border-radius: 4px;
+    padding: 5px;
 }
