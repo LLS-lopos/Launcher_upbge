@@ -38,3 +38,6 @@ construction_nuitka.txt
 source/sys
 PyInstaller
 construction_pyinstaller.txt
+
+# autre
+#TODO.md
