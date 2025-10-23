@@ -21,8 +21,6 @@ class Lprojet(QWidget):
         super().__init__()
         self.projets = {}  # Dictionnaire pour stocker les projets par onglet
         layout = QVBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
         self.tableau = QTabWidget(self)
 
         # Charger les projets dès l'initialisation

@@ -125,7 +125,7 @@ def structure():
 
     # Initialisation des fichiers de configuration
     if not config.exists(): config.mkdir(exist_ok=True)
-    with open((config / global_json), "w", encoding="utf-8") as f: json.dump("", f, indent=4)
+    with open((config / global_json), "w", encoding="utf-8") as f: json.dump({}, f, indent=4)
     with open((config / config_launcher_json), 'w', encoding="utf-8") as f: json.dump(config_launcher, f, indent=4)
 
 if __name__ == "__main__":

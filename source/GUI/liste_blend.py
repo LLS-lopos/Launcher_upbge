@@ -56,8 +56,6 @@ class Lblend(QWidget):
         b_nouveau_fichier.clicked.connect(self.creer_fichier)
 
         layout = QVBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
         layout.addWidget(b_nouveau_fichier)
         layout.addWidget(self.tableau)
         layout.addWidget(b_edition)

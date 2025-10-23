@@ -24,8 +24,9 @@ QListWidget, QTabWidget, QTabBar {
 }
 QListWidget::item, QTabWidget::item {
     border: 2px solid rgb(28, 150, 79);
-    border-radius: 4px;
+    border-radius: 8px;
     padding: 2px;
+    outline: 0;
 }
 QListWidget::item:selected, QTabWidget::item:selected  {
     background-color: #b78620;

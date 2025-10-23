@@ -1,9 +1,6 @@
-import sys
-import os
-import platform
-from PySide6.QtWidgets import QApplication, QMainWindow, QPushButton, QWidget, QGridLayout, QCheckBox, QWidgetAction, QMessageBox
+import sys, os, platform
+from PySide6.QtWidgets import QApplication, QMainWindow, QPushButton, QWidget, QGridLayout, QCheckBox, QWidgetAction, QMessageBox, QSizePolicy
 from PySide6.QtCore import Slot, QSize
-from PySide6.QtWidgets import QSizePolicy
 from PySide6.QtGui import QAction, QIcon, QGuiApplication
 
 # élément graphique
@@ -20,6 +17,7 @@ from Fonction.export_projet import Exportation
 from Fonction.theme import Theme
 # app
 from Biblio.librairie_jeux import Jeu
+from Biblio.preference import Preference
 # fonction backend
 from program.construire_structure import structure
 from program.manipuler_donner import sauvegarder, charger
@@ -169,6 +167,12 @@ class Lanceur(QMainWindow):
         act_quitter.setStatusTip("Fermer le lanceur")
         act_quitter.setShortcut("Ctrl+Q")
         act_quitter.triggered.connect(self.fonc_Quitter)
+
+        # Créer l'action de Configuration des préférences
+        act_preference = QAction(QIcon(""), "&Préférence", self)
+        act_preference.setStatusTip("Configuration des préférence")
+        act_preference.setShortcut("Ctrl+P")
+        act_preference.triggered.connect(self.fonc_Preference)
         
         # Checbox Commande de secours
         self.commande_secourre = QCheckBox("Commande de secours")
@@ -176,6 +180,8 @@ class Lanceur(QMainWindow):
         act_commande_secourre.setDefaultWidget(self.commande_secourre)
         
         # Associer les actions au menu
+        Menu_fichier.addAction(act_preference)
+        Menu_fichier.addSeparator()
         Menu_fichier.addAction(act_quitter)
         Menu_option.addAction(act_commande_secourre)
         
@@ -237,6 +243,10 @@ class Lanceur(QMainWindow):
         self.logi_config = Configuration()
         self.logi_config.show()
 
+    @Slot()
+    def fonc_Preference(self):
+        self.run_preference = Preference()
+        self.run_preference.show()
 
     @Slot()
     def fonc_Quitter(self):  

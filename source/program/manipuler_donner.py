@@ -105,7 +105,7 @@ def charger(element):
 
     Returns:
         dict: Les données de configuration pour l'élément spécifié.
-              Retourne un dictionnaire vide si l'élément n'est pas trouvé.
+              Retourne un dictionnaire vide en cas d'erreur ou si l'élément n'est pas trouvé.
 
     Raises:
         FileNotFoundError: Si le fichier de configuration ne peut pas être trouvé.
@@ -115,17 +115,21 @@ def charger(element):
         if element == "global":
             with open((config / global_json), "r") as f:
                 glob = json.load(f)
+            if not isinstance(glob, dict):
+                glob = {}
             return glob
         elif element == "config_launcher":
             with open((config / config_launcher_json), 'r') as f:
                 launcher: dict = json.load(f)
+            if not isinstance(launcher, dict):
+                launcher = {}
             return launcher
         else:
             print(f"Erreur: élément '{element}' non reconnu. Choix possible: [linux, windows, icon, global, config]")
-        return None
+            return {}
     except FileNotFoundError:
         print(f"Erreur: Le fichier de configuration pour '{element}' n'existe pas")
-        return None
+        return {}
     except json.JSONDecodeError:
         print(f"Erreur: Le fichier de configuration pour '{element}' est invalide")
-        return None
+        return {}

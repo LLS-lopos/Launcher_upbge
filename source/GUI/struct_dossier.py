@@ -56,35 +56,27 @@ class DosStructure(QWidget):
         for dos, min_dos in donner.items():
             path_parts = min_dos.split("/")
             current_level = tree_structure
-            
             # Naviguer à travers le chemin, en créant des dictionnaires imbriqués
             for i, part in enumerate(path_parts):
-                if part not in current_level:
-                    # Déterminer si c'est la dernière partie (peut être un fichier ou un dossier)
-                    if i == len(path_parts) - 1:
-                        # C'est l'élément final - vérifier si c'est un fichier
+                if part not in current_level:  # Déterminer si c'est la dernière partie (peut être un fichier ou un dossier)
+                    if i == len(path_parts) - 1:  # C'est l'élément final - vérifier si c'est un fichier
                         is_file = '.' in part
                         current_level[part] = None if is_file else {}
-                    else:
-                        # C'est un dossier intermédiaire
+                    else:   # C'est un dossier intermédiaire
                         current_level[part] = {}
-                
-                # Passer au niveau suivant (si pas à la fin)
-                if i < len(path_parts) - 1:
+
+                if i < len(path_parts) - 1:  # Passer au niveau suivant (si pas à la fin)
                     current_level = current_level[part]
-        
-        # Construire l'arbre depuis la structure imbriquée
-        self.construire_arbre(tree_structure)
+
+        self.construire_arbre(tree_structure)  # Construire l'arbre depuis la structure imbriquée
         
     def construire_arbre(self, tree_structure, parent_item=None):
         """Construit récursivement les éléments QTreeWidget depuis la structure de dictionnaire imbriquée"""
-        if parent_item is None:
-            # Effacer les éléments existants et commencer depuis la racine
+        if parent_item is None:  # Effacer les éléments existants et commencer depuis la racine
             self.arbre.clear()
             parent_item = self.arbre.invisibleRootItem()
         
-        for name, content in tree_structure.items():
-            # Déterminer si c'est un fichier ou un dossier
+        for name, content in tree_structure.items():  # Déterminer si c'est un fichier ou un dossier
             if content is None:
                 # C'est un fichier
                 # extension = name.split('.')[-1].upper() if '.' in name else ""
@@ -96,9 +88,8 @@ class DosStructure(QWidget):
                 item = QTreeWidgetItem([name]) # [name, "Dossier"]
                 item.setData(0, Qt.UserRole, "folder")  # Marquer comme dossier
                 parent_item.addChild(item)
-                
-                # Construire récursivement les enfants
-                self.construire_arbre(content, item)
+
+                self.construire_arbre(content, item)  # Construire récursivement les enfants
         
         # Déplier tous les éléments pour une meilleure visibilité
         self.arbre.expandAll()

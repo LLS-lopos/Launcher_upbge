@@ -32,8 +32,6 @@ class Affichage_projet(QWidget):
         self.area.setWidget(container_widget)  # Définir le widget conteneur comme le widget du QScrollArea
         # Ajouter le QScrollArea au layout principal
         layout = QVBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
         layout.addWidget(self.area)  # Ajouter le QScrollArea au layout principal
 
         self.setLayout(layout)  # Définir la mise en page principale pour le widget
