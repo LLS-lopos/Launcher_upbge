@@ -5,11 +5,13 @@
 - dossier d'export
 - dimension de fenetre
 - plein écran
-- utilisation d'un éditeur externe
+- utilisation d'un éditeur externe (VSC, Codium, PyCharm, etc ...)
 
 ## Affichage Fichier
 
 - taille de(s) police décriture
+- ajouter un visualiseur d'images
+- ajouter un visualiseur de vidéo
 
 ## Affichage Structure de dossier Projet
 

@@ -1,4 +1,4 @@
-import os, sys, platform
+import os, sys, platform, PIL
 
 # Ajouter le répertoire source au PYTHONPATH si nécessaire
 if not any("source" in p for p in sys.path):
@@ -12,7 +12,7 @@ from subprocess import run
 from PySide6.QtWidgets import (QWidget, QLabel, QLineEdit, QPushButton, QComboBox, QGridLayout)
 from PySide6.QtCore import (Slot, Qt)
 from PySide6.QtGui import (QIcon)
-import PIL
+from PIL import Image
 
 from program.manipuler_donner import charger, sauvegarder
 
@@ -88,7 +88,7 @@ class Creer(QWidget):
         description = data / "description.txt"
         description.touch(exist_ok=True)
 
-        img = PIL.Image.new("RGB", (1280, 720), "white")
+        img = Image.new("RGB", (1280, 720), "white")
         img.save(data / "image.png")
 
         d_1 = data / "donné"

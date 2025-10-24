@@ -4,7 +4,7 @@ QMainWindow, QHBoxLayout, QVBoxLayout, QScrollArea, QWidget {
     color: #fff;
 }
 
-/*-----QMenu-----*/
+/*-----QMenu QCheckBox-----*/
 QMenu, QCheckBox {
     background-color: rgb(78, 78, 78);
     color: rgb(0, 152, 199);
@@ -19,13 +19,13 @@ QMenuBar, QStatusBar {
 }
 
 QListWidget, QTabWidget, QTabBar {
-    background-color: rgba(45, 45, 45, 0.2);
+    background-color: rgba(65, 65, 65, 0.2);
     color: red;
 }
 QListWidget::item, QTabWidget::item {
     border: 2px solid rgb(28, 150, 79);
     border-radius: 8px;
-    padding: 2px;
+    padding: 4px;
     outline: 0;
 }
 QListWidget::item:selected, QTabWidget::item:selected  {
@@ -35,11 +35,11 @@ QListWidget::item:selected, QTabWidget::item:selected  {
 
 /*-----QPushButton-----*/
 QPushButton {
-    background-color: rgb(20, 20, 20);
-    color: rgb(0, 152, 199);
+    background-color: rgb(54, 84, 131);
+    color: rgb(6, 180, 233);
     border-style: solid;
     border-radius: 8px;
-    padding: 6px;
+    padding: 4px;
 }
 QPushButton::hover {
     background-color:rgba(255, 0, 0, 0.4);

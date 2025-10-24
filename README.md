@@ -92,12 +92,6 @@ python -m nuitka --mingw64 --standalone --disable-ccache --lto=no --plugin-enabl
 - Windows Vista (Windows)
 ![](./info/theme-windows-vista.png)
 ---
-# TODO
-
-    ajouter un support blender
-    rendre plus efficace la reconnaissance des exécutable logiciel
-    ajouter un visualiseur d'images
-    ajouter un visualiseur de vidéo
-    ajouter une meilleurs gestion d'affichage (interface/projet)
+- [TODO](TODO.md)
 ---
 Projet en cours de conception
