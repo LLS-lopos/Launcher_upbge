@@ -1,8 +1,7 @@
 # élément générer
 source/data/Linux/
 source/data/Windows/
-source/data/Moteur/Linux-*
-source/data/Moteur/Windows-*
+source/data/Moteur/*
 source/__pycache__/
 source/*/__pycache__/
 *.pyc
