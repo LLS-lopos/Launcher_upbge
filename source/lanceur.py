@@ -11,7 +11,6 @@ from GUI.liste_blend import Lblend
 from GUI.pybash import PyBash
 from GUI.struct_dossier import DosStructure
 # autre fonction
-from Fonction.configuration import Configuration
 from Fonction.creer_projet import Creer
 from Fonction.export_projet import Exportation
 from Fonction.theme import Theme
@@ -25,8 +24,13 @@ from program.manipuler_donner import sauvegarder, charger
 class Lanceur(QMainWindow):
     def __init__(self, parent=None, largeur=1280, hauteur=720):
         super().__init__(parent)
-        self.largeur = largeur
-        self.hauteur = hauteur
+        pref = charger("preference")
+        if pref["fullscreen"]: self.showFullScreen()
+        else: self.showNormal()
+        if charger("preference")["taille"][0]: self.largeur = charger("preference")["taille"][0]
+        else: self.largeur = largeur
+        if charger("preference")["taille"][1]: self.hauteur = charger("preference")["taille"][1]
+        else: self.hauteur = hauteur
 
         moniteur = QGuiApplication.primaryScreen()
         taille_moniteur = moniteur.size()
@@ -121,14 +125,6 @@ class Lanceur(QMainWindow):
         b_export_p.setIconSize(QSize(35, 35))
         b_export_p.setStatusTip("exporter le projet")
         b_export_p.clicked.connect(self.fonc_export_p)
-        
-        # Créer un bouton pour configurer le logiciel
-        b_config_logi = QPushButton()
-        b_config_logi.setFixedSize(40, 40)
-        b_config_logi.setIcon(QIcon(charger("config_launcher")["icon"]["config_logiciel"]))
-        b_config_logi.setIconSize(QSize(35, 35))
-        b_config_logi.setStatusTip("paramétrer le logiciel")
-        b_config_logi.clicked.connect(self.fonc_config)
 
         # Créer un bouton pour lancer les jeu exporter
         b_lib_jeu = QPushButton()
@@ -142,7 +138,6 @@ class Lanceur(QMainWindow):
         self.tool_barre = self.addToolBar("barre d'outil")
         self.tool_barre.addWidget(b_creer_p)
         self.tool_barre.addWidget(b_export_p)
-        self.tool_barre.addWidget(b_config_logi)
         self.tool_barre.addWidget(b_lib_jeu)
 
     def barre_menu(self):
@@ -237,11 +232,6 @@ class Lanceur(QMainWindow):
             msg_box.setWindowTitle("Avertissement")
             msg_box.setStandardButtons(QMessageBox.Ok)
             msg_box.exec()  # Afficher la boîte de message"""
-
-    @Slot()
-    def fonc_config(self):
-        self.logi_config = Configuration()
-        self.logi_config.show()
 
     @Slot()
     def fonc_Preference(self):

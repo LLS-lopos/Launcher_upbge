@@ -1,8 +1,9 @@
 import json
 from PySide6.QtCore import Slot
 from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QListWidget, QGridLayout, QLabel, QLineEdit, QPushButton, QFileDialog, QSizePolicy
-from program.manipuler_donner import charger, config, config_launcher_json
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QListWidget, QGridLayout, QLabel, QLineEdit, \
+    QPushButton, QFileDialog, QSizePolicy, QSpinBox, QCheckBox
+from program.manipuler_donner import charger, config, config_launcher_json, preference_launcher_json
 
 class Preference(QWidget):
     def __init__(self):
@@ -86,15 +87,35 @@ class Preference(QWidget):
         ########## code ###########
         L_dossier_export = QLabel("dossier d'export: ")
         self.LE_dossier_export = QLineEdit()
+        self.LE_dossier_export.setText(charger("preference")["dossier_export"])
         B_dossier_export = QPushButton("++")
         B_dossier_export.clicked.connect(lambda: self.selection_dossier_fichier(self.LE_dossier_export, 0))
+        #------
+        L_taille_ecran = QLabel("Taille ecran: ")
+        self.Flargeur = QSpinBox()
+        self.Flargeur.setMaximum(1900)
+        self.Flargeur.setValue(charger("preference")["taille"][0])
+        L_x = QLabel("x")
+        self.Fhauteur = QSpinBox()
+        self.Fhauteur.setMaximum(1900)
+        self.Fhauteur.setValue(charger("preference")["taille"][1])
+        self.plein_ecran: QCheckBox = QCheckBox("Plein écran")
+        self.plein_ecran.setChecked(charger("preference")["fullscreen"])
+        #------
         # Label LineEditte BoutonSelectDossier
         ligne1 = QHBoxLayout()
         ligne1.addWidget(L_dossier_export)
         ligne1.addWidget(self.LE_dossier_export)
         ligne1.addWidget(B_dossier_export)
+        ligne2 = QHBoxLayout()
+        ligne2.addWidget(L_taille_ecran)
+        ligne2.addWidget(self.Flargeur)
+        ligne2.addWidget(L_x)
+        ligne2.addWidget(self.Fhauteur)
+        ligne2.addWidget(self.plein_ecran)
         ########## code ###########
         col.addLayout(ligne1)
+        col.addLayout(ligne2)
 
         widget.setLayout(col)
         return widget
@@ -111,11 +132,14 @@ class Preference(QWidget):
     
     @Slot()
     def appliquer_config(self, page=None):
-        if self.sortie_jeu.text() != "":
-            with open((config / config_launcher_json), 'r') as f:
-                data = json.load(f)
-            data["configuration"]["dossier_export"] = self.sortie_jeu.text()
-            with open((config / config_launcher_json), "w", encoding="utf-8") as f:
+        with open((config / preference_launcher_json), 'r') as f:
+            data = json.load(f)
+        if self.LE_dossier_export.text() != "":
+            data["dossier_export"] = self.LE_dossier_export.text()
+            data["taille"] = [self.Flargeur.value(), self.Fhauteur.value()]
+            if self.plein_ecran.isChecked(): data["fullscreen"] = True
+            else: data["fullscreen"] = False
+            with open((config / preference_launcher_json), "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=4)
 
     def impri(self, obj):

@@ -17,7 +17,7 @@ class Jeu(QWidget):
         conteneur.setSpacing(4)
 
         ### code ###
-        lib = Path(charger("config_launcher")["configuration"]["dossier_export"])
+        lib = Path(charger("preference")["dossier_export"])
         dossier = []
         for i in lib.iterdir():
             if i.is_dir():

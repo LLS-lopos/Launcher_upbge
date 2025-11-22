@@ -17,6 +17,7 @@ from .construire_structure import (
     config, dos_linux, dos_icon,
     dos_moteur, dos_windows,
     global_json, config_launcher_json,
+    preference_launcher_json,
     )
 
 def sauvegarder():
@@ -124,6 +125,12 @@ def charger(element):
             if not isinstance(launcher, dict):
                 launcher = {}
             return launcher
+        elif element == "preference":
+            with open((config / preference_launcher_json), 'r') as f:
+                pref: dict = json.load(f)
+            if not isinstance(pref, dict):
+                pref = {}
+            return pref
         else:
             print(f"Erreur: élément '{element}' non reconnu. Choix possible: [linux, windows, icon, global, config]")
             return {}

@@ -25,6 +25,7 @@ dos_icon = source / "icone"
 # Noms des fichiers de configuration
 global_json = "config_global.json"
 config_launcher_json = "config_launcher.json"
+preference_launcher_json = "preference_launcher.json"
 
 # Dictionnaire de configuration logiciel
 config_launcher = {
@@ -76,18 +77,22 @@ config_launcher = {
             "game-L-Range": "",
         },
     },
-    "configuration": {
-        "dossier_export": "",
-    },
+
 }
+preference_launcher = {
+    "dossier_export": "",
+    "taille": [1280, 720],
+    "fullscreen": False,
+}
+
 if platform.system() == "Windows": 
     config_launcher.pop("linux")
     config_launcher["icon"].pop("linux")
 # vérifier si les éléments de "configuration" existe déjà
-if (config / config_launcher_json).exists():
+if (config / preference_launcher_json).exists():
     try:
-        with open((config / config_launcher_json), 'r') as f: data = json.load(f)
-        config_launcher["configuration"]["dossier_export"] = data["configuration"]["dossier_export"]
+        with open((config / preference_launcher_json), 'r') as f: data = json.load(f)
+        preference_launcher = data
     except: pass
 
 def structure():
@@ -127,6 +132,7 @@ def structure():
     if not config.exists(): config.mkdir(exist_ok=True)
     with open((config / global_json), "w", encoding="utf-8") as f: json.dump({}, f, indent=4)
     with open((config / config_launcher_json), 'w', encoding="utf-8") as f: json.dump(config_launcher, f, indent=4)
+    with open((config / preference_launcher_json), 'w', encoding="utf-8") as f: json.dump(preference_launcher, f, indent=4)
 
 if __name__ == "__main__":
     structure()

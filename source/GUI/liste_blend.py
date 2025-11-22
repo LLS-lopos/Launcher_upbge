@@ -69,16 +69,18 @@ class Lblend(QWidget):
     
     def check_global(self):
         self.f_global = charger("global")  # Charger la valeur actuelle de f_global
-        if self.f_global != self.old_global:  # Vérifier si f_global a changé
-            self.old_global = self.f_global  # Mettre à jour la valeur précédente
-            self.charger_blend()  # Recharger l'affichage fichier blend/range
-            self.charger_font()
-            self.charger_image()
-            self.charger_script()
-            self.charger_texte()
-            self.charger_son()
-            self.charger_video()
-            self.charger_tableau()
+        try:
+            if self.f_global != self.old_global:  # Vérifier si f_global a changé
+                self.old_global = self.f_global  # Mettre à jour la valeur précédente
+                self.charger_blend()  # Recharger l'affichage fichier blend/range
+                self.charger_font()
+                self.charger_image()
+                self.charger_script()
+                self.charger_texte()
+                self.charger_son()
+                self.charger_video()
+                self.charger_tableau()
+        except: pass
     
     def charger_tableau(self):
         # Définir les informations des onglets et leurs données
