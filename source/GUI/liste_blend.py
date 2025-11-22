@@ -8,7 +8,8 @@ if not any("source" in p for p in sys.path):
 
 from pathlib import Path
 from subprocess import run, Popen, PIPE
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QTabWidget, QListWidget, QPushButton
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QTabWidget, QListWidget, QPushButton, QHBoxLayout, QCheckBox, \
+    QComboBox
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import QTimer, Qt
 
@@ -44,22 +45,36 @@ class Lblend(QWidget):
         
         # charger le tableau des que charger_blend est mis à jour
         self.tableau.currentChanged.connect(self.charger_blend)
-        
-        # Bouton Éditer Fichier
+
         b_edition = QPushButton("Édition Fichier")
         b_edition.clicked.connect(self.edition_projet)
-        # Bouton Tester Fichier
         b_test = QPushButton("Tester Fichier")
         b_test.clicked.connect(self.tester_fichier)
-        # Bouton création de fichier
         b_nouveau_fichier = QPushButton("Créer Fichier")
         b_nouveau_fichier.clicked.connect(self.creer_fichier)
+        # checkbox custom blend | combobox liste de blend custom
+        self.op_custom = QCheckBox("EXE custom")
+        self.liste_custom = QComboBox()
+        custom_l = charger("config_launcher").get("custom")
+        self.exe_custom = {}
+        for i in custom_l:
+            if Path(custom_l[i]).exists() and custom_l[i] != "":
+                self.liste_custom.addItem(QIcon(charger("config_launcher")["icon"].get("upbge.svg")), i)
+                self.exe_custom[i] = custom_l[i]
 
+        # ligne
+        ligne1 = QHBoxLayout()
+        ligne1.addWidget(b_nouveau_fichier)
+        ligne1.addWidget(b_edition)
+        ligne1.addWidget(b_test)
+        ligne2 = QHBoxLayout()
+        ligne2.addWidget(self.op_custom)
+        ligne2.addWidget(self.liste_custom)
+        # collone
         layout = QVBoxLayout()
-        layout.addWidget(b_nouveau_fichier)
         layout.addWidget(self.tableau)
-        layout.addWidget(b_edition)
-        layout.addWidget(b_test)
+        layout.addLayout(ligne2)
+        layout.addLayout(ligne1)
         self.setLayout(layout)
 
         # Configurer le timer
@@ -68,8 +83,8 @@ class Lblend(QWidget):
         self.timer.start(60)  # Vérifier toutes les secondes (1000 ms)
     
     def check_global(self):
-        self.f_global = charger("global")  # Charger la valeur actuelle de f_global
         try:
+            self.f_global = charger("global")  # Charger la valeur actuelle de f_global
             if self.f_global != self.old_global:  # Vérifier si f_global a changé
                 self.old_global = self.f_global  # Mettre à jour la valeur précédente
                 self.charger_blend()  # Recharger l'affichage fichier blend/range
@@ -320,6 +335,12 @@ class Lblend(QWidget):
                                     moteur = moteur_windows["executable"][cle]
                                     commande.append(moteur)
                     commande.append(str(i))
+                    if self.op_custom.isChecked():
+                        for i in self.exe_custom:
+                            if i == self.liste_custom.currentText():
+                                print(i, self.exe_custom[i])
+                                commande[0] = self.exe_custom[i]
+                    print("test", commande)
         if self.save.checkState() == Qt.Unchecked:
             try:
                 Popen(
@@ -393,6 +414,12 @@ class Lblend(QWidget):
                         if moteur:
                             commande.append(moteur)  # Chemin de l'exécutable
                     commande.append(fichier_selectionne)
+                    if self.op_custom.isChecked():
+                        for i in self.exe_custom:
+                            if i == self.liste_custom.currentText():
+                                print(i, self.exe_custom[i])
+                                commande[0] = self.exe_custom[i]
+                    print("edition", commande)
                     
                     # Gestion de l'exécution avec ou sans commande de vauvetage
                     if self.save.checkState() == Qt.Unchecked:

@@ -8,7 +8,7 @@ if not any("source" in p for p in sys.path):
     parent_dir = os.path.dirname(current_dir)
     sys.path.append(parent_dir)
 
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QTabWidget, QListWidget, QPushButton, QMessageBox
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QTabWidget, QListWidget, QPushButton, QMessageBox, QHBoxLayout
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import Slot
 from pathlib import Path
@@ -30,14 +30,17 @@ class Lprojet(QWidget):
         # Ajouter le bouton "Recharger la liste"
         self.b_recharger = QPushButton("Recharger la liste")
         self.b_recharger.clicked.connect(self.recharger_liste)
-
         # Ajouter le bouton "supprimer projet"
         self.b_del_projet = QPushButton("Supprimer Projet")
         self.b_del_projet.clicked.connect(self.supprimer_projet)
 
+        # ligne
+        ligne1 = QHBoxLayout()
+        ligne1.addWidget(self.b_recharger)
+        ligne1.addWidget(self.b_del_projet)
+        # colone
         layout.addWidget(self.tableau)
-        layout.addWidget(self.b_recharger)
-        layout.addWidget(self.b_del_projet)
+        layout.addLayout(ligne1)
         self.setLayout(layout)
 
     def charger_tableau(self, tabeau, district):

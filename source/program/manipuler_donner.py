@@ -84,6 +84,14 @@ def sauvegarder():
             if dossier.name == "Windows-3x": config_launcher["windows"]["executable"]["game-3x"] = str(dossier / "blenderplayer.exe")
             if dossier.name == "Windows-4x": config_launcher["windows"]["executable"]["game-4x"] = str(dossier / "blenderplayer.exe")
             if dossier.name == "Windows-Range": config_launcher["windows"]["executable"]["game-W-Range"] = str(dossier / "RangeRuntime.exe")
+            if dossier.name == "C_Wblend":
+                for i in dossier.iterdir():
+                    if i.is_file() and i.name in ["blender.exe", "bforartists.exe"]:
+                        config_launcher["custom"]["C_Wblend"] = str(dossier / i.name)
+            if dossier.name == "C_Wgame":
+                for i in dossier.iterdir():
+                    if i.is_file() and i.name == "blenderplayer.exe":
+                        config_launcher["custom"]["C_Wgame"] = str(dossier / "blenderplayer.exe")
             if platform.system() == "Linux":
                 if dossier.name == "Linux-2x": config_launcher["linux"]["executable"]["Linux-2x"] = str(dossier / "blender")
                 if dossier.name == "Linux-3x": config_launcher["linux"]["executable"]["Linux-3x"] = str(dossier / "blender")
@@ -93,6 +101,14 @@ def sauvegarder():
                 if dossier.name == "Linux-3x": config_launcher["linux"]["executable"]["game-3x"] = str(dossier / "blenderplayer")
                 if dossier.name == "Linux-4x": config_launcher["linux"]["executable"]["game-4x"] = str(dossier / "blenderplayer")
                 if dossier.name == "Linux-Range": config_launcher["linux"]["executable"]["game-L-Range"] = str(dossier / "RangeRuntime")
+                if dossier.name == "C_Lblend":
+                    for i in dossier.iterdir():
+                        if i.is_file() and i.name in ["blender", "bforartists"]:
+                            config_launcher["custom"]["C_Lblend"] = str(dossier / i.name)
+                if dossier.name == "C_Lgame":
+                    for i in dossier.iterdir():
+                        if i.is_file() and i.name == "blenderplayer":
+                            config_launcher["custom"]["C_Lgame"] = str(dossier / "blenderplayer")
 
     with open((config / config_launcher_json), 'w', encoding="utf-8") as f: json.dump(config_launcher, f, indent=4)
 

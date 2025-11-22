@@ -20,7 +20,7 @@ class Creer(QWidget):
     def __init__(self, save):
         super().__init__()
         # Charger les icônes
-        icone = charger("config_launcher")["icon"]
+        icone = (charger("config_launcher")["icon"])
         self.save = save
 
         # Créer la disposition de la fenêtre

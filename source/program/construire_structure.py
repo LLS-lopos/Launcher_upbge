@@ -77,6 +77,12 @@ config_launcher = {
             "game-L-Range": "",
         },
     },
+    "custom": {
+        "C_Lblend": "",
+        "C_Lgame": "",
+        "C_Wblend": "",
+        "C_Wgame": "",
+    }
 
 }
 preference_launcher = {
@@ -121,8 +127,8 @@ def structure():
         if not chemin_w.exists(): chemin_w.mkdir(exist_ok=True)
     if not dos_moteur.exists(): dos_moteur.mkdir(exist_ok=True)
     mt_list = []
-    if platform.system() == "Linux": mt_list = ["Linux-2x", "Linux-3x", "Linux-4x", "Linux-Range", "Windows-2x", "Windows-3x", "Windows-4x", "Windows-Range"]
-    elif platform.system() == "Windows": mt_list = ["Windows-2x", "Windows-3x", "Windows-4x", "Windows-Range"]
+    if platform.system() == "Linux": mt_list = ["Linux-2x", "Linux-3x", "Linux-4x", "Linux-Range", "Windows-2x", "Windows-3x", "Windows-4x", "Windows-Range", "C_Lblend", "C_Lgame", "C_Wblend", "C_Wgame"]
+    elif platform.system() == "Windows": mt_list = ["Windows-2x", "Windows-3x", "Windows-4x", "Windows-Range", "C_Wblend", "C_Wgame"]
     for version_m in mt_list:
         chemin_m = dos_moteur / version_m
         if not chemin_m.exists(): chemin_m.mkdir(exist_ok=True)
