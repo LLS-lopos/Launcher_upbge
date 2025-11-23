@@ -4,7 +4,7 @@
 
 - [x] dossier d'export 
 - [x] dimension de fenetre
-- [ ] plein écran
+- [x] plein écran
 - [ ] utilisation d'un éditeur externe (VSC, Codium, PyCharm, etc ...)
 
 ## Affichage Fichier
@@ -39,5 +39,5 @@
 - [ ] Gestionnaire de version (simple)
 - [ ] compression de projet/package prêt pour distribution (simple)
 - [ ] encodage/décodage des éléments de projet (pour la partie exportation de projet)
-- [ ] utilisation de version de blender custom (de son choix exemple 3.6 ou 2.9)
+- [x] utilisation de version de blender custom (de son choix exemple 3.6 ou 2.9)
 - [ ] Dossier Moteur Commun pour les projets exporté
