@@ -335,30 +335,7 @@ class Lblend(QWidget):
                                     moteur = moteur_windows["executable"][cle]
                                     commande.append(moteur)
                     commande.append(str(i))
-                    if self.op_custom.isChecked():
-                        for i in self.exe_custom:
-                            if i == self.liste_custom.currentText():
-                                print(i, self.exe_custom[i])
-                                commande[0] = self.exe_custom[i]
-                    print("test", commande)
-        if self.save.checkState() == Qt.Unchecked:
-            try:
-                Popen(
-                    commande,
-                    stdin=PIPE,
-                    stdout=PIPE,
-                    stderr=PIPE,
-                    start_new_session=True,
-                    )
-            except: 
-                print("Activez la commande de sauvegarde dans le menu Options ;)")
-        if self.save.checkState() == Qt.Checked:
-            try:
-                # avec un environnement os.system ne fonctionne pas
-                env = os.environ.copy()
-                env["LIBGL_ALWAYS_SOFTWARE"] = "1"
-                run(commande, check=True, env=env)
-            except: print("Dommage mais ne marche pas XD")
+                    self.run_command(commande, self.op_custom, self.save)
 
     def edition_projet(self):
         onglet = self.tableau.currentIndex() # Récupérer l'index de l'onglet actuel
@@ -414,33 +391,7 @@ class Lblend(QWidget):
                         if moteur:
                             commande.append(moteur)  # Chemin de l'exécutable
                     commande.append(fichier_selectionne)
-                    if self.op_custom.isChecked():
-                        for i in self.exe_custom:
-                            if i == self.liste_custom.currentText():
-                                print(i, self.exe_custom[i])
-                                commande[0] = self.exe_custom[i]
-                    print("edition", commande)
-                    
-                    # Gestion de l'exécution avec ou sans commande de vauvetage
-                    if self.save.checkState() == Qt.Unchecked:
-                        try: 
-                            Popen(
-                                commande,
-                                stdin=PIPE,
-                                stdout=PIPE,
-                                stderr=PIPE,
-                                start_new_session=True,
-                                )
-                        except: 
-                            print("Activez la commande de sauvegarde dans le menu Options ;)")
-                    
-                    if self.save.checkState() == Qt.Checked:
-                        try:
-                            env = os.environ.copy()
-                            env["LIBGL_ALWAYS_SOFTWARE"] = "1"
-                            run(commande, check=True, env=env)
-                        except: 
-                            print("Dommage mais ne marche pas XD")
+                    self.run_command(commande, self.op_custom, self.save)
                 # Ouvrir l'éditeur texte
                 elif type_onglet in ["Texte", "Script"]:
                     chemin = Path(fichier_selectionne).resolve()
@@ -453,3 +404,18 @@ class Lblend(QWidget):
     def creer_fichier(self):
         self.new_fichier = CreerFichier()
         self.new_fichier.show()
+
+    def run_command(self, commande, option, sauvetage):
+        # Gestion de l'exécution avec ou sans commande de vauvetage
+        env = None
+        if sauvetage.checkState() == Qt.Checked:
+            env = os.environ.copy()
+            env["LIBGL_ALWAYS_SOFTWARE"] = "1"
+
+        if option.isChecked():
+            for i in self.exe_custom:
+                if i == self.liste_custom.currentText():
+                    commande[0] = self.exe_custom[i]
+
+        try: Popen(commande, stdin=PIPE, stdout=PIPE, stderr=PIPE, start_new_session=True)
+        except: run(commande, check=True, env=env)
