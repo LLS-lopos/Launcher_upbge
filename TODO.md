@@ -6,6 +6,7 @@
 - [x] dimension de fenetre
 - [x] plein écran
 - [ ] utilisation d'un éditeur externe (VSC, Codium, PyCharm, etc ...)
+- [ ] dossier moteur-de-jeu-partager pour l'exécution des projets exporter
 
 ## Affichage Fichier
 
