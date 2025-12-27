@@ -9,11 +9,10 @@ from PySide6.QtWidgets import QMenu, QStyleFactory, QApplication
 from program.construire_structure import config, config_launcher_json
 from program.manipuler_donner import charger
 
-choix_theme = charger("config_launcher")
-
 class Theme(QMenu):
     def __init__(self, text="&Themes", parent=None):
         super().__init__(text, parent)
+        self.choix_theme = charger("config_launcher")
 
         # On liste les fichiers d'extension .qss présents dans le dossier qss.
         styleSheets = [file for file in os.listdir("./style") if file.endswith(".qss")]
@@ -28,8 +27,8 @@ class Theme(QMenu):
 
         # On récupère le theme de démarrage
         app = QApplication.instance()
-        if choix_theme["theme"]:
-            currentTheme = choix_theme["theme"]
+        if self.choix_theme["theme"]:
+            currentTheme = self.choix_theme["theme"]
         else:
             currentTheme = app.style().name()
 
@@ -113,9 +112,9 @@ class Theme(QMenu):
 
     def enregistrer_theme(self, themeName):
         """Enregistre le thème dans le fichier de configuration."""
-        choix_theme["theme"] = themeName
+        self.choix_theme["theme"] = themeName
         with open((config / config_launcher_json), 'r') as f:
             data = json.load(f)
-        data["theme"] = choix_theme["theme"]
+        data["theme"] = self.choix_theme["theme"]
         with open((config / config_launcher_json), 'w', encoding="utf-8") as f:
             json.dump(data, f, indent=4)

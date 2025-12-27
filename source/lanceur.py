@@ -24,6 +24,8 @@ from program.manipuler_donner import sauvegarder, charger
 class Lanceur(QMainWindow):
     def __init__(self, parent=None, largeur=1280, hauteur=720):
         super().__init__(parent)
+        # Créer la structure de projet initiale
+        structure()
         pref = charger("preference")
         if pref["fullscreen"]: self.showFullScreen()
         else: self.showNormal()
@@ -36,8 +38,6 @@ class Lanceur(QMainWindow):
         taille_moniteur = moniteur.size()
         calcul_l = (taille_moniteur.width()//2) - (self.largeur//2)
         calcul_h = (taille_moniteur.height()//2) - (self.hauteur//2)
-        # Créer la structure de projet initiale
-        structure()
         # Sauvegarder la configuration initiale
         sauvegarder()
         # Charger les icônes

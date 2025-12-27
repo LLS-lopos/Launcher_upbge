@@ -1,4 +1,5 @@
 import json
+from pprint import pprint
 from PySide6.QtCore import Slot
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QListWidget, QGridLayout, QLabel, QLineEdit, \
@@ -43,11 +44,8 @@ class Preference(QWidget):
         self.list_obj = QListWidget()
         Liste_option = [
             "Général",
-            "Aff-Fichier",
-            "Aff-Tree-Projet",
-            "Aff-Projet",
-            "Terminal",
-            "Thème"
+            "Interface",
+            "Système"
         ]
         for i in Liste_option:
             nom = self.list_obj.addItem(i)
@@ -60,8 +58,14 @@ class Preference(QWidget):
         widget = QWidget(self)
         self.affiche = QVBoxLayout()
         self.nettoyer_affichage()
+        if page is None:
+            self.affiche.addWidget(self.general())
         if page == "gen":
             self.affiche.addWidget(self.general())
+        elif page == "ui":
+            self.affiche.addWidget(self.interface())
+        elif page == "sys":
+            self.affiche.addWidget(self.systeme())
 
         widget.setLayout(self.affiche)
         return widget
@@ -80,46 +84,105 @@ class Preference(QWidget):
                     self.clear_layout(layout)
 
     def general(self):
-        print("general activé")
         widget = QWidget(self)
-        col = QVBoxLayout()
+        grille = QGridLayout()
         
         ########## code ###########
-        L_dossier_export = QLabel("dossier d'export: ")
         self.LE_dossier_export = QLineEdit()
         self.LE_dossier_export.setText(charger("preference")["dossier_export"])
-        B_dossier_export = QPushButton("++")
+        B_dossier_export = QPushButton("+")
         B_dossier_export.clicked.connect(lambda: self.selection_dossier_fichier(self.LE_dossier_export, 0))
         #------
-        L_taille_ecran = QLabel("Taille ecran: ")
         self.Flargeur = QSpinBox()
         self.Flargeur.setMaximum(1900)
-        self.Flargeur.setValue(charger("preference")["taille"][0])
-        L_x = QLabel("x")
+        self.Flargeur.setValue(charger("preference").get("taille")[0])
         self.Fhauteur = QSpinBox()
         self.Fhauteur.setMaximum(1900)
-        self.Fhauteur.setValue(charger("preference")["taille"][1])
+        self.Fhauteur.setValue(charger("preference").get("taille")[1])
+        #------
         self.plein_ecran: QCheckBox = QCheckBox("Plein écran")
-        self.plein_ecran.setChecked(charger("preference")["fullscreen"])
+        self.plein_ecran.setChecked(charger("preference").get("fullscreen", False))
+        self.moteur_commun: QCheckBox = QCheckBox("Moteur Commun")
+        self.moteur_commun.setChecked(charger("preference").get("moteur_commun", False))
         #------
         # Label LineEditte BoutonSelectDossier
         ligne1 = QHBoxLayout()
-        ligne1.addWidget(L_dossier_export)
-        ligne1.addWidget(self.LE_dossier_export)
-        ligne1.addWidget(B_dossier_export)
-        ligne2 = QHBoxLayout()
-        ligne2.addWidget(L_taille_ecran)
-        ligne2.addWidget(self.Flargeur)
-        ligne2.addWidget(L_x)
-        ligne2.addWidget(self.Fhauteur)
-        ligne2.addWidget(self.plein_ecran)
-        ########## code ###########
-        col.addLayout(ligne1)
-        col.addLayout(ligne2)
+        ligne1.addWidget(QLabel("Taille ecran: "))
+        ligne1.addWidget(self.Flargeur)
+        ligne1.addWidget(QLabel("x"))
+        ligne1.addWidget(self.Fhauteur)
+        ########## Grille Layout ##########
+        grille.addWidget(QLabel("dossier d'export: "), 0, 0, 1, 1)
+        grille.addWidget(self.LE_dossier_export, 0, 1, 1, 3)
+        grille.addWidget(B_dossier_export, 0, 4, 1, 1)
+        grille.addLayout(ligne1, 1, 0, 1, 2)
+        grille.addWidget(self.plein_ecran, 2, 0, 1, 1)
+        grille.addWidget(self.moteur_commun, 2, 1, 1, 1)
 
-        widget.setLayout(col)
+        #widget.setLayout(col)
+        widget.setLayout(grille)
         return widget
-    
+
+    def interface(self):
+        widget = QWidget(self)
+        grille = QGridLayout()
+
+        b_custom_theme = QCheckBox("Thème Custom")
+        ##### élément #####
+
+        ##### Grille #####
+        grille.addWidget(b_custom_theme, 0, 0, 1, 1)
+        grille.addWidget(QLabel("Couleur Base"), 1, 0, 1, 1)
+        grille.addWidget(QLabel("Couleur terminal"), 2, 0, 1, 1)
+        grille.addWidget(QLabel("Couleur affichage projet"), 3, 0, 1, 1)
+        grille.addWidget(QLabel("Couleur Liste Projet"), 4, 0, 1, 1)
+        grille.addWidget(QLabel("Couleur Liste Fichier"), 5, 0, 1, 1)
+        grille.addWidget(QLabel("Couleur Arborescence Projet"), 6, 0, 1, 1)
+        grille.addWidget(QLabel("Couleur Barre status"), 7, 0, 1, 1)
+        grille.addWidget(QLabel("Couleur Barre outils"), 8, 0, 1, 1)
+        grille.addWidget(QLabel("Couleur app menu"), 9, 0, 1, 1)
+
+        widget.setLayout(grille)
+        return widget
+
+    def systeme(self):
+        widget = QWidget(self)
+        grille = QGridLayout()
+
+        ##### élément #####
+        check_code = QCheckBox("code")
+        check_image = QCheckBox("image")
+        check_video = QCheckBox("vidéo")
+        self.edit_code = QLineEdit()
+        self.vue_image = QLineEdit()
+        self.vue_video = QLineEdit()
+        b_code = QPushButton("*")
+        b_image = QPushButton("/")
+        b_video = QPushButton("-")
+        ##### Ligne #####
+        ligne1 = QHBoxLayout()
+        ligne1.addWidget(check_code)
+        ligne1.addWidget(self.edit_code)
+        ligne1.addWidget(b_code)
+        ligne2 = QHBoxLayout()
+        ligne2.addWidget(check_image)
+        ligne2.addWidget(self.vue_image)
+        ligne2.addWidget(b_image)
+        ligne3 = QHBoxLayout()
+        ligne3.addWidget(check_video)
+        ligne3.addWidget(self.vue_video)
+        ligne3.addWidget(b_video)
+        ##### Grille #####
+        grille.addWidget(QLabel("Editeur Code"), 0, 0, 1, 1)
+        grille.addLayout(ligne1, 1, 0, 1, 1)
+        grille.addWidget(QLabel("Visioneur Image"), 2, 0, 1, 1)
+        grille.addLayout(ligne2, 3, 0, 1, 1)
+        grille.addWidget(QLabel("Visioneur Vidéo"), 4, 0, 1, 1)
+        grille.addLayout(ligne3, 5, 0, 1, 1)
+
+        widget.setLayout(grille)
+        return widget
+
     @Slot()
     def selection_dossier_fichier(self, bouton, valeur=None):
         # Ouvrir la boîte de dialogue pour sélectionner un dossier
@@ -133,29 +196,32 @@ class Preference(QWidget):
     @Slot()
     def appliquer_config(self, page=None):
         with open((config / preference_launcher_json), 'r') as f:
-            data = json.load(f)
+            r_data = json.load(f)
+            pprint(r_data)
+
+        data = r_data
         if self.LE_dossier_export.text() != "":
             data["dossier_export"] = self.LE_dossier_export.text()
-            data["taille"] = [self.Flargeur.value(), self.Fhauteur.value()]
-            if self.plein_ecran.isChecked(): data["fullscreen"] = True
-            else: data["fullscreen"] = False
-            with open((config / preference_launcher_json), "w", encoding="utf-8") as f:
-                json.dump(data, f, indent=4)
+        data["taille"] = [self.Flargeur.value(), self.Fhauteur.value()]
+        if self.plein_ecran.isChecked(): data["fullscreen"] = True
+        else: data["fullscreen"] = False
+        if self.moteur_commun.isChecked(): data["moteur_commun"] = True
+        else: data["moteur_commun"] = False
+        with open((config / preference_launcher_json), "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=4)
+        pprint(data)
+
 
     def impri(self, obj):
-        print(f"test GG {obj.text()}")
         new_page = obj.text()
         if new_page != self.page_courante:
             self.page_courante = new_page
+            self.conteneur.removeWidget(self.zone_config)
+            self.zone_config.deleteLater()
             if new_page == "Général":
-                # Remplacer le widget de configuration
-                self.conteneur.removeWidget(self.zone_config)
-                self.zone_config.deleteLater()
                 self.zone_config = self.affiche_page("gen")
-                self.conteneur.addWidget(self.zone_config, 0, 1, 1, 3)
-            else:
-                # Placeholder pour autres pages
-                self.conteneur.removeWidget(self.zone_config)
-                self.zone_config.deleteLater()
-                self.zone_config = self.affiche_page()  # Page vide par défaut
-                self.conteneur.addWidget(self.zone_config, 0, 1, 1, 3)
+            elif new_page == "Interface":
+                self.zone_config = self.affiche_page("ui")
+            elif new_page == "Système":
+                self.zone_config = self.affiche_page("sys")
+            self.conteneur.addWidget(self.zone_config, 0, 1, 1, 3)

@@ -29,6 +29,10 @@ preference_launcher_json = "preference_launcher.json"
 
 # Dictionnaire de configuration logiciel
 config_launcher = {
+    "langue": {
+        "français": "",
+        "anglais": "",
+    },
     "icon": {
         "linux": "",
         "windows": "",
@@ -89,6 +93,37 @@ preference_launcher = {
     "dossier_export": "",
     "taille": [1280, 720],
     "fullscreen": False,
+    "moteur_commun": False,
+    "exe_dynamique": {
+        "executable": {},
+        "moteur": {},
+    },
+    "editeur": {
+        "code": {
+            "interne": True,
+            "externe": "",
+        },
+        "image": {
+            "interne": True,
+            "externe": "",
+        },
+        "video": {
+            "interne": True,
+            "externe": "",
+        }
+    },
+    "interface_utilisateur": {
+        "couleur_fond": "",
+        "couleur_de_texte": "",
+        "fond_terminal": "",
+        "fond_affichage_projet": "",
+        "fond_liste_projet": "",
+        "fond_liste_blend": "",
+        "fond_tree_projet": "",
+        "barre_status": "",
+        "barre_outil": "",
+        "app_menu": ""
+    }
 }
 
 if platform.system() == "Windows": 

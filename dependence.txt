@@ -15,7 +15,7 @@ markdown-it-py==3.0.0
 MarkupSafe==3.0.2
 mdit-py-plugins==0.4.2
 mdurl==0.1.2
-Nuitka==2.8.6
+Nuitka==2.8.9
 ordered-set==4.1.0
 packaging==24.2
 parso==0.8.5
@@ -23,8 +23,6 @@ pillow==11.1.0
 prompt_toolkit==3.0.52
 ptpython==3.0.31
 Pygments==2.19.1
-pyinstaller==6.14.1
-pyinstaller-hooks-contrib==2025.5
 PySide6==6.10.1
 PySide6_Addons==6.10.1
 PySide6_Essentials==6.10.1
