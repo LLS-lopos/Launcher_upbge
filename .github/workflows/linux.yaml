@@ -16,7 +16,7 @@ jobs:
 
         steps:
             - name: Utilisez repo
-              uses: actions/checkout@v4
+              uses: actions/checkout@v5
             - name: Projet Python
               uses: actions/setup-python@v5
               with:
@@ -36,7 +36,7 @@ jobs:
                   mode: app
 
             - name: Charger Artéfact
-              uses: action/upload-artifact@v4
+              uses: action/upload-artifact@v5
               with:
                   name: ${{ runner.os }} Build
                   path: |
