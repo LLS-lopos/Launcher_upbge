@@ -1,0 +1,44 @@
+name: linux
+on:
+  push:
+    branches:
+      - master
+  pull_request: {}
+  workflow_dispatch:
+
+jobs:
+build:
+    strategy:
+        matrix:
+        os: [ubuntu-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+        - name: Utilisez repo
+          uses: actions/checkout@v4
+        - name: Projet Python
+          uses: actions/setup-python@v5
+          with:
+            python-version: '3.12'
+            cache: 'pip'
+            cache-dependency-path: |
+              **/dependence*.txt
+        - name: Installation des dépendances
+          run: |
+            pip install -r dependence.txt
+
+        - name: Compilation avec Nuitka3
+          uses: Nuitka/Nuitka-Action@main
+          with:
+            nuitka-version: main
+            script-name: src/lanceur.py
+            mode: app
+
+        - name: Charger Artéfacte
+          uses: action/upload-artifact@v4
+          with:
+            name: ${{ runner.os }} Build
+            path: |
+              build/*bin
+          include-hidden-files: true
