@@ -2,7 +2,7 @@ name: linux
 on:
   push:
     branches:
-      - master
+      - main
   pull_request: {}
   workflow_dispatch:
 
@@ -35,7 +35,7 @@ build:
             script-name: src/lanceur.py
             mode: app
 
-        - name: Charger Artéfacte
+        - name: Charger Artéfact
           uses: action/upload-artifact@v4
           with:
             name: ${{ runner.os }} Build
