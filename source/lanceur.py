@@ -1,15 +1,14 @@
 # Compilation mode, standalone everywhere, except on macOS there app bundle
 # nuitka-project: --mode=app
-#
+
 # Debugging options, controlled via environment variable at compile time.
 # nuitka-project-if: {OS} == "Windows" and os.getenv("DEBUG_COMPILATION", "no") == "yes":
-#     nuitka-project: --windows-console-mode=hide
+#    nuitka-project: --windows-console-mode=hide
 # nuitka-project-else:
-#     nuitka-project-if: {OS} == "Windows":
-#         nuitka-project: --windows-console-mode=disable
-#     nuitka-project-else:
-#         # Ignore console options on non-Windows platforms
-#         pass
+#    nuitka-project-if: {OS} == "Windows":
+#        nuitka-project: --windows-console-mode=disable
+#    nuitka-project-else:
+#        pass
 
 import sys, os, platform
 from PySide6.QtWidgets import QApplication, QMainWindow, QPushButton, QWidget, QGridLayout, QCheckBox, QWidgetAction, QMessageBox, QSizePolicy
