@@ -14,7 +14,8 @@ jobs:
 
         steps:
             - name: Utilisez repo
-              uses: actions/checkout@v5
+              uses: actions/checkout@v4
+
             - name: Projet Python
               uses: actions/setup-python@v5
               with:
@@ -22,6 +23,7 @@ jobs:
                   cache: 'pip'
                   cache-dependency-path: |
                     **/dependence*.txt
+
             - name: Installation des dépendances
               run: |
                   pip install -r dependence.txt
@@ -30,8 +32,18 @@ jobs:
               uses: Nuitka/Nuitka-Action@main
               with:
                   nuitka-version: main
-                  script-name: src/lanceur.py
+                  script-name: source/lanceur.py
                   mode: app
+                  option: |
+                      --mode=standalone
+                      --plugin-enable=pyside6
+                      --include-data-dir=source/data/icone=./data/icone
+                      --include-data-files=source/Scripts/*.py=./Scripts/
+                      --include-data-dir=source/style=./style
+                      --include-package=GUI
+                      --include-package=program
+                      --include-package=Biblio
+                      --include-package=Fonction
 
             - name: Charger Artéfact
               uses: action/upload-artifact@v4
@@ -39,3 +51,4 @@ jobs:
                   name: ${{ runner.os }} Build
                   path: |
                     build/*bin
+                  include-hidden-files: true
