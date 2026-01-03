@@ -33,9 +33,9 @@ jobs:
               with:
                   nuitka-version: main
                   script-name: source/lanceur.py
-                  mode: |
+                  mode: |-
                     standalone
-                  enable-plugins: |
+                  enable-plugins: |-
                     pyside6
                   include-data-dir: |
                     source/data/icone=./data/icone
