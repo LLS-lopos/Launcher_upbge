@@ -46,9 +46,9 @@ jobs:
                       --include-package=Fonction
 
             - name: Charger Artéfact
-              uses: action/upload-artifact@v4
+              uses: actions/upload-artifact@v4
               with:
                   name: ${{ runner.os }} Build
                   path: |
-                    build/*bin
+                    build/*.bin
                   include-hidden-files: true
