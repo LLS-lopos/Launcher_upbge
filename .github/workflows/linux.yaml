@@ -34,7 +34,7 @@ jobs:
                   nuitka-version: main
                   script-name: source/lanceur.py
                   mode: |
-                    app
+                    standalone
                   enable-plugins: |
                     pyside6
                   include-data-dir: |
