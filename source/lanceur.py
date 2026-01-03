@@ -5,7 +5,11 @@
 # nuitka-project-if: {OS} == "Windows" and os.getenv("DEBUG_COMPILATION", "no") == "yes":
 #     nuitka-project: --windows-console-mode=hide
 # nuitka-project-else:
-#     nuitka-project: --windows-console-mode=disabled
+#     nuitka-project-if: {OS} == "Windows":
+#         nuitka-project: --windows-console-mode=disable
+#     nuitka-project-else:
+#         # Ignore console options on non-Windows platforms
+#         pass
 
 import sys, os, platform
 from PySide6.QtWidgets import QApplication, QMainWindow, QPushButton, QWidget, QGridLayout, QCheckBox, QWidgetAction, QMessageBox, QSizePolicy
