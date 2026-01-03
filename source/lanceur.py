@@ -2,7 +2,7 @@
 # nuitka-project: --mode=app
 #
 # Debugging options, controlled via environment variable at compile time.
-# nuitka-project-if: {OS} == "Windows" and os.getenv("DEBUG_COMPILATION", "no") == "yes"
+# nuitka-project-if: {OS} == "Windows" and os.getenv("DEBUG_COMPILATION", "no") == "yes":
 #     nuitka-project: --windows-console-mode=hide
 # nuitka-project-else:
 #     nuitka-project: --windows-console-mode=disabled
