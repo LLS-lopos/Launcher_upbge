@@ -33,17 +33,20 @@ jobs:
               with:
                   nuitka-version: main
                   script-name: source/lanceur.py
-                  mode: app
-                  option: |
-                      --mode=standalone
-                      --plugin-enable=pyside6
-                      --include-data-dir=source/data/icone=./data/icone
-                      --include-data-files=source/Scripts/*.py=./Scripts/
-                      --include-data-dir=source/style=./style
-                      --include-package=GUI
-                      --include-package=program
-                      --include-package=Biblio
-                      --include-package=Fonction
+                  mode: |
+                    app
+                  plugin-enable: |
+                    pyside6
+                  include-data-dir: |
+                    source/data/icone=./data/icone
+                    source/style=./style
+                  include-data-files: |
+                    source/Scripts/*.py=./Scripts/                    
+                  include-package: |
+                    GUI
+                    program
+                    Biblio
+                    Fonction
 
             - name: Charger Artéfact
               uses: actions/upload-artifact@v4
