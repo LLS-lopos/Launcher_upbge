@@ -39,4 +39,3 @@ jobs:
                   name: ${{ runner.os }} Build
                   path: |
                     build/*bin
-              include-hidden-files: true
