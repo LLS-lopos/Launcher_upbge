@@ -9,8 +9,8 @@ if not any("source" in p for p in sys.path):
     parent_dir = os.path.dirname(current_dir)
     sys.path.append(parent_dir)
 
-from Fonction.construire_structure import preference_launcher, config_launcher
-from Fonction.manipuler_donner import sauvegarder, charger
+from .construire_structure import preference_launcher, config_launcher
+from .manipuler_donner import sauvegarder, charger
 
 ## variable
 L_fichier_preference = []
