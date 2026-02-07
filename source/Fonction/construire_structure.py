@@ -170,6 +170,8 @@ def structure():
         if not chemin_m.exists(): chemin_m.mkdir(exist_ok=True)
     if not dos_icon.exists(): dos_icon.mkdir(exist_ok=True)
 
+
+def registrer_structure():
     # Initialisation des fichiers de configuration
     if not config.exists(): config.mkdir(exist_ok=True)
     with open((config / global_json), "w", encoding="utf-8") as f: json.dump({}, f, indent=4)

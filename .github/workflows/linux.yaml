@@ -60,7 +60,10 @@ jobs:
           include-hidden-files: true
 
       - name: Création de l'archive
-        run: zip -r lanceur-linux-x64.zip lanceur.dist/
+        run: |
+          ls -l
+          tree
+          zip -r lanceur-linux-x64.zip lanceur.dist/
 
       - name: Création du release
         id: create_release
@@ -75,6 +78,6 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: lanceur-linux-x64.zip
+          asset_path: lanceur.dist
           asset_name: lanceur-linux-x64.zip
           asset_content_type: application/zip
