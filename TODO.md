@@ -42,3 +42,5 @@
 - [ ] encodage/décodage des éléments de projet (pour la partie exportation de projet)
 - [x] utilisation de version de blender custom (de son choix exemple 3.6 ou 2.9)
 - [ ] Dossier Moteur Commun pour les projets exporté
+- [ ] Archivage de projet selon les versions du projet (dossier spécialement dédier)
+- [ ] Le programme doit dès le démarrage récupérer les donné des fichiers Json et les créer seulement si elle n'existe pas en vérifiant que les clé soit présente dans les fichier de sauvegarde 

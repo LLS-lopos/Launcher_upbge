@@ -13,9 +13,9 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QTabWidget, QListWidget, QPu
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import QTimer, Qt
 
-from program.manipuler_donner import charger
-from Fonction.EditeurDeTexte import LoposEditor
-from Fonction.creerNouveauFichier import CreerFichier
+from Fonction.manipuler_donner import charger
+from GUI.Biblio.EditeurDeTexte import LoposEditor
+from GUI.Biblio.creerNouveauFichier import CreerFichier
 
 class Lblend(QWidget):
     def __init__(self, save):

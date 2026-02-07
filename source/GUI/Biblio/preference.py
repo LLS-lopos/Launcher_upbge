@@ -4,7 +4,7 @@ from PySide6.QtCore import Slot
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QListWidget, QGridLayout, QLabel, QLineEdit, \
     QPushButton, QFileDialog, QSizePolicy, QSpinBox, QCheckBox
-from program.manipuler_donner import charger, config, config_launcher_json, preference_launcher_json
+from Fonction.manipuler_donner import charger, config, config_launcher_json, preference_launcher_json
 
 class Preference(QWidget):
     def __init__(self):
@@ -195,6 +195,9 @@ class Preference(QWidget):
     
     @Slot()
     def appliquer_config(self, page=None):
+        # page est la fenêtre active
+        # la fonction ne doit être actif que pour la page active
+        # différencier chaque application via sa propre fenêtre
         with open((config / preference_launcher_json), 'r') as f:
             r_data = json.load(f)
             pprint(r_data)

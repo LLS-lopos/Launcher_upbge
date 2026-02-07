@@ -1,5 +1,6 @@
 # Compilation mode, standalone everywhere, except on macOS there app bundle
-# nuitka-project: --mode=app
+# nuitka-project-if: {OS} == "mac":
+#    nuitka-project: --mode=app
 
 # Debugging options, controlled via environment variable at compile time.
 # nuitka-project-if: {OS} == "Windows" and os.getenv("DEBUG_COMPILATION", "no") == "yes":
@@ -10,46 +11,57 @@
 #    nuitka-project-else:
 #        pass
 
-import sys, os, platform
-from PySide6.QtWidgets import QApplication, QMainWindow, QPushButton, QWidget, QGridLayout, QCheckBox, QWidgetAction, QMessageBox, QSizePolicy
+import os
+import sys
+
 from PySide6.QtCore import Slot, QSize
 from PySide6.QtGui import QAction, QIcon, QGuiApplication
+from PySide6.QtWidgets import QApplication, QMainWindow, QPushButton, QWidget, QGridLayout, QCheckBox, QWidgetAction, \
+    QMessageBox, QSizePolicy
+
+# fonction backend
+from Fonction.manipuler_donner import sauvegarder, charger
+from Fonction.theme import Theme
+from Fonction.validation_donner_logiciel import gestion_configuration
+# autre fonction
+from GUI.Biblio.creer_projet import Creer
+from GUI.Biblio.export_projet import Exportation
+# app
+from GUI.Biblio.librairie_jeux import Jeu
+from GUI.Biblio.preference import Preference
+from GUI.affichage_projet import Affichage_projet
+from GUI.liste_blend import Lblend
+from GUI.liste_projet import Lprojet
+from GUI.pybash import PyBash
+from GUI.struct_dossier import DosStructure
+
 
 # élément graphique
 
-from GUI.liste_projet import Lprojet
-from GUI.affichage_projet import Affichage_projet
-from GUI.liste_blend import Lblend
-from GUI.pybash import PyBash
-from GUI.struct_dossier import DosStructure
-# autre fonction
-from Fonction.creer_projet import Creer
-from Fonction.export_projet import Exportation
-from Fonction.theme import Theme
-# app
-from Biblio.librairie_jeux import Jeu
-from Biblio.preference import Preference
-# fonction backend
-from program.construire_structure import structure
-from program.manipuler_donner import sauvegarder, charger
 
 class Lanceur(QMainWindow):
     def __init__(self, parent=None, largeur=1280, hauteur=720):
         super().__init__(parent)
         # Créer la structure de projet initiale
-        structure()
+        gestion_configuration()
         pref = charger("preference")
-        if pref["fullscreen"]: self.showFullScreen()
-        else: self.showNormal()
-        if charger("preference")["taille"][0]: self.largeur = charger("preference")["taille"][0]
-        else: self.largeur = largeur
-        if charger("preference")["taille"][1]: self.hauteur = charger("preference")["taille"][1]
-        else: self.hauteur = hauteur
+        if pref["fullscreen"]:
+            self.showFullScreen()
+        else:
+            self.showNormal()
+        if pref["taille"][0]:
+            self.largeur = pref["taille"][0]
+        else:
+            self.largeur = largeur
+        if pref["taille"][1]:
+            self.hauteur = pref["taille"][1]
+        else:
+            self.hauteur = hauteur
 
         moniteur = QGuiApplication.primaryScreen()
         taille_moniteur = moniteur.size()
-        calcul_l = (taille_moniteur.width()//2) - (self.largeur//2)
-        calcul_h = (taille_moniteur.height()//2) - (self.hauteur//2)
+        calcul_l = (taille_moniteur.width() // 2) - (self.largeur // 2)
+        calcul_h = (taille_moniteur.height() // 2) - (self.hauteur // 2)
         # Sauvegarder la configuration initiale
         sauvegarder()
         # Charger les icônes
@@ -68,7 +80,7 @@ class Lanceur(QMainWindow):
         # Créer un widget central
         zone_centre = QWidget()
         self.setCentralWidget(zone_centre)
-        
+
         # Configurer les différents éléments de l'interface
         self.barre_menu()
         self.barre_status()
@@ -145,7 +157,7 @@ class Lanceur(QMainWindow):
         b_lib_jeu.setIconSize(QSize(35, 35))
         b_lib_jeu.setStatusTip("Bibliothèque de jeux")
         b_lib_jeu.clicked.connect(self.lib_jeu_biblio)
-        
+
         # Ajouter la barre d'outils à la fenêtre principale
         self.tool_barre = self.addToolBar("barre d'outil")
         self.tool_barre.addWidget(b_creer_p)
@@ -160,15 +172,16 @@ class Lanceur(QMainWindow):
         """
         # Créer la barre de menu
         self.barreMenu = self.menuBar()
-        
+
         # Ajouter les sous-menus principaux
         Menu_fichier = self.barreMenu.addMenu("&Fichier")
         Menu_option = self.barreMenu.addMenu("&Option")
-        
+        Menu_about = self.barreMenu.addMenu("&A propos")
+
         # Ajouter le menu de thème réutilisable
         menu_theme = Theme()
         self.barreMenu.addMenu(menu_theme)
-        
+
         # Créer l'action de quitter
         act_quitter = QAction(QIcon(""), "&Quitter", self)
         act_quitter.setStatusTip("Fermer le lanceur")
@@ -180,18 +193,23 @@ class Lanceur(QMainWindow):
         act_preference.setStatusTip("Configuration des préférence")
         act_preference.setShortcut("Ctrl+P")
         act_preference.triggered.connect(self.fonc_Preference)
-        
+
         # Checbox Commande de secours
         self.commande_secourre = QCheckBox("Commande de secours")
         act_commande_secourre = QWidgetAction(self)
         act_commande_secourre.setDefaultWidget(self.commande_secourre)
-        
+
+        # MessageBox A propos
+        about = QAction(QIcon(""), "&Aide", self)
+        about.setStatusTip("A Propos")
+        about.triggered.connect(self.msg_aide)
+
         # Associer les actions au menu
         Menu_fichier.addAction(act_preference)
         Menu_fichier.addSeparator()
         Menu_fichier.addAction(act_quitter)
         Menu_option.addAction(act_commande_secourre)
-        
+        Menu_about.addAction(about)
         # Lier
         self.setMenuBar(self.barreMenu)  # instancier la barre de menu
 
@@ -221,7 +239,7 @@ class Lanceur(QMainWindow):
     def lib_jeu_biblio(self):
         self.game = Jeu()
         self.game.show()
-    
+
     @Slot()
     def fonc_export_p(self):
         """
@@ -251,7 +269,7 @@ class Lanceur(QMainWindow):
         self.run_preference.show()
 
     @Slot()
-    def fonc_Quitter(self):  
+    def fonc_Quitter(self):
         """
         Fermer l'application.
 
@@ -259,6 +277,15 @@ class Lanceur(QMainWindow):
         """
         self.destroy()
         sys.exit()
+
+    @Slot()
+    def msg_aide(self):
+        aide = QMessageBox()
+        aide.resize(100, 100)
+        aide.setWindowTitle("A Propos")
+        aide.setText("version 2.3")
+        aide.exec()
+
 
 if __name__ == "__main__":
     app = QApplication([])

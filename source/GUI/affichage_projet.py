@@ -11,7 +11,7 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QScroll
 from PySide6.QtCore import QTimer, Qt
 from PySide6.QtGui import QPixmap
 from pathlib import Path
-from program.manipuler_donner import charger
+from Fonction.manipuler_donner import charger
 
 class Affichage_projet(QWidget):
     def __init__(self):

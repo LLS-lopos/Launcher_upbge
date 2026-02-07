@@ -9,7 +9,7 @@ if not any("source" in p for p in sys.path):
 from pathlib import Path
 from PySide6.QtWidgets import QWidget, QTreeWidget, QTreeWidgetItem, QVBoxLayout
 from PySide6.QtCore import QTimer, Qt
-from program.manipuler_donner import charger
+from Fonction.manipuler_donner import charger
 
 class DosStructure(QWidget):
     def __init__(self):

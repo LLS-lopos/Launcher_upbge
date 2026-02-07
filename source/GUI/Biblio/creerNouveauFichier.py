@@ -4,7 +4,7 @@ from PySide6.QtCore import (Slot)
 from PySide6.QtGui import QIcon
 from subprocess import run
 from pathlib import Path
-from program.manipuler_donner import charger
+from Fonction.manipuler_donner import charger
 
 class CreerFichier(QWidget):
     def __init__(self):

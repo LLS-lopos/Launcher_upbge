@@ -14,7 +14,7 @@ from PySide6.QtCore import Slot
 from pathlib import Path
 import json
 
-from program.manipuler_donner import charger, config, global_json, sauvegarder
+from Fonction.manipuler_donner import charger, config, global_json, sauvegarder
 
 class Lprojet(QWidget):
     def __init__(self):

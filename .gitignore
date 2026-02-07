@@ -13,23 +13,14 @@ construire_doc.py
 test/
 
 # environnement
-.idea/
+.idea
 .venv
 .vscode
 .vs
 
 # documentation
-doc/_templates
-doc/doctrees
-doc/*.py
-doc/*.rst
-doc/*.bat
-doc/Makefile
-doc/_static
-doc/source
+doc
 imgui.ini
-doc/build/doctrees
-doc/build/*
 
 # déploiment
 Nuitka

@@ -1,18 +1,18 @@
+import json
 import os
 import platform
-import json
-from pathlib import Path
+
+from Fonction.construire_structure import config, config_launcher_json
+from Fonction.manipuler_donner import charger
 from PySide6.QtCore import QFile, QTextStream, Slot
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import QMenu, QStyleFactory, QApplication
 
-from program.construire_structure import config, config_launcher_json
-from program.manipuler_donner import charger
 
 class Theme(QMenu):
     def __init__(self, text="&Themes", parent=None):
         super().__init__(text, parent)
-        self.choix_theme = charger("config_launcher")
+        self.choix_theme = charger("preference")
 
         # On liste les fichiers d'extension .qss présents dans le dossier qss.
         styleSheets = [file for file in os.listdir("./style") if file.endswith(".qss")]
@@ -59,7 +59,7 @@ class Theme(QMenu):
             actWindowsVista.setCheckable(True)
             actWindowsVista.setChecked(currentTheme == "windowsvista")
             self.addAction(actWindowsVista)
-        
+
         self.enregistrer_theme(currentTheme)
 
     def createThemeAction(self, themeName):
