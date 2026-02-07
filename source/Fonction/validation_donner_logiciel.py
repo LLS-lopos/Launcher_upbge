@@ -9,7 +9,7 @@ if not any("source" in p for p in sys.path):
     parent_dir = os.path.dirname(current_dir)
     sys.path.append(parent_dir)
 
-from .construire_structure import preference_launcher, config_launcher
+from .construire_structure import preference_launcher, config_launcher, structure
 from .manipuler_donner import sauvegarder, charger
 
 ## variable
@@ -98,6 +98,7 @@ def gestion_configuration():
     gestion_configuration_preference()
     gestion_configuration_launch()
     sauvegarder()
+    structure()
 
 
 ### si main
