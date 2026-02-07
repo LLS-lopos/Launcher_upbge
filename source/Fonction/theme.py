@@ -2,7 +2,7 @@ import json
 import os
 import platform
 
-from Fonction.construire_structure import config, config_launcher_json
+from Fonction.construire_structure import config, preference_launcher_json, preference_launcher
 from Fonction.manipuler_donner import charger
 from PySide6.QtCore import QFile, QTextStream, Slot
 from PySide6.QtGui import QAction
@@ -12,25 +12,25 @@ from PySide6.QtWidgets import QMenu, QStyleFactory, QApplication
 class Theme(QMenu):
     def __init__(self, text="&Themes", parent=None):
         super().__init__(text, parent)
-        self.choix_theme = charger("preference")
+        # Charger les préférences ou initialiser un dictionnaire vide si elles n'existent pas
+        self.choix_theme = charger("preference") or preference_launcher
 
         # On liste les fichiers d'extension .qss présents dans le dossier qss.
-        styleSheets = [file for file in os.listdir("./style") if file.endswith(".qss")]
-        # On trie la liste sans tenir compte de la casse.
-        styleSheets.sort(key=lambda file: file.lower())
-        # Pour chaque fichier trouvé, on crée l'action associée.
-        for styleSheet in styleSheets:
-            self.addAction(self.createThemeAction(styleSheet.replace(".qss", "")))
+        styleSheets = []
+        if os.path.exists("./style"):
+            styleSheets = [file for file in os.listdir("./style") if file.endswith(".qss")]
+            # On trie la liste sans tenir compte de la casse.
+            styleSheets.sort(key=lambda file: file.lower())
+            # Pour chaque fichier trouvé, on crée l'action associée.
+            for styleSheet in styleSheets:
+                self.addAction(self.createThemeAction(styleSheet.replace(".qss", "")))
 
-        if len(styleSheets) > 0:
-            self.addSeparator()
+            if len(styleSheets) > 0:
+                self.addSeparator()
 
         # On récupère le theme de démarrage
         app = QApplication.instance()
-        if self.choix_theme["theme"]:
-            currentTheme = self.choix_theme["theme"]
-        else:
-            currentTheme = app.style().name()
+        currentTheme = self.choix_theme.get("theme") or app.style().name()
 
         # Charger le thème au démarrage
         self.charger_theme(currentTheme)
@@ -113,8 +113,8 @@ class Theme(QMenu):
     def enregistrer_theme(self, themeName):
         """Enregistre le thème dans le fichier de configuration."""
         self.choix_theme["theme"] = themeName
-        with open((config / config_launcher_json), 'r') as f:
+        with open((config / preference_launcher_json), 'r') as f:
             data = json.load(f)
         data["theme"] = self.choix_theme["theme"]
-        with open((config / config_launcher_json), 'w', encoding="utf-8") as f:
+        with open((config / preference_launcher_json), 'w', encoding="utf-8") as f:
             json.dump(data, f, indent=4)
