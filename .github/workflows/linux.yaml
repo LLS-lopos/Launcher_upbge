@@ -68,7 +68,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref_name }}
-          release_name: Launcher-UPBGE_${{ github.ref_name }}
+          release_name: v${{ github.ref_name }}
           draft: false
           prerelease: false
 
