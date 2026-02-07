@@ -68,11 +68,11 @@ mkdir nuitka_build && cd nuitka_build
 
 ## build linux
 ```bash
-nuitka3 --standalone --plugin-enable=pyside6 ../source/lanceur.py --include-data-dir=../source/data/icone=./data/icone --include-data-files=../source/Scripts/*.py=./Scripts/ --include-data-dir=../source/style=./style --include-package=GUI --include-package=program --include-package=Biblio --include-package=Fonction
+nuitka3 --standalone --plugin-enable=pyside6 ../source/lanceur.py --include-data-dir=../source/data/icone=./data/icone --include-data-files=../source/Scripts/*.py=./Scripts/ --include-data-dir=../source/style=./style --include-package=GUI --include-package=program --include-package=GUI.Biblio --include-package=Fonction
 ```
 ## build windows
 ```bash
-python -m nuitka --mingw64 --standalone --disable-ccache --lto=no --plugin-enable=pyside6 --include-package=PIL ../source/lanceur.py --include-data-dir=../source/data/icone=./data/icone --include-data-files=../source/Scripts/*.py=./Scripts/ --include-data-dir=../source/style=./style --include-package=GUI --include-package=program --include-package=Biblio --include-package=Fonction --verbose
+python -m nuitka --mingw64 --standalone --disable-ccache --lto=no --plugin-enable=pyside6 --include-package=PIL ../source/lanceur.py --include-data-dir=../source/data/icone=./data/icone --include-data-files=../source/Scripts/*.py=./Scripts/ --include-data-dir=../source/style=./style --include-package=GUI --include-package=program --include-package=GUI.Biblio --include-package=Fonction --verbose
 ```
 ---
 ## interface && Style

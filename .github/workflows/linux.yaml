@@ -49,7 +49,7 @@ jobs:
           include-package: |
             GUI
             program
-            Biblio
+            GUI.Biblio
             Fonction
           product-name: BGLauncher
 
