@@ -2,8 +2,9 @@ import json
 import os
 import platform
 
-from Fonction.construire_structure import config, preference_launcher_json, preference_launcher
-from Fonction.manipuler_donner import charger
+from .construire_structure import config, preference_launcher_json, preference_launcher
+from .manipuler_donner import charger
+
 from PySide6.QtCore import QFile, QTextStream, Slot
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import QMenu, QStyleFactory, QApplication
