@@ -64,6 +64,7 @@ jobs:
           cd build
           cp -r lanceur.dist source
           cd ..
+          rm -rf ./source
           mv build/source ./
           zip -r lanceur-linux-x64.zip source/ run_launcher.sh
           
