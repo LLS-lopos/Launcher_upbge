@@ -289,6 +289,11 @@ class Lblend(QWidget):
                                 if cle == "game-4x":
                                     moteur = moteur_linux["executable"][cle]
                                     commande.append(moteur)
+                        elif parties[base:base+3] == ['data', 'Linux', '5x']:
+                            for cle in moteur_linux["executable"]:
+                                if cle == "game-5x":
+                                    moteur = moteur_linux["executable"][cle]
+                                    commande.append(moteur)
                         elif parties[base:base+3] == ['data', 'Linux', 'Range']:
                             for cle in moteur_linux["executable"]:
                                 if cle == "game-L-Range":
@@ -312,6 +317,12 @@ class Lblend(QWidget):
                                     commande.append("wine")
                                     commande.append("Z:" + Path(moteur_windows["executable"][cle]).as_posix())  # Chemin de l'exécutable
                                     i = ("Z:" + str(Path(i)).replace("/", "\\"))  # Chemin du fichier .blend
+                        elif parties[base:base+3] == ['data', 'Windows', '5x']:
+                            for cle in moteur_windows["executable"]:
+                                if cle == "game-5x":
+                                    commande.append("wine")
+                                    commande.append("Z:" + Path(moteur_windows["executable"][cle]).as_posix())  # Chemin de l'exécutable
+                                    i = ("Z:" + str(Path(i)).replace("/", "\\"))  # Chemin du fichier .blend
                         elif parties[base:base+3] == ['data', 'Windows', 'Range']:
                             for cle in moteur_windows["executable"]:
                                 if cle == "game-W-Range":
@@ -332,6 +343,16 @@ class Lblend(QWidget):
                         elif parties[base:base+3] == ['data', 'Windows', '4x']:
                             for cle in moteur_windows["executable"]:
                                 if cle == "game-4x":
+                                    moteur = moteur_windows["executable"][cle]
+                                    commande.append(moteur)
+                        elif parties[base:base+3] == ['data', 'Windows', '5x']:
+                            for cle in moteur_windows["executable"]:
+                                if cle == "game-5x":
+                                    moteur = moteur_windows["executable"][cle]
+                                    commande.append(moteur)
+                        elif parties[base:base+3] == ['data', 'Windows', 'Range']:
+                            for cle in moteur_windows["executable"]:
+                                if cle == "game-W-Range":
                                     moteur = moteur_windows["executable"][cle]
                                     commande.append(moteur)
                     commande.append(str(i))
@@ -407,15 +428,18 @@ class Lblend(QWidget):
 
     def run_command(self, commande, option, sauvetage):
         # Gestion de l'exécution avec ou sans commande de vauvetage
-        env = None
-        if sauvetage.checkState() == Qt.Checked:
-            env = os.environ.copy()
-            env["LIBGL_ALWAYS_SOFTWARE"] = "1"
 
         if option.isChecked():
             for i in self.exe_custom:
                 if i == self.liste_custom.currentText():
                     commande[0] = self.exe_custom[i]
-
+                    
         try: Popen(commande, stdin=PIPE, stdout=PIPE, stderr=PIPE, start_new_session=True)
-        except: run(commande, check=True, env=env)
+        except: print("tentative de secour")
+        
+        if sauvetage.checkState() == Qt.Checked:
+            try:
+                env = os.environ.copy()
+                env["LIBGL_ALWAYS_SOFTWARE"] = "1"
+                run(commande, check=True, env=env)
+            except: print("Dommage mais ne marche pas XD")

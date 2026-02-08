@@ -17,10 +17,10 @@ from .construire_structure import (
     config, dos_linux, dos_icon,
     dos_moteur, dos_windows,
     global_json, config_launcher_json,
-    preference_launcher_json,
+    preference_launcher_json, preference_launcher
     )
 
-def sauvegarder():
+def sauvegarder_config():
     """
     Sauvegarde les informations des projets pour les jeux Linux et Windows.
 
@@ -40,7 +40,7 @@ def sauvegarder():
     if platform.system() == "Linux":
         for dossier in dos_linux.iterdir():
             for projet in dossier.iterdir():
-                if dossier.name in ["2x", "3x", "4x", "Range"]:
+                if dossier.name in ["2x", "3x", "4x", "5x", "Range"]:
                     config_launcher["linux"]["projet"][dossier.name][str(projet)] = []
                     # Ajouter les fichiers du dossier projet/data s'il existe
                     data_dir = projet / "data"
@@ -52,7 +52,7 @@ def sauvegarder():
     # Parcourir les projets Windows
     for dossier in dos_windows.iterdir():
         for projet in dossier.iterdir():
-            if dossier.name in ["2x", "3x", "4x", "Range"]:
+            if dossier.name in ["2x", "3x", "4x", "5x", "Range"]:
                 config_launcher["windows"]["projet"][dossier.name][str(projet)] = []
                 # Ajouter les fichiers du dossier projet/data s'il existe
                 data_dir = projet / "data"
@@ -79,10 +79,12 @@ def sauvegarder():
             if dossier.name == "Windows-2x": config_launcher["windows"]["executable"]["Windows-2x"] = str(dossier / "blender.exe")
             if dossier.name == "Windows-3x": config_launcher["windows"]["executable"]["Windows-3x"] = str(dossier / "blender.exe")
             if dossier.name == "Windows-4x": config_launcher["windows"]["executable"]["Windows-4x"] = str(dossier / "blender.exe")
+            if dossier.name == "Windows-5x": config_launcher["windows"]["executable"]["Windows-5x"] = str(dossier / "blender.exe")
             if dossier.name == "Windows-Range": config_launcher["windows"]["executable"]["Windows-Range"] = str(dossier / "RangeEngine.exe")
             if dossier.name == "Windows-2x": config_launcher["windows"]["executable"]["game-2x"] = str(dossier / "blenderplayer.exe")
             if dossier.name == "Windows-3x": config_launcher["windows"]["executable"]["game-3x"] = str(dossier / "blenderplayer.exe")
             if dossier.name == "Windows-4x": config_launcher["windows"]["executable"]["game-4x"] = str(dossier / "blenderplayer.exe")
+            if dossier.name == "Windows-5x": config_launcher["windows"]["executable"]["game-5x"] = str(dossier / "blenderplayer.exe")
             if dossier.name == "Windows-Range": config_launcher["windows"]["executable"]["game-W-Range"] = str(dossier / "RangeRuntime.exe")
             if dossier.name == "C_Wblend":
                 for i in dossier.iterdir():
@@ -96,10 +98,12 @@ def sauvegarder():
                 if dossier.name == "Linux-2x": config_launcher["linux"]["executable"]["Linux-2x"] = str(dossier / "blender")
                 if dossier.name == "Linux-3x": config_launcher["linux"]["executable"]["Linux-3x"] = str(dossier / "blender")
                 if dossier.name == "Linux-4x": config_launcher["linux"]["executable"]["Linux-4x"] = str(dossier / "blender")
+                if dossier.name == "Linux-5x": config_launcher["linux"]["executable"]["Linux-5x"] = str(dossier / "blender")
                 if dossier.name == "Linux-Range": config_launcher["linux"]["executable"]["Linux-Range"] = str(dossier / "RangeEngine")
                 if dossier.name == "Linux-2x": config_launcher["linux"]["executable"]["game-2x"] = str(dossier / "blenderplayer")
                 if dossier.name == "Linux-3x": config_launcher["linux"]["executable"]["game-3x"] = str(dossier / "blenderplayer")
                 if dossier.name == "Linux-4x": config_launcher["linux"]["executable"]["game-4x"] = str(dossier / "blenderplayer")
+                if dossier.name == "Linux-5x": config_launcher["linux"]["executable"]["game-5x"] = str(dossier / "blenderplayer")
                 if dossier.name == "Linux-Range": config_launcher["linux"]["executable"]["game-L-Range"] = str(dossier / "RangeRuntime")
                 if dossier.name == "C_Lblend":
                     for i in dossier.iterdir():
@@ -111,6 +115,10 @@ def sauvegarder():
                             config_launcher["custom"]["C_Lgame"] = str(dossier / "blenderplayer")
 
     with open((config / config_launcher_json), 'w', encoding="utf-8") as f: json.dump(config_launcher, f, indent=4)
+
+def sauvegarder_preference():
+    with open((config / preference_launcher_json), 'w', encoding="utf-8") as f: json.dump(preference_launcher, f, indent=4)
+
 
 def charger(element):
     """

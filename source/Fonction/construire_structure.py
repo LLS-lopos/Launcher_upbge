@@ -49,6 +49,7 @@ config_launcher = {
             "2x": {},
             "3x": {},
             "4x": {},
+            "5x": {},
             "Range": {},
         },
         "executable": {
@@ -69,6 +70,7 @@ config_launcher = {
             "2x": {},
             "3x": {},
             "4x": {},
+            "5x": {},
             "Range": {},
         },
         "executable": {
@@ -130,9 +132,8 @@ preference_launcher = {
     }
 }
 
-if platform.system() == "Windows": 
-    config_launcher.pop("linux")
-    config_launcher["icon"].pop("linux")
+# Initialisation des fichiers de configuration
+if not config.exists(): config.mkdir(exist_ok=True)
 # vérifier si les éléments de "configuration" existe déjà
 if (config / preference_launcher_json).exists():
     try:
@@ -140,7 +141,7 @@ if (config / preference_launcher_json).exists():
         preference_launcher = data
     except: pass
 
-def structure():
+def structure_config():
     """
     Créer la structure de base des répertoires et des fichiers de configuration pour le Lanceur UPBGE.
 
@@ -150,6 +151,9 @@ def structure():
     - Les répertoires de données pour différents moteurs de jeu et types de projets
     - Les fichiers de configuration JSON initiaux
     """
+    if platform.system() == "Windows": 
+        config_launcher.pop("linux")
+        config_launcher["icon"].pop("linux")
     mt_list = []
     # Créer le répertoire de configuration
     if not config.exists(): config.mkdir(exist_ok=True)
@@ -174,12 +178,12 @@ def structure():
         if not chemin_m.exists(): chemin_m.mkdir(exist_ok=True)
     if not dos_icon.exists(): dos_icon.mkdir(exist_ok=True)
 
-
-def registrer_structure():
-    # Initialisation des fichiers de configuration
-    if not config.exists(): config.mkdir(exist_ok=True)
+    
     with open((config / global_json), "w", encoding="utf-8") as f: json.dump({}, f, indent=4)
     with open((config / config_launcher_json), 'w', encoding="utf-8") as f: json.dump(config_launcher, f, indent=4)
+    
+
+def structure_preference():
     with open((config / preference_launcher_json), 'w', encoding="utf-8") as f: json.dump(preference_launcher, f, indent=4)
 
 if __name__ == "__main__":

@@ -20,7 +20,7 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QPushButton, QWidget, Q
     QMessageBox, QSizePolicy
 
 # fonction backend
-from Fonction.manipuler_donner import sauvegarder, charger
+from Fonction.manipuler_donner import charger
 from Fonction.theme import Theme
 from Fonction.validation_donner_logiciel import gestion_configuration
 # autre fonction
@@ -62,8 +62,6 @@ class Lanceur(QMainWindow):
         taille_moniteur = moniteur.size()
         calcul_l = (taille_moniteur.width() // 2) - (self.largeur // 2)
         calcul_h = (taille_moniteur.height() // 2) - (self.hauteur // 2)
-        # Sauvegarder la configuration initiale
-        sauvegarder()
         # Charger les icônes
         self.setWindowTitle("Lanceur UPBGE")
         self.setWindowIcon(QIcon(charger("config_launcher")["icon"]["upbge"]))

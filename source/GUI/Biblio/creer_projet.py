@@ -14,7 +14,7 @@ from PySide6.QtCore import (Slot, Qt)
 from PySide6.QtGui import (QIcon)
 from PIL import Image
 
-from Fonction.manipuler_donner import charger, sauvegarder
+from Fonction.manipuler_donner import charger, sauvegarder_config
 
 class Creer(QWidget):
     def __init__(self, save):
@@ -146,12 +146,12 @@ class Creer(QWidget):
                 try: run(command, check=True)
                 except: print("active commande de sauvetage dans le menu Option ;)")
             if self.save.checkState() == Qt.Checked:
-                try:
+                try: 
                     env = os.environ.copy()
                     env["LIBGL_ALWAYS_SOFTWARE"] = "1"
                     run(command, check=True, env=env)
                 except: print("Dommage mais ne marche pas XD")
             self.nom_projet.setText("")
             self.nom_jeu.setText("")
-        sauvegarder() # Sauvegarder la configuration
+        sauvegarder_config() # Sauvegarder la configuration
         self.destroy() # Fermer la fenêtre

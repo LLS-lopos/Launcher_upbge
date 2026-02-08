@@ -14,7 +14,7 @@ from PySide6.QtCore import Slot
 from pathlib import Path
 import json
 
-from Fonction.manipuler_donner import charger, config, global_json, sauvegarder
+from Fonction.manipuler_donner import charger, config, global_json, sauvegarder_config
 
 class Lprojet(QWidget):
     def __init__(self):
@@ -78,7 +78,7 @@ class Lprojet(QWidget):
     def recharger_liste(self):
         self.tableau.clear()  # Effacer les onglets existants
         self.projets.clear()  # Réinitialiser le dictionnaire des projets
-        sauvegarder()
+        sauvegarder_config()
         # Recharger les projets
         if platform.system() == "Linux": self.charger_tableau(charger("config_launcher")["linux"], "linux")
         self.charger_tableau(charger("config_launcher")["windows"], "windows")
@@ -100,7 +100,7 @@ class Lprojet(QWidget):
                 try:
                     import shutil
                     shutil.rmtree(selection["p_actif"])
-                    sauvegarder()
+                    sauvegarder_config()
                     QMessageBox.information(self, "Succès", "Le projet a été supprimé avec succès.")
                 except Exception as e:
                     QMessageBox.critical(self, "Erreur", f"Impossible de supprimer le projet {selection["p_actif"]}: {str(e)}")

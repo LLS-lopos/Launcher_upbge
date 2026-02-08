@@ -9,8 +9,8 @@ if not any("source" in p for p in sys.path):
     parent_dir = os.path.dirname(current_dir)
     sys.path.append(parent_dir)
 
-from .construire_structure import preference_launcher, config_launcher, structure, registrer_structure
-from .manipuler_donner import sauvegarder, charger
+from .construire_structure import preference_launcher, config_launcher, structure_config, structure_preference
+from .manipuler_donner import charger, sauvegarder_preference, sauvegarder_config
 
 ## variable
 L_fichier_preference = []
@@ -81,8 +81,12 @@ def gestion_configuration_preference():
     voir_origin_preference()
     pref = comparer_cle(L_fichier_preference, L_origin_preference)
 
-    if pref:
-        preference_launcher = charger("preference")
+    print(f"Pref: {pref}")
+
+    if pref: preference_launcher = charger("preference")
+    else: structure_preference()
+
+    sauvegarder_preference()
 
 
 def gestion_configuration_launch():
@@ -90,16 +94,18 @@ def gestion_configuration_launch():
     voir_origin_config()
     launch = comparer_cle(L_fichier_config, L_origin_config)
 
-    if launch:
-        config_launcher = charger("config_launcher")
+    print(f"launch: {launch}")
+
+    if launch: config_launcher = charger("config_launcher")
+    else: structure_config()
+
+    sauvegarder_config()
 
 
 def gestion_configuration():
     gestion_configuration_preference()
     gestion_configuration_launch()
-    structure()
-    sauvegarder()
-    registrer_structure()
+    
 
 
 ### si main
