@@ -55,10 +55,12 @@ config_launcher = {
             "Windows-2x": "",
             "Windows-3x": "",
             "Windows-4x": "",
+            "Windows-5x": "",
             "Windows-Range": "",
             "game-2x": "",
             "game-3x": "",
             "game-4x": "",
+            "game-5x": "",
             "game-W-Range": "",
         },
     },
@@ -73,10 +75,12 @@ config_launcher = {
             "Linux-2x": "",
             "Linux-3x": "",
             "Linux-4x": "",
+            "Linux-5x": "",
             "Linux-Range": "",
             "game-2x": "",
             "game-3x": "",
             "game-4x": "",
+            "game-5x": "",
             "game-L-Range": "",
         },
     },
@@ -154,17 +158,17 @@ def structure():
     if not source.exists(): source.mkdir(exist_ok=True)
     if platform.system() == "Linux":
         if not dos_linux.exists(): dos_linux.mkdir(exist_ok=True)
-        for version_l in ["2x", "3x", "4x", "Range"]:
+        for version_l in ["2x", "3x", "4x", "5x", "Range"]:
             chemin_l = dos_linux / version_l
             if not chemin_l.exists(): chemin_l.mkdir(exist_ok=True)
     if not dos_windows.exists(): dos_windows.mkdir(exist_ok=True)
-    for version_w in ["2x", "3x", "4x", "Range"]:
+    for version_w in ["2x", "3x", "4x", "5x", "Range"]:
         chemin_w = dos_windows / version_w
         if not chemin_w.exists(): chemin_w.mkdir(exist_ok=True)
     if not dos_moteur.exists(): dos_moteur.mkdir(exist_ok=True)
     
-    if platform.system() == "Windows": mt_list = ["Windows-2x", "Windows-3x", "Windows-4x", "Windows-Range", "C_Wblend", "C_Wgame"]
-    else: mt_list = ["Linux-2x", "Linux-3x", "Linux-4x", "Linux-Range", "Windows-2x", "Windows-3x", "Windows-4x", "Windows-Range", "C_Lblend", "C_Lgame", "C_Wblend", "C_Wgame"]
+    if platform.system() == "Windows": mt_list = ["Windows-2x", "Windows-3x", "Windows-4x", "Windows-5x", "Windows-Range", "C_Wblend", "C_Wgame"]
+    else: mt_list = ["Linux-2x", "Linux-3x", "Linux-4x", "Linux-5x", "Linux-Range", "Windows-2x", "Windows-3x", "Windows-4x", "Windows-5x", "Windows-Range", "C_Lblend", "C_Lgame", "C_Wblend", "C_Wgame"]
     for version_m in mt_list:
         chemin_m = dos_moteur / version_m
         if not chemin_m.exists(): chemin_m.mkdir(exist_ok=True)
