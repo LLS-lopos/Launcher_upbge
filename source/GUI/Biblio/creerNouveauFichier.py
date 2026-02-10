@@ -1,10 +1,12 @@
 import os, platform
 from PySide6.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QPushButton
-from PySide6.QtCore import (Slot)
+from PySide6.QtCore import Slot
 from PySide6.QtGui import QIcon
 from subprocess import run
 from pathlib import Path
 from Fonction.manipuler_donner import charger
+
+import pathlib
 
 class CreerFichier(QWidget):
     def __init__(self):
@@ -106,6 +108,8 @@ class CreerFichier(QWidget):
                             executable = charger("config_launcher")["linux"]["executable"]["Linux-3x"]
                         elif "Linux/4x" in val_str:
                             executable = charger("config_launcher")["linux"]["executable"]["Linux-4x"]
+                        elif "Linux/5x" in val_str:
+                            executable = charger("config_launcher")["linux"]["executable"]["Linux-5x"]
                         elif "Linux/Range" in val_str:
                             executable = charger("config_launcher")["linux"]["executable"]["Linux-Range"]
                         elif "Windows/2x" in val_str:
@@ -114,11 +118,13 @@ class CreerFichier(QWidget):
                             executable = charger("config_launcher")["windows"]["executable"]["Windows-3x"]
                         elif "Windows/4x" in val_str:
                             executable = charger("config_launcher")["windows"]["executable"]["Windows-4x"]
+                        elif "Windows/5x" in val_str:
+                            executable = charger("config_launcher")["windows"]["executable"]["Windows-5x"]
                         elif "Windows/Range" in val_str:
                             executable = charger("config_launcher")["windows"]["executable"]["Windows-Range"]
                         
                         # Obtenir le chemin absolu du script creer_blend.py
-                        script_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'Scripts', 'creer_blend.py')
+                        script_path = pathlib.Path(__file__).parent.parent.parent / 'Scripts' / 'creer_blend.py'
 
                         # Créer un fichier .blend vide en utilisant Blender
                         if val_str.endswith('.blend'):
