@@ -15,7 +15,7 @@ if not any("source" in p for p in sys.path):
 
 from .construire_structure import (
     config, dos_linux, dos_icon,
-    dos_moteur, dos_windows,
+    dos_moteur, dos_windows, structure_preference,
     global_json, config_launcher_json,
     preference_launcher_json, preference_launcher
     )
@@ -38,6 +38,10 @@ def sauvegarder_config():
     
     # Parcourir les projets Linux
     if platform.system() == "Linux":
+        if dos_linux.exists():
+            for version in config_launcher["linux"]["projet"]:
+                config_launcher["linux"]["projet"][version] = {}
+
         for dossier in dos_linux.iterdir():
             for projet in dossier.iterdir():
                 if dossier.name in ["2x", "3x", "4x", "5x", "Range"]:
@@ -50,6 +54,9 @@ def sauvegarder_config():
                                 config_launcher["linux"]["projet"][dossier.name][str(projet)].append(str(fichier))
 
     # Parcourir les projets Windows
+    if dos_windows.exists():
+        for version in config_launcher["windows"]["projet"]:
+            config_launcher["windows"]["projet"][version] = {}
     for dossier in dos_windows.iterdir():
         for projet in dossier.iterdir():
             if dossier.name in ["2x", "3x", "4x", "5x", "Range"]:
@@ -60,7 +67,7 @@ def sauvegarder_config():
                     for fichier in data_dir.iterdir():
                         if fichier.is_file():
                             config_launcher["windows"]["projet"][dossier.name][str(projet)].append(str(fichier))
-            
+
     # Icone / Exécutable
     for dossier in dos_icon.iterdir():
         if dossier.is_file():

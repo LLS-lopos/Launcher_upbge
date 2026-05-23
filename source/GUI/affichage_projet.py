@@ -102,10 +102,9 @@ class Affichage_projet(QWidget):
                 icone.setPixmap(pixmap)
                 
                 # Trouver le fichier .blend
-                blend_files = list(project_path.glob("*.blend"))
-                range_files = list(project_path.glob("*.range"))
-                project_name = project_path.name  # Nom par défaut
-                
+                blend_files = list(project_path.glob("**/*.blend"))
+                range_files = list(project_path.glob("**/*.range"))
+                project_name = None
                 if blend_files:
                     # Prendre le premier fichier blend trouvé
                     project_name = blend_files[0].stem  # Nom sans extension

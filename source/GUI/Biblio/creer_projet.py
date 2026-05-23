@@ -12,7 +12,10 @@ from subprocess import run
 from PySide6.QtWidgets import (QWidget, QLabel, QLineEdit, QPushButton, QComboBox, QGridLayout)
 from PySide6.QtCore import (Slot, Qt)
 from PySide6.QtGui import (QIcon)
-from PIL import Image
+try:
+    from PIL import Image
+except:
+    pass
 
 from Fonction.manipuler_donner import charger, sauvegarder_config
 
@@ -88,8 +91,11 @@ class Creer(QWidget):
         description = data / "description.txt"
         description.touch(exist_ok=True)
 
-        img = Image.new("RGB", (1280, 720), "white")
-        img.save(data / "image.png")
+        try:
+            img = Image.new("RGB", (1280, 720), "white")
+            img.save(data / "image.png")
+        except:
+            pass
 
         d_1 = data / "donné"
         d_1.mkdir(exist_ok=True)

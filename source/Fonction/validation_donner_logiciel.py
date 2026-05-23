@@ -81,8 +81,6 @@ def gestion_configuration_preference():
     voir_origin_preference()
     pref = comparer_cle(L_fichier_preference, L_origin_preference)
 
-    print(f"Pref: {pref}")
-
     if pref: preference_launcher = charger("preference")
     else: structure_preference()
 
@@ -94,10 +92,13 @@ def gestion_configuration_launch():
     voir_origin_config()
     launch = comparer_cle(L_fichier_config, L_origin_config)
 
-    print(f"launch: {launch}")
+    if launch:
+        config_launcher = charger("config_launcher")
+    else:
+        structure_config()
 
-    if launch: config_launcher = charger("config_launcher")
-    else: structure_config()
+    if not charger("global"):
+        structure_config()
 
     sauvegarder_config()
 

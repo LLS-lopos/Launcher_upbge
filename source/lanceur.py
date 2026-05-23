@@ -11,13 +11,11 @@
 #    nuitka-project-else:
 #        pass
 
-import os
-import sys
+import os, sys
 
-from PySide6.QtCore import Slot, QSize
+from PySide6.QtCore import Slot, QSize, Qt
 from PySide6.QtGui import QAction, QIcon, QGuiApplication
-from PySide6.QtWidgets import QApplication, QMainWindow, QPushButton, QWidget, QGridLayout, QCheckBox, QWidgetAction, \
-    QMessageBox, QSizePolicy
+from PySide6.QtWidgets import QApplication, QMainWindow, QPushButton, QWidget, QGridLayout, QCheckBox, QWidgetAction, QMessageBox, QSizePolicy, QVBoxLayout, QHBoxLayout, QComboBox
 
 # fonction backend
 from Fonction.manipuler_donner import charger
@@ -31,14 +29,12 @@ from GUI.Biblio.librairie_jeux import Jeu
 from GUI.Biblio.preference import Preference
 from GUI.affichage_projet import Affichage_projet
 from GUI.liste_blend import Lblend
-from GUI.liste_projet import Lprojet
+from GUI.liste_projet import Lprojet, Projet
 from GUI.pybash import PyBash
 from GUI.struct_dossier import DosStructure
 
 
 # élément graphique
-
-
 class Lanceur(QMainWindow):
     def __init__(self, parent=None, largeur=1280, hauteur=720):
         super().__init__(parent)
@@ -87,43 +83,37 @@ class Lanceur(QMainWindow):
         # Créer une disposition en grille pour les widgets
         grille = QGridLayout(zone_centre)
 
-        # Configurer l'espacement et les marges de la grille
-        grille.setSpacing(2)  # Espacement entre les cellules
-        grille.setContentsMargins(2, 2, 2, 2)  # Marges autour de la grille
-
-        # Créer les widgets avec leurs politiques de taille
-        projet_widget = Lprojet()
-        projet_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-
-        blend_widget = Lblend(self.commande_secourre)
-        blend_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-
         affichage_widget = Affichage_projet()
         affichage_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        grille.addWidget(affichage_widget, 0, 0, 3, 1)
 
-        structure_widget = DosStructure()
-        structure_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        projet_widget = Projet()
+        projet_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        grille.addWidget(projet_widget, 0, 1, 1, 2)
 
-        # Ajout du terminal avec politique de taille
+        """fenetre = QWidget()
+        hbox = QHBoxLayout()
+        boxtobox = QComboBox()
+        b2 = QPushButton("b1")
+        b3 = QPushButton("b1")
+        b4 = QPushButton("b1")
+        b5 = QPushButton("b1")
+        hbox.addWidget(b2)
+        hbox.addWidget(b3)
+        hbox.addWidget(boxtobox)
+        hbox.addWidget(b4)
+        hbox.addWidget(b5)
+        fenetre.setLayout(hbox)
+        grille.addWidget(fenetre, 1, 1, 1, 1)"""
+
         app_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        self.pybash = PyBash(start_dir=app_dir)
-        self.pybash.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        pybash = PyBash(start_dir=app_dir)
+        pybash.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        grille.addWidget(pybash, 1, 1, 1, 2)
 
-        # Ajouter les widgets de projet à la grille
-        grille.addWidget(projet_widget, 0, 0, 1, 1)
-        grille.addWidget(blend_widget, 1, 0, 1, 1)
-
-        grille.addWidget(affichage_widget, 0, 1, 1, 2)
-        grille.addWidget(structure_widget, 0, 3, 1, 1)
-
-        # Ajout du terminal
-        grille.addWidget(self.pybash, 1, 1, 1, 3)
-
-        # Configurer les facteurs d'étirement des colonnes pour équilibrer l'espace
-        grille.setColumnStretch(0, 1)  # Colonne 0 : Lprojet et Lblend
-        grille.setColumnStretch(1, 3)  # Colonne 1 : Affichage_projet (span 2 colonnes)
-        grille.setColumnStretch(2, 0)  # Colonne 2 : partie droite d'Affichage_projet
-        grille.setColumnStretch(3, 1)  # Colonne 3 : DosStructure
+        grille.setColumnStretch(0, 2)
+        grille.setColumnStretch(1, 3)
+        grille.setRowStretch(0, 2)
 
     def barre_outils(self):
         """
@@ -235,6 +225,9 @@ class Lanceur(QMainWindow):
 
     @Slot()
     def lib_jeu_biblio(self):
+        """
+        Lancher Game Exported
+        """
         self.game = Jeu()
         self.game.show()
 

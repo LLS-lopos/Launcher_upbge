@@ -8,8 +8,7 @@ if not any("source" in p for p in sys.path):
 
 from pathlib import Path
 from subprocess import run, Popen, PIPE
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QTabWidget, QListWidget, QPushButton, QHBoxLayout, QCheckBox, \
-    QComboBox
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QTabWidget, QListWidget, QPushButton, QHBoxLayout, QCheckBox, QComboBox
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import QTimer, Qt
 
