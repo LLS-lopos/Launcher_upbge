@@ -23,7 +23,7 @@ doc
 imgui.ini
 
 # déploiment
-Nuitka
+# Nuitka
 construction_nuitka.txt
 source/sys
 PyInstaller
