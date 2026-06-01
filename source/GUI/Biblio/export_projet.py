@@ -79,11 +79,11 @@ class Exportation(QWidget):
         #print(f"{destination}\n{projet}\n{moteur}")
         lanceur = ""
         if platform.system() == "Linux":
-            if moteur in ["Linux-2x", "Linux-3x", "Linux-4x"]:
+            if moteur in ["Linux-2x", "Linux-3x", "Linux-4x", "Linux-5x"]:
                 lanceur = "blenderplayer"
             elif moteur in ["Linux-Range"]:
                 lanceur = "RangeRuntime"
-        if moteur in ["Windows-2x", "Windows-3x", "Windows-4x"]:
+        if moteur in ["Windows-2x", "Windows-3x", "Windows-4x", "Windows-5x"]:
             lanceur = "blenderplayer.exe"
         elif moteur in ["Windows-Range"]:
             lanceur = "RangeRuntime.exe"
