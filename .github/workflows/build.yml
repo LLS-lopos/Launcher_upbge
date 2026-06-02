@@ -51,13 +51,14 @@ jobs:
         with:
           name: build-${{ runner.os }}
           path: |
-            build/*.bin
-            build/*.exe
+            build_linux/*.bin
+            build_win/*.exe
           include-hidden-files: true
 
       - name: Création de l'archive Linux
         if: matrix.os == 'ubuntu-latest'
         run: |
+          mv build build_linux
           cd build_linux
           cp -r lanceur.dist source
           cd ..
@@ -69,6 +70,7 @@ jobs:
         if: matrix.os == 'windows-latest'
         shell: pwsh
         run: |
+          mv build build_win
           cd build_win
           Copy-Item -Recurse lanceur.dist source
           cd ..
