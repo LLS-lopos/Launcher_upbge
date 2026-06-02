@@ -97,8 +97,7 @@ def gestion_configuration_launch():
     print(f"launch: {launch}")
 
     if launch: config_launcher = charger("config_launcher")
-    else: structure_config()
-
+    structure_config()
     sauvegarder_config()
 
 
