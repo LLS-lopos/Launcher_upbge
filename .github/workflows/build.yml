@@ -1,0 +1,107 @@
+name: Build & Release
+run-name: ${{ github.actor }} build App
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: '**/dependence*.txt'
+
+      - name: Installation des dépendances
+        run: pip install -r dependence.txt
+
+      - name: Compilation avec Nuitka
+        uses: Nuitka/Nuitka-Action@main
+        with:
+          nuitka-version: main
+          script-name: source/lanceur.py
+          mode: standalone
+          enable-plugins: pyside6
+          include-data-dir: |
+            source/data/icone=./data/icone
+            source/style=./style
+          include-data-files: |
+            source/Scripts/*.py=./Scripts/
+          include-package: |
+            GUI
+            program
+            GUI.Biblio
+            Fonction
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ runner.os }}
+          path: |
+            build/*.bin
+            build/*.exe
+          include-hidden-files: true
+
+      - name: Création de l'archive Linux
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          cd build_linux
+          cp -r lanceur.dist source
+          cd ..
+          rm -rf ./source
+          mv build_linux/source ./
+          zip -r lanceur-linux-x64.zip source/ run_launcher.sh
+
+      - name: Création de l'archive Windows
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          cd build_win
+          Copy-Item -Recurse lanceur.dist source
+          cd ..
+          Remove-Item -Recurse -Force ./source
+          Move-Item build_win/source ./
+          Compress-Archive -Path source, run.bat -DestinationPath lanceur-windows-x64.zip -Force
+
+      - name: Upload archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: archive-${{ runner.os }}
+          path: |
+            lanceur-*.zip
+
+  release:
+    needs: [build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: archive-*
+          merge-multiple: true
+
+      - uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.run_id }}
+          name: Launcher_UPBGE-${{ github.ref_name }}
+          files: |
+            lanceur-linux-x64.zip
+            lanceur-windows-x64.zip
