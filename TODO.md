@@ -1,4 +1,5 @@
 # Page de configuration
+- [ ] au démarrage donner le choix entre le logiciel de gestion de projet et la bibliothèque de jeu
 
 ## Général
 
@@ -35,6 +36,13 @@
 - [ ] taille de police décriture
 - [ ] thème custom
 
+## Logiciel bibliothèque
+- [ ] pour linux ajouter une option lancer depuis le system
+- [ ] Affichage de titre par banière style jacquette CD-GAME
+- [ ] Gestion taille jacquette (redimensionnement)
+- [ ] Bouton juste en dessous de la jacquette
+- [ ] Option de lancement ex: taille de fenêtre | FPS | ...
+
 # Autre élément
 
 - [ ] Gestionnaire de version (simple)
@@ -43,4 +51,4 @@
 - [x] utilisation de version de blender custom (de son choix exemple 3.6 ou 2.9)
 - [ ] Dossier Moteur Commun pour les projets exporté
 - [ ] Archivage de projet selon les versions du projet (dossier spécialement dédier)
-- [ ] Le programme doit dès le démarrage récupérer les donné des fichiers Json et les créer seulement si elle n'existe pas en vérifiant que les clé soit présente dans les fichier de sauvegarde 
+- [x] Le programme doit dès le démarrage récupérer les donné des fichiers Json et les créer seulement si elle n'existe pas en vérifiant que les clé soit présente dans les fichier de sauvegarde 
