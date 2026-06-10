@@ -1,5 +1,7 @@
 import os, sys, platform, pprint, pathlib, json, subprocess
 
+from GUI.Biblio.export_projet import Exportation
+
 # Ajouter le répertoire source au PYTHONPATH si nécessaire
 if not any("source" in p for p in sys.path):
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -204,11 +206,15 @@ class Projet(QWidget):
             bouton_actif.clicked.connect(lambda checked, actif=pathlib.Path(i[4]): self.defini_actif(valeur=actif))
             bouton_supprimer = QPushButton("X")
             bouton_supprimer.setStatusTip(f"Supprimer {pathlib.Path(i[4]).name} !!!")
-            bouton_supprimer.setFixedWidth(20)
+            bouton_supprimer.setFixedWidth(10)
             bouton_supprimer.clicked.connect(lambda checked, texte=pathlib.Path(i[4]): self.supprimer_projet(valeur=texte))
             bouton_test = QPushButton("Test")
             bouton_test.setStatusTip(f"Tester le Projet {pathlib.Path(i[4]).name} !!!")
             bouton_test.clicked.connect(lambda checked, chemin=pathlib.Path(i[4]): self.test_le_projet(valeur=chemin))
+            bouton_export = QPushButton("Export")
+            bouton_export.setFixedWidth(10)
+            bouton_export.setStatusTip(f"Exporter projet {pathlib.Path(i[4]).name} !!!")
+            bouton_export.clicked.connect(lambda checked, chemin=pathlib.Path(i[4]), os_util=i[0], ver=i[2]: self.exporter_projet(valeur=chemin, os_util=os_util, version_utils=ver))
 
             ligne_rang.addWidget(bouton_actif)
             ligne_rang.addWidget(QLabel(i[0].capitalize()))
@@ -216,6 +222,7 @@ class Projet(QWidget):
             ligne_rang.addWidget(QLabel(i[2]))
             ligne_rang.addWidget(bouton_test)
             ligne_rang.addWidget(bouton_supprimer)
+            ligne_rang.addWidget(bouton_export)
             v_layout.addLayout(ligne_rang)
         v_layout.addStretch()
         scrol.setWidget(conteneur)
@@ -368,3 +375,15 @@ class Projet(QWidget):
         commande.append(fichier_main)
 
         subprocess.Popen(args=commande)
+
+    def exporter_projet(self, valeur, os_util, version_utils):
+        config_moteur = charger("config_launcher")[os_util]
+        chemin_mot = config_moteur['executable'].get(f"{os_util.capitalize()}-{version_utils}")
+        if not chemin_mot:
+            QMessageBox.critical(self, "Erreur", f"Chemin du moteur introuvable pour {os_util}-{version_utils}")
+            return
+        chemin_mot = str(pathlib.Path(chemin_mot).parent)
+
+        self.export_projet = Exportation(projet=valeur, moteur=chemin_mot)
+        if not self.export_projet._auto_exported:
+            self.export_projet.show()
