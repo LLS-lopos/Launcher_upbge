@@ -1,5 +1,4 @@
-import os, sys, platform, pprint
-import pathlib
+import os, sys, platform, pprint, pathlib, json, subprocess
 
 # Ajouter le répertoire source au PYTHONPATH si nécessaire
 if not any("source" in p for p in sys.path):
@@ -15,7 +14,6 @@ from PySide6.QtWidgets import (
 from PySide6.QtGui import QIcon, QPixmap
 from PySide6.QtCore import Slot, Qt
 from pathlib import Path
-import json
 
 from Fonction.manipuler_donner import charger, config, global_json, sauvegarder_config
 
@@ -156,18 +154,18 @@ class Projet(QWidget):
         new_data = []
         if platform.system() == "Linux": data.append(("Linux", self.data.get("linux", None)))
         data.append(("Windows", self.data.get("windows", None)))
-        # (os/logi-icon/version-logi/icone/nom/version-projet/bouton-supprimer)
+        # (os/logi-icon/version-logi/icone/nom-projet/titre-projet/version-projet/tester-le-projet/bouton-supprimer)
         donner = [None, None, None, None, None, None, None]
         for i in data:
             if i[0] in ["Linux", "Windows"]:
                 for p in i[1]["projet"]:
-                    for titre in i[1]["projet"][p]:
+                    for nom_projet in i[1]["projet"][p]:
                         donner = [
                             i[0].lower(), #0
                             None, #1
                             p, #2
                             self.data["icon"].get(p.lower()), #3
-                            titre, #4
+                            nom_projet, #4
                             None, #5
                             None, #6
                         ]
@@ -201,17 +199,23 @@ class Projet(QWidget):
             else:
                 pixmap = QPixmap(self.data.get("icon")[i[0]]).scaled(25, 25, Qt.KeepAspectRatio, Qt.SmoothTransformation)
             icone.setPixmap(pixmap)
-            bouton = QPushButton(pathlib.Path(i[4]).name)
-            bouton.clicked.connect(lambda checked, actif=pathlib.Path(i[4]): self.defini_actif(valeur=actif))
-            b2 = QPushButton("X")
-            b2.setFixedWidth(20)
-            b2.clicked.connect(lambda checked, texte=pathlib.Path(i[4]): self.supprimer_projet(valeur=texte))
+            bouton_actif = QPushButton(pathlib.Path(i[4]).name)
+            bouton_actif.setStatusTip(f"Rendre Actif Projet {pathlib.Path(i[4]).name} !!!")
+            bouton_actif.clicked.connect(lambda checked, actif=pathlib.Path(i[4]): self.defini_actif(valeur=actif))
+            bouton_supprimer = QPushButton("X")
+            bouton_supprimer.setStatusTip(f"Supprimer {pathlib.Path(i[4]).name} !!!")
+            bouton_supprimer.setFixedWidth(20)
+            bouton_supprimer.clicked.connect(lambda checked, texte=pathlib.Path(i[4]): self.supprimer_projet(valeur=texte))
+            bouton_test = QPushButton("Test")
+            bouton_test.setStatusTip(f"Tester le Projet {pathlib.Path(i[4]).name} !!!")
+            bouton_test.clicked.connect(lambda checked, chemin=pathlib.Path(i[4]): self.test_le_projet(valeur=chemin))
 
+            ligne_rang.addWidget(bouton_actif)
             ligne_rang.addWidget(QLabel(i[0].capitalize()))
             ligne_rang.addWidget(icone)
             ligne_rang.addWidget(QLabel(i[2]))
-            ligne_rang.addWidget(bouton)
-            ligne_rang.addWidget(b2)
+            ligne_rang.addWidget(bouton_test)
+            ligne_rang.addWidget(bouton_supprimer)
             v_layout.addLayout(ligne_rang)
         v_layout.addStretch()
         scrol.setWidget(conteneur)
@@ -312,10 +316,55 @@ class Projet(QWidget):
         else:
             return
 
-
     @Slot()
     def defini_actif(self, valeur):
         info = {"p_actif": str(valeur)}
         with open((config / global_json), "w", encoding="utf-8") as f:
             json.dump(info, f, indent=4)
         self.page_tableau()
+
+    @Slot()
+    def test_le_projet(self, valeur):
+        os = ["Windows", "Linux"]
+        version = ["2x", "3x", "4x", "5x", "Range"]
+        os_util = None
+        version_utils = None
+        fichier_main = None
+        base_cle = None
+        commande = []
+        use_wine = False
+
+        for i in os:
+            if i in str(valeur).split("/"): os_util = i
+        for i in version:
+            if i in str(valeur).split("/"): version_utils = i
+
+        if blend_principal := list(valeur.glob("**/*.blend")):
+            fichier_main = blend_principal[0]
+        elif range_principal := list(valeur.glob("**/*.range")):
+            fichier_main = range_principal[0]
+        else: return fichier_main
+
+        config_moteur = charger("config_launcher")[os_util.lower()]
+        if version_utils == "Range":
+            if os_util == "Windows":
+                use_wine = True
+                base_cle = f"game-W-{version_utils}"
+            if os_util == "Linux":
+                use_wine = False
+                base_cle = f"game-L-{version_utils}"
+        else:
+            if os_util == "Windows":
+                use_wine = True
+            else:
+                use_wine = False
+            base_cle = f"game-{version_utils}"
+
+        if use_wine:
+            commande.append("wine")
+            fichier_main = "Z:" + str(fichier_main).replace("/", "\\")
+
+        commande.append(config_moteur['executable'][base_cle])
+        commande.append(fichier_main)
+
+        subprocess.Popen(args=commande)
