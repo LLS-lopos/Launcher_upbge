@@ -1,4 +1,5 @@
 import os
+import pathlib
 import platform
 import re
 import time
@@ -950,6 +951,20 @@ class PyBash(QWidget):
             
         log("Nettoyage des ressources terminé")
 
+
+class BashLopos(QWidget):
+    def __init__(self):
+        super().__init__()
+        self._historique = []
+        self._chemin = pathlib.Path.home()
+
+        self._terminal = QLineEdit()
+        self.zone_texte = QTextEdit()
+
+    def placer_element(self):
+        pass
+
+
 # Pour tester le terminal seul
 if __name__ == "__main__":
     import sys
@@ -958,6 +973,6 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = PyBash()
     window.setWindowTitle("Terminal Intégré")
-    window.resize(800, 600)
+    window.resize(800, 500)
     window.show()
     sys.exit(app.exec())

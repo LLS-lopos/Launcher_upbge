@@ -4,7 +4,7 @@
 # créer un lanceur avec décodeur
 # choisir l'enplacement de l'export des porjets
 from PySide6.QtWidgets import (QWidget, QLabel, QLineEdit
-                               , QFileDialog, QPushButton, QComboBox, QGridLayout)
+, QFileDialog, QPushButton, QComboBox, QGridLayout, QMessageBox)
 from PySide6.QtCore import (Slot, Qt)
 from PySide6.QtGui import (QIcon)
 import pathlib, platform
@@ -12,7 +12,7 @@ from subprocess import run
 from Fonction.manipuler_donner import charger
 
 class Exportation(QWidget):
-    def __init__(self):
+    def __init__(self, projet=None, moteur=None):
         super().__init__()
         self.data_launcher = charger("config_launcher")
         icone = self.data_launcher['icon']
@@ -21,21 +21,34 @@ class Exportation(QWidget):
         conteneur = QGridLayout()
         conteneur.setContentsMargins(2, 2, 2, 2)
         conteneur.setSpacing(2)
+        self.liste_moteur = QComboBox()
+        self.projet = projet
+        self.moteur = moteur
 
         # Titre & Texte
         T_dos_projet = QLabel("dossier projet: ")
-
         # chemin de projet
         self.projet_jeu = QLineEdit()
         self.select_projet_jeu = QPushButton("+-")
+        if projet:
+            self.projet_jeu.setText(str(projet))
         self.select_projet_jeu.clicked.connect(lambda: self.selection_dossier(1))
+
+        if moteur:
+            moteur_path = pathlib.Path(moteur)
+            for idx, dos in enumerate(self.dos_moteur):
+                if dos == moteur_path:
+                    self.liste_moteur.setCurrentIndex(idx)
+                    break
+        if projet and moteur:
+            self.exportation_projet()
+            self._auto_exported = True
 
         # bouton exportation
         self.b_export = QPushButton("Export")
         self.b_export.clicked.connect(lambda: self.exportation_projet())
 
         # Configurer la liste des moteurs de jeu
-        self.liste_moteur = QComboBox()
         if platform.system() == "Linux":
             self.linux = self.data_launcher["linux"]
             for cle in self.linux:
@@ -70,24 +83,32 @@ class Exportation(QWidget):
     @Slot()
     def exportation_projet(self):
         dossier_moteur = ""
-        projet = pathlib.Path(self.projet_jeu.text())
+        if self.projet:
+            projet = self.projet
+        else:
+            projet = pathlib.Path(self.projet_jeu.text())
         destination = pathlib.Path(charger("preference")["dossier_export"])
-        moteur = self.liste_moteur.currentText()
-        for i in self.dos_moteur:
-            if moteur == i.name:
-                dossier_moteur = i
-        #print(f"{destination}\n{projet}\n{moteur}")
-        lanceur = ""
+        if self.moteur:
+            moteur = pathlib.Path(self.moteur)
+        elif self.liste_moteur.currentIndex() >= 0:
+            moteur = self.dos_moteur[self.liste_moteur.currentIndex()]
+        else:
+            QMessageBox.critical(self, "Erreur", "Aucun moteur sélectionné")
+            return
+        if not moteur or not moteur.exists():
+            QMessageBox.critical(self, "Erreur", f"Chemin du moteur invalide : {moteur}")
+            return
+        nom_moteur = moteur.name
         if platform.system() == "Linux":
-            if moteur in ["Linux-2x", "Linux-3x", "Linux-4x", "Linux-5x"]:
+            if nom_moteur in ["Linux-2x", "Linux-3x", "Linux-4x", "Linux-5x"]:
                 lanceur = "blenderplayer"
-            elif moteur in ["Linux-Range"]:
+            elif nom_moteur in ["Linux-Range"]:
                 lanceur = "RangeRuntime"
-        if moteur in ["Windows-2x", "Windows-3x", "Windows-4x", "Windows-5x"]:
+        if nom_moteur in ["Windows-2x", "Windows-3x", "Windows-4x", "Windows-5x"]:
             lanceur = "blenderplayer.exe"
-        elif moteur in ["Windows-Range"]:
+        elif nom_moteur in ["Windows-Range"]:
             lanceur = "RangeRuntime.exe"
-        self.copi_element(projet, dossier_moteur, destination, lanceur)
+        self.copi_element(projet, moteur, destination, lanceur)
         self.lanceurDeJeuSimple(projet, destination, lanceur)
         self.destroy() # Fermer la fenêtre
 
@@ -187,6 +208,8 @@ class Exportation(QWidget):
         if platform.system() == "Linux":
             data_path = f"./data/{f_blend[0].name}"
             script_path = (sortie / jeu.name / f"{jeu.name}.sh").resolve()
+            desktop_path = (sortie / jeu.name / f"{jeu.name}.desktop").resolve()
+            icon = (sortie / jeu.name / "data" / "icon.png").resolve()
             with open(script_path, 'w', encoding='utf-8') as f:
                 f.write("#!/bin/bash\n\n")
                 f.write("# Obtenir le chemin absolu du script\n")
@@ -220,7 +243,7 @@ class Exportation(QWidget):
                 f.write('        path=$(winepath -w "$path" 2>/dev/null)\n')
                 f.write('    else\n')
                 f.write('        # Fallback si winepath n\'est pas disponible\n')
-                f.write('        path=$(echo "$path" | sed \'s|^/mnt/\([a-zA-Z]\+\)|\1:|\' | sed \'s|/|\\\\|g\')\n')
+                f.write('        path=$(echo "$path" | sed \'s|^/mnt/\\([a-zA-Z]\\+\\)|\1:|\' | sed \'s|/|\\\\|g\')\n')
                 f.write('    fi\n')
                 f.write('    echo "$path"\n}\n')
                 f.write('\n# Exécuter le jeu avec Wine pour les .exe, sinon directement\n')
@@ -251,11 +274,24 @@ class Exportation(QWidget):
                 f.write('        exit 1\n')
                 f.write('    fi\n')
                 f.write('fi\n')
+            with open(desktop_path, 'w', encoding='utf-8') as f:
+                f.write(f"[Desktop Entry]\n")
+                f.write(f"Type=Application\n")
+                f.write(f"Name={jeu.name}\n")
+                f.write(f"Comment=Game {jeu.name}\n")
+                f.write(f"Version=1.0\n")
+                f.write(f"Exec={sortie}/{jeu.name}/{jeu.name}.sh\n")
+                if pathlib.Path(icon).exists(): f.write(f"Icon={icon}\n")
+                else: f.write(f"Icon=\n")
+                f.write(f"Categories=Game;\n")
+                f.write(f"Terminal=false\n")
             try:
                 run(["chmod", "+x", (sortie / jeu.name / (str(jeu.name)+".sh"))], check=True)
+                run(["chmod", "+x", (sortie / jeu.name / (str(jeu.name) + ".desktop"))], check=True)
             except: pass
+
         elif platform.system() == "Windows":
-            data_path = f"\data\{f_blend[0].name}"
+            data_path = f"\\data\\{f_blend[0].name}"
             script_path = (sortie / jeu.name / f"{jeu.name}.bat").resolve()
             with open(script_path, 'w', encoding='utf-8') as f:
                 f.write(f"@echo off\n")
