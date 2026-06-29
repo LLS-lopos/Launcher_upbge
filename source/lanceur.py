@@ -23,6 +23,7 @@ from Fonction.theme import Theme
 from Fonction.validation_donner_logiciel import gestion_configuration
 # autre fonction
 from GUI.Biblio.creer_projet import Creer
+from GUI.Biblio.export_projet import Exportation
 # app
 from GUI.Biblio.librairie_jeux import Jeu
 from GUI.Biblio.preference import Preference
@@ -86,7 +87,7 @@ class Lanceur(QMainWindow):
         affichage_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         grille.addWidget(affichage_widget, 0, 0, 3, 1)
 
-        projet_widget = Projet()
+        projet_widget = Projet(save=self.commande_secourre)
         projet_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         grille.addWidget(projet_widget, 0, 1, 1, 2)
 
@@ -129,6 +130,14 @@ class Lanceur(QMainWindow):
         b_creer_p.setStatusTip("créer nouveau projet")
         b_creer_p.clicked.connect(self.fonc_creer_p)
 
+        # Créer un bouton pour exporter un projet
+        b_export_p = QPushButton()
+        b_export_p.setFixedSize(40, 40)
+        b_export_p.setIcon(QIcon(charger("config_launcher")["icon"]["export_projet"]))
+        b_export_p.setIconSize(QSize(35, 35))
+        b_export_p.setStatusTip("exporter le projet")
+        b_export_p.clicked.connect(self.fonc_export_p)
+
         # Créer un bouton pour lancer les jeu exporter
         b_lib_jeu = QPushButton()
         b_lib_jeu.setFixedSize(40, 40)
@@ -140,6 +149,7 @@ class Lanceur(QMainWindow):
         # Ajouter la barre d'outils à la fenêtre principale
         self.tool_barre = self.addToolBar("barre d'outil")
         self.tool_barre.addWidget(b_creer_p)
+        self.tool_barre.addWidget(b_export_p)
         self.tool_barre.addWidget(b_lib_jeu)
 
     def barre_menu(self):
@@ -220,6 +230,17 @@ class Lanceur(QMainWindow):
         """
         self.game = Jeu()
         self.game.show()
+        
+    @Slot()
+    def fonc_export_p(self):
+        """
+        Ouvrir la boîte de dialogue d'exportation de projet.
+
+        Crée et affiche le widget Exporter un projet,
+        en passant la méthode commande_secourre comme rappel de sauvegarde.
+        """
+        self.exporter_projet_dialogue = Exportation()
+        self.exporter_projet_dialogue.show()
 
     @Slot()
     def fonc_Preference(self):

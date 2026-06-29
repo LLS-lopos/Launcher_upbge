@@ -18,6 +18,8 @@ from PySide6.QtCore import Slot, Qt
 from pathlib import Path
 
 from Fonction.manipuler_donner import charger, config, global_json, sauvegarder_config
+from GUI.liste_blend import Lblend
+from GUI.struct_dossier import DosStructure
 
 class Lprojet(QWidget):
     def __init__(self):
@@ -119,8 +121,10 @@ class Lprojet(QWidget):
 
 
 class Projet(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, save=None):
         super().__init__()
+        self.save = save
+        self.lblend = None
         self.data = None
         self.projets = None
         self.h_layout = QHBoxLayout()
@@ -131,14 +135,6 @@ class Projet(QWidget):
         self.h_layout.addLayout(self.layout)
 
         self.v_layout_tab = QVBoxLayout()
-        edition_bouton = QHBoxLayout()
-
-        b_creer_fichier = QPushButton("+Fichier")
-        b_2 = QPushButton("ok")
-        edition_bouton.addWidget(b_creer_fichier)
-        edition_bouton.addWidget(b_2)
-
-        self.v_layout_tab.addLayout(edition_bouton)
         self.v_layout_tab.addWidget(self.tableau)
 
         self.h_layout.addLayout(self.v_layout_tab)
@@ -232,74 +228,13 @@ class Projet(QWidget):
 
     def page_tableau(self):
         self.tableau.clear()
-        """
-        tab = [
-            ("Fichier", QListWidget()),
-            ("Arboressence", QListWidget()),
-        ]
 
-        for (categorie, page) in tab:
-            self.tableau.addTab(page, categorie)
-        self.donner_fichier()
-        self.donner_arboressence()"""
-        # Page Fichier reste un QListWidget
-        self.page_fichier = QTabWidget()
-        self.tableau.addTab(self.page_fichier, "Fichier")
+        if self.lblend is None:
+            self.lblend = Lblend(self.save)
+        self.tableau.addTab(self.lblend, "Fichier")
 
-        # Page Arborescence devient un QTabWidget imbriqué
-        self.page_arbo = QTabWidget()
+        self.page_arbo = DosStructure()
         self.tableau.addTab(self.page_arbo, "Arborescence")
-
-        self.donner_fichier()
-        self.donner_arboressence()
-
-    def donner_fichier(self):
-        try:
-            projet_actif = pathlib.Path(charger("global").get("p_actif"))
-        except:
-            return
-        self.page_fichier.clear()
-        #####
-        categories = [
-            ("Blend/Range", ['**/*.blend', '**/*.blend@', '**/*.range']), # récupérer fichier blend
-            ("Polices", ['**/*.ttf', '**/*.otf']), # récupérer fichier police (font)
-            ("Images", ['**/*.png', '**/*.jpg', '**/*.jpeg', '**/*.svg']), # récupérer fichier image
-            ("Scripts", ['**/*.py', '**/*.txt']), # récupérer fichier script et texte
-            ("Audio", ['**/*.mp3', '**/*.wav', '**/*.ogg']), # récupérer fichier son, audio et video
-        ]
-        #####
-        for nom_cat, patterns in categories:
-             page = QListWidget()
-             fichiers_trouves = []
-             for pattern in patterns:
-                 fichiers_trouves += projet_actif.glob(pattern)
-
-             for fiche in sorted(fichiers_trouves, key=lambda f: f.name):
-                 page.addItem(fiche.name)
-
-             if fichiers_trouves:
-                 self.page_fichier.addTab(page, nom_cat)
-
-    def donner_arboressence(self):
-        #self.tableau.tabText(1)
-        f_global = charger("global").get("p_actif")
-        if not f_global or not Path(f_global).exists():
-            return
-
-        self.page_arbo.clear()  # Nettoyer les onglets imbriqués
-
-        dossier_projet = Path(f_global) / "data"
-        self._construire_onglets_arbo(self.page_arbo, dossier_projet)
-
-    def _construire_onglets_arbo(self, tab_imbrique, dossier):
-        """Crée un onglet par sous-répertoire dans le QTabWidget imbriqué."""
-        for sous_dossier in sorted(dossier.iterdir()):
-            if sous_dossier.is_dir():
-                # Créer une QListWidget pour chaque sous-dossier
-                page = QListWidget()
-                for fichier in sorted(sous_dossier.iterdir()):
-                    page.addItem(fichier.name)
-                tab_imbrique.addTab(page, sous_dossier.name)
 
     @Slot()
     def supprimer_projet(self, valeur):
