@@ -262,7 +262,7 @@ class Lanceur(QMainWindow):
         aide = QMessageBox()
         aide.resize(100, 100)
         aide.setWindowTitle("A Propos")
-        aide.setText("version 2.3")
+        aide.setText("version 3.0")
         aide.exec()
 
 
