@@ -28,10 +28,8 @@ from GUI.Biblio.export_projet import Exportation
 from GUI.Biblio.librairie_jeux import Jeu
 from GUI.Biblio.preference import Preference
 from GUI.affichage_projet import Affichage_projet
-from GUI.liste_blend import Lblend
-from GUI.liste_projet import Lprojet, Projet
+from GUI.liste_projet import Projet
 from GUI.pybash import PyBash
-from GUI.struct_dossier import DosStructure
 
 
 # élément graphique
@@ -90,21 +88,6 @@ class Lanceur(QMainWindow):
         projet_widget = Projet(save=self.commande_secourre)
         projet_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         grille.addWidget(projet_widget, 0, 1, 1, 2)
-
-        """fenetre = QWidget()
-        hbox = QHBoxLayout()
-        boxtobox = QComboBox()
-        b2 = QPushButton("b1")
-        b3 = QPushButton("b1")
-        b4 = QPushButton("b1")
-        b5 = QPushButton("b1")
-        hbox.addWidget(b2)
-        hbox.addWidget(b3)
-        hbox.addWidget(boxtobox)
-        hbox.addWidget(b4)
-        hbox.addWidget(b5)
-        fenetre.setLayout(hbox)
-        grille.addWidget(fenetre, 1, 1, 1, 1)"""
 
         app_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         pybash = PyBash(start_dir=app_dir)

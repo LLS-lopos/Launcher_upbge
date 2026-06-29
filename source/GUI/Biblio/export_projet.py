@@ -5,7 +5,7 @@
 # choisir l'enplacement de l'export des porjets
 from PySide6.QtWidgets import (QWidget, QLabel, QLineEdit
 , QFileDialog, QPushButton, QComboBox, QGridLayout, QMessageBox)
-from PySide6.QtCore import (Slot, Qt)
+from PySide6.QtCore import (QSize, Slot, Qt)
 from PySide6.QtGui import (QIcon)
 import pathlib, platform
 from subprocess import run
@@ -45,7 +45,10 @@ class Exportation(QWidget):
             self._auto_exported = True
 
         # bouton exportation
-        self.b_export = QPushButton("Export")
+        self.b_export = QPushButton()
+        self.b_export.setFixedSize(40, 40)
+        self.b_export.setIcon(QIcon(icone.get("export_projet")))
+        self.b_export.setIconSize(QSize(35, 35))
         self.b_export.clicked.connect(lambda: self.exportation_projet())
 
         # Configurer la liste des moteurs de jeu

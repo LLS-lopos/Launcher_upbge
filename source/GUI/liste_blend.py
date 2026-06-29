@@ -10,7 +10,7 @@ from pathlib import Path
 from subprocess import run, Popen, PIPE
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QTabWidget, QScrollArea, QPushButton, QHBoxLayout, QCheckBox, QComboBox, QLabel, QMessageBox
 from PySide6.QtGui import QIcon
-from PySide6.QtCore import QTimer, Qt
+from PySide6.QtCore import QSize, QTimer, Qt
 
 from Fonction.manipuler_donner import charger
 from GUI.Biblio.EditeurDeTexte import LoposEditor
@@ -44,7 +44,10 @@ class Lblend(QWidget):
 
         self.tableau.currentChanged.connect(self.charger_blend)
 
-        b_nouveau_fichier = QPushButton("Créer Fichier")
+        b_nouveau_fichier = QPushButton()
+        b_nouveau_fichier.setFixedSize(30,30)
+        b_nouveau_fichier.setIcon(QIcon(charger("config_launcher")["icon"]["AddFile"]))
+        b_nouveau_fichier.setIconSize(QSize(25,25))
         b_nouveau_fichier.clicked.connect(self.creer_fichier)
 
         self.op_custom = QCheckBox("EXE custom")
@@ -56,16 +59,14 @@ class Lblend(QWidget):
                 self.liste_custom.addItem(QIcon(charger("config_launcher")["icon"].get("upbge.svg")), i)
                 self.exe_custom[i] = custom_l[i]
 
-        ligne1 = QHBoxLayout()
-        ligne1.addWidget(b_nouveau_fichier)
         ligne2 = QHBoxLayout()
         ligne2.addWidget(self.op_custom)
         ligne2.addWidget(self.liste_custom)
+        ligne2.addWidget(b_nouveau_fichier)
 
         layout = QVBoxLayout()
         layout.addWidget(self.tableau)
         layout.addLayout(ligne2)
-        layout.addLayout(ligne1)
         self.setLayout(layout)
 
         self.timer = QTimer(self)
@@ -95,9 +96,15 @@ class Lblend(QWidget):
     def _ajouter_ligne_fichier(self, layout, fichier, type_fichier):
         row = QHBoxLayout()
         nom = QLabel(Path(fichier).name)
-        b_test = QPushButton("Tester")
+        b_test = QPushButton()
+        b_test.setFixedSize(30,30)
+        b_test.setIcon(QIcon(charger("config_launcher")["icon"]["game"]))
+        b_test.setIconSize(QSize(25,25))
         b_edit = QPushButton("Éditer")
-        b_del = QPushButton("Supprimer")
+        b_del = QPushButton()
+        b_del.setFixedSize(30,30)
+        b_del.setIcon(QIcon(charger("config_launcher")["icon"]["Trash"]))
+        b_del.setIconSize(QSize(25,25))
 
         b_test.clicked.connect(lambda checked, f=fichier: self._tester_fichier(f, type_fichier))
         b_edit.clicked.connect(lambda checked, f=fichier: self._editer_fichier(f, type_fichier))

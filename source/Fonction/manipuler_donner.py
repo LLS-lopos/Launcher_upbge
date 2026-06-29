@@ -81,6 +81,8 @@ def sauvegarder_config():
             if dossier.name == "export_projet.svg": config_launcher["icon"]["export_projet"] = str(dossier)
             if dossier.name == "config_logiciel.svg": config_launcher["icon"]["config_logiciel"] = str(dossier)
             if dossier.name == "game.svg": config_launcher["icon"]["game"] = str(dossier)
+            if dossier.name == "AddFile.png": config_launcher["icon"]["AddFile"] = str(dossier)
+            if dossier.name == "Trash.png": config_launcher["icon"]["Trash"] = str(dossier)
     for dossier in dos_moteur.iterdir():
         if dossier.is_dir():
             if dossier.name == "Windows-2x": config_launcher["windows"]["executable"]["Windows-2x"] = str(dossier / "blender.exe")
