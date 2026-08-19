@@ -61,7 +61,7 @@ class Projet(QWidget):
                     for nom_projet in i[1]["projet"][p]:
                         donner = [
                             i[0].lower(), #0
-                            None, #1
+                            "editeur", #1
                             p, #2
                             self.data["icon"].get(p.lower()), #3
                             nom_projet, #4
@@ -102,6 +102,10 @@ class Projet(QWidget):
             bouton_actif.setFixedWidth(40)
             bouton_actif.setStatusTip(f"Rendre Actif Projet {pathlib.Path(i[4]).name} !!!")
             bouton_actif.clicked.connect(lambda checked, actif=pathlib.Path(i[4]): self.defini_actif(valeur=actif))
+            bouton_editeur = QPushButton(i[1])
+            bouton_editeur.setFixedSize(30,30)
+            bouton_editeur.setStatusTip(f"Ouvrir le projet {pathlib.Path(i[4]).name} dans ton éditeur de code préférer")
+            bouton_editeur.clicked.connect(lambda checked, projet=pathlib.Path(i[4]): self.ouvrir_editeur_projet(valeur=projet))
             bouton_supprimer = QPushButton()
             bouton_supprimer.setFixedSize(30,30)
             bouton_supprimer.setIcon(QIcon(charger("config_launcher")["icon"]["Trash"]))
@@ -124,6 +128,7 @@ class Projet(QWidget):
             ligne_rang.addWidget(bouton_actif)
             ligne_rang.addWidget(QLabel(i[0].capitalize()))
             ligne_rang.addWidget(icone)
+            ligne_rang.addWidget(bouton_editeur)
             ligne_rang.addWidget(QLabel(i[2]))
             ligne_rang.addWidget(bouton_test)
             ligne_rang.addWidget(bouton_supprimer)
@@ -219,6 +224,17 @@ class Projet(QWidget):
         commande.append(fichier_main)
 
         subprocess.Popen(args=commande)
+
+    @Slot()
+    def ouvrir_editeur_projet(self, valeur):
+        pref = charger("preference")
+        if pref['editeur']['code']['interne'] == True:
+            subprocess.Popen(
+                args=[
+                    pref['editeur']['code']['externe'],
+                    valeur
+                ]
+            )
 
     def exporter_projet(self, valeur, os_util, version_utils):
         config_moteur = charger("config_launcher")[os_util]

@@ -13,9 +13,9 @@
 
 import os, sys
 
-from PySide6.QtCore import Slot, QSize, Qt
+from PySide6.QtCore import Slot, QSize
 from PySide6.QtGui import QAction, QIcon, QGuiApplication
-from PySide6.QtWidgets import QApplication, QMainWindow, QPushButton, QWidget, QGridLayout, QCheckBox, QWidgetAction, QMessageBox, QSizePolicy, QVBoxLayout, QHBoxLayout, QComboBox
+from PySide6.QtWidgets import QApplication, QMainWindow, QPushButton, QWidget, QGridLayout, QCheckBox, QWidgetAction, QMessageBox, QSizePolicy
 
 # fonction backend
 from Fonction.manipuler_donner import charger
@@ -25,7 +25,7 @@ from Fonction.validation_donner_logiciel import gestion_configuration
 from GUI.Biblio.creer_projet import Creer
 from GUI.Biblio.export_projet import Exportation
 # app
-from GUI.Biblio.librairie_jeux import Jeu
+from GUI.sub_logi.librairie_jeux import Jeu
 from GUI.Biblio.preference import Preference
 from GUI.affichage_projet import Affichage_projet
 from GUI.liste_projet import Projet

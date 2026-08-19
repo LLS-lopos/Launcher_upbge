@@ -150,10 +150,12 @@ class Preference(QWidget):
         grille = QGridLayout()
 
         ##### élément #####
-        check_code = QCheckBox("code")
+        self.check_code: QCheckBox = QCheckBox("code")
+        self.check_code.setChecked(charger("preference")['editeur']['code'].get("interne", False))
         check_image = QCheckBox("image")
         check_video = QCheckBox("vidéo")
-        self.edit_code = QLineEdit()
+        self.edit_code: QLineEdit = QLineEdit()
+        self.edit_code.setText(charger("preference")['editeur']['code'].get("externe", ""))
         self.vue_image = QLineEdit()
         self.vue_video = QLineEdit()
         b_code = QPushButton("*")
@@ -161,7 +163,7 @@ class Preference(QWidget):
         b_video = QPushButton("-")
         ##### Ligne #####
         ligne1 = QHBoxLayout()
-        ligne1.addWidget(check_code)
+        ligne1.addWidget(self.check_code)
         ligne1.addWidget(self.edit_code)
         ligne1.addWidget(b_code)
         ligne2 = QHBoxLayout()
@@ -203,17 +205,29 @@ class Preference(QWidget):
             pprint(r_data)
 
         data = r_data
-        if self.LE_dossier_export.text() != "":
-            data["dossier_export"] = self.LE_dossier_export.text()
-        data["taille"] = [self.Flargeur.value(), self.Fhauteur.value()]
-        if self.plein_ecran.isChecked(): data["fullscreen"] = True
-        else: data["fullscreen"] = False
-        if self.moteur_commun.isChecked(): data["moteur_commun"] = True
-        else: data["moteur_commun"] = False
+        try:
+            if self.LE_dossier_export.text() != "":
+                data["dossier_export"] = self.LE_dossier_export.text()
+            else:
+                pass
+            data["taille"] = [self.Flargeur.value(), self.Fhauteur.value()]
+            if self.plein_ecran.isChecked(): data["fullscreen"] = True
+            else: data["fullscreen"] = False
+            if self.moteur_commun.isChecked(): data["moteur_commun"] = True
+            else: data["moteur_commun"] = False
+        except:
+            pass
+        try:
+            if self.check_code.isChecked():
+                data["editeur"]["code"]["interne"] = True
+                data["editeur"]["code"]["externe"] = self.edit_code.text()
+            else:
+                data["editeur"]["code"]["interne"] = False
+                data["editeur"]["code"]["externe"] = ""
+        except:
+            pass
         with open((config / preference_launcher_json), "w", encoding="utf-8") as f:
             json.dump(data, f, indent=4)
-        pprint(data)
-
 
     def impri(self, obj):
         new_page = obj.text()

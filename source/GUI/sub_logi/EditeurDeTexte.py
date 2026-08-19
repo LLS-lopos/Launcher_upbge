@@ -29,8 +29,8 @@ class LoposEditor(QMainWindow):
 
         moniteur = QGuiApplication.primaryScreen()
         taille_moniteur = moniteur.size()
-        calcul_l = (taille_moniteur.width()//2) - (self.largeur//2)
-        calcul_h = (taille_moniteur.height()//2) - (self.hauteur//2)
+        calcul_l = (taille_moniteur.width()*0.5) - (self.largeur*0.5)
+        calcul_h = (taille_moniteur.height()*0.5) - (self.hauteur*0.5)
         
         self.setGeometry(int(calcul_l), int(calcul_h), self.largeur, self.hauteur)
 
