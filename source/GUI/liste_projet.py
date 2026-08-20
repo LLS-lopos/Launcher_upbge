@@ -61,7 +61,7 @@ class Projet(QWidget):
                     for nom_projet in i[1]["projet"][p]:
                         donner = [
                             i[0].lower(), #0
-                            "editeur", #1
+                            QIcon(charger("config_launcher")["icon"]["editor"]), #1
                             p, #2
                             self.data["icon"].get(p.lower()), #3
                             nom_projet, #4
@@ -102,7 +102,8 @@ class Projet(QWidget):
             bouton_actif.setFixedWidth(40)
             bouton_actif.setStatusTip(f"Rendre Actif Projet {pathlib.Path(i[4]).name} !!!")
             bouton_actif.clicked.connect(lambda checked, actif=pathlib.Path(i[4]): self.defini_actif(valeur=actif))
-            bouton_editeur = QPushButton(i[1])
+            bouton_editeur = QPushButton()
+            bouton_editeur.setIcon(i[1])
             bouton_editeur.setFixedSize(30,30)
             bouton_editeur.setStatusTip(f"Ouvrir le projet {pathlib.Path(i[4]).name} dans ton éditeur de code préférer")
             bouton_editeur.clicked.connect(lambda checked, projet=pathlib.Path(i[4]): self.ouvrir_editeur_projet(valeur=projet))

@@ -81,8 +81,14 @@ def sauvegarder_config():
             if dossier.name == "export_projet.svg": config_launcher["icon"]["export_projet"] = str(dossier)
             if dossier.name == "config_logiciel.svg": config_launcher["icon"]["config_logiciel"] = str(dossier)
             if dossier.name == "game.svg": config_launcher["icon"]["game"] = str(dossier)
-            if dossier.name == "AddFile.png": config_launcher["icon"]["AddFile"] = str(dossier)
+            if dossier.name == "editor-software-text-svgrepo-com.svg": config_launcher["icon"]["AddFile"] = str(dossier)
             if dossier.name == "Trash.png": config_launcher["icon"]["Trash"] = str(dossier)
+            if dossier.name == "code-svgrepo-com.svg": config_launcher["icon"]["editor"] = str(dossier)
+            if dossier.name == "python-svgrepo-com.svg": config_launcher["icon"]["python"] = str(dossier)
+            if dossier.name == "file-music-4-svgrepo-com.svg": config_launcher["icon"]["music"] = str(dossier)
+            if dossier.name == "eog-image-photo-svgrepo-com.svg": config_launcher["icon"]["image"] = str(dossier)
+            if dossier.name == "media-player-software-svgrepo-com.svg": config_launcher["icon"]["video"] = str(dossier)
+            if dossier.name == "font-circle-svgrepo-com.svg": config_launcher["icon"]["police"] = str(dossier)
     for dossier in dos_moteur.iterdir():
         if dossier.is_dir():
             if dossier.name == "Windows-2x": config_launcher["windows"]["executable"]["Windows-2x"] = str(dossier / "blender.exe")

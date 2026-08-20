@@ -93,14 +93,15 @@ class Lblend(QWidget):
                 if sub is not None:
                     self._clear_layout(sub)
 
-    def _ajouter_ligne_fichier(self, layout, fichier, type_fichier):
+    def _ajouter_ligne_fichier(self, layout, fichier, type_fichier, icone=None):
         row = QHBoxLayout()
         nom = QLabel(Path(fichier).name)
         b_test = QPushButton()
         b_test.setFixedSize(30,30)
         b_test.setIcon(QIcon(charger("config_launcher")["icon"]["game"]))
         b_test.setIconSize(QSize(25,25))
-        b_edit = QPushButton("Éditer")
+        b_edit = QPushButton()
+        b_edit.setIcon(icone)
         b_del = QPushButton()
         b_del.setFixedSize(30,30)
         b_del.setIcon(QIcon(charger("config_launcher")["icon"]["Trash"]))
@@ -164,7 +165,7 @@ class Lblend(QWidget):
             self.lister_blend_range = l_p
             self._clear_layout(self.blend_range_layout)
             for e in self.lister_blend_range:
-                self._ajouter_ligne_fichier(self.blend_range_layout, e, "Blend/Range")
+                self._ajouter_ligne_fichier(self.blend_range_layout, e, "Blend/Range", QIcon(charger("config_launcher")["icon"]["blender"]))
             self.blend_range_layout.addStretch()
 
     def charger_texte(self):
@@ -180,7 +181,7 @@ class Lblend(QWidget):
             self.lister_texte = fichier
             self._clear_layout(self.texte_layout)
             for e in self.lister_texte:
-                self._ajouter_ligne_fichier(self.texte_layout, e, "Texte")
+                self._ajouter_ligne_fichier(self.texte_layout, e, "Texte", QIcon(charger("config_launcher")["icon"]["AddFile"]))
             self.texte_layout.addStretch()
 
     def charger_script(self):
@@ -197,7 +198,7 @@ class Lblend(QWidget):
             self.lister_script = fichier
             self._clear_layout(self.script_layout)
             for e in self.lister_script:
-                self._ajouter_ligne_fichier(self.script_layout, e, "Script")
+                self._ajouter_ligne_fichier(self.script_layout, e, "Script", QIcon(charger("config_launcher")["icon"]["python"]))
             self.script_layout.addStretch()
 
     def charger_son(self):
@@ -215,7 +216,7 @@ class Lblend(QWidget):
             self.lister_son = fichier
             self._clear_layout(self.son_layout)
             for e in self.lister_son:
-                self._ajouter_ligne_fichier(self.son_layout, e, "Son")
+                self._ajouter_ligne_fichier(self.son_layout, e, "Son", QIcon(charger("config_launcher")["icon"]["music"]))
             self.son_layout.addStretch()
 
     def charger_image(self):
@@ -233,7 +234,7 @@ class Lblend(QWidget):
             self.lister_images = fichier
             self._clear_layout(self.image_layout)
             for e in self.lister_images:
-                self._ajouter_ligne_fichier(self.image_layout, e, "Image")
+                self._ajouter_ligne_fichier(self.image_layout, e, "Image", QIcon(charger("config_launcher")["icon"]["image"]))
             self.image_layout.addStretch()
 
     def charger_video(self):
@@ -251,7 +252,7 @@ class Lblend(QWidget):
             self.lister_video = fichier
             self._clear_layout(self.video_layout)
             for e in self.lister_video:
-                self._ajouter_ligne_fichier(self.video_layout, e, "Vidéo")
+                self._ajouter_ligne_fichier(self.video_layout, e, "Vidéo", QIcon(charger("config_launcher")["icon"]["video"]))
             self.video_layout.addStretch()
 
     def charger_font(self):
@@ -268,7 +269,7 @@ class Lblend(QWidget):
             self.lister_font = fichier
             self._clear_layout(self.font_layout)
             for e in self.lister_font:
-                self._ajouter_ligne_fichier(self.font_layout, e, "Font")
+                self._ajouter_ligne_fichier(self.font_layout, e, "Font", QIcon(charger("config_launcher")["icon"]["police"]))
             self.font_layout.addStretch()
 
     # --- Actions par fichier ---
