@@ -46,6 +46,7 @@ jobs:
             GUI.Biblio
             GUI.sub_logi
             Fonction
+            PIL
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
