@@ -102,6 +102,7 @@ class Lblend(QWidget):
         b_test.setIconSize(QSize(25,25))
         b_edit = QPushButton()
         b_edit.setIcon(icone)
+        b_edit.setFixedSize(30, 30)
         b_del = QPushButton()
         b_del.setFixedSize(30,30)
         b_del.setIcon(QIcon(charger("config_launcher")["icon"]["Trash"]))
