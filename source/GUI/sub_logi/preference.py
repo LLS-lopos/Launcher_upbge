@@ -147,8 +147,7 @@ class Preference(QWidget):
 
     def systeme(self):
         widget = QWidget(self)
-        grille = QGridLayout()
-
+        grille = QVBoxLayout()
         ##### élément #####
         self.check_code: QCheckBox = QCheckBox("code")
         self.check_code.setChecked(charger("preference")['editeur']['code'].get("interne", False))
@@ -159,8 +158,11 @@ class Preference(QWidget):
         self.vue_image = QLineEdit()
         self.vue_video = QLineEdit()
         b_code = QPushButton("*")
+        b_code.setFixedSize(25,25)
         b_image = QPushButton("/")
+        b_image.setFixedSize(25,25)
         b_video = QPushButton("-")
+        b_video.setFixedSize(25,25)
         ##### Ligne #####
         ligne1 = QHBoxLayout()
         ligne1.addWidget(self.check_code)
@@ -175,12 +177,12 @@ class Preference(QWidget):
         ligne3.addWidget(self.vue_video)
         ligne3.addWidget(b_video)
         ##### Grille #####
-        grille.addWidget(QLabel("Editeur Code"), 0, 0, 1, 1)
-        grille.addLayout(ligne1, 1, 0, 1, 1)
-        grille.addWidget(QLabel("Visioneur Image"), 2, 0, 1, 1)
-        grille.addLayout(ligne2, 3, 0, 1, 1)
-        grille.addWidget(QLabel("Visioneur Vidéo"), 4, 0, 1, 1)
-        grille.addLayout(ligne3, 5, 0, 1, 1)
+        grille.addWidget(QLabel("Editeur Code"))
+        grille.addLayout(ligne1)
+        grille.addWidget(QLabel("Visioneur Image"))
+        grille.addLayout(ligne2)
+        grille.addWidget(QLabel("Visioneur Vidéo"))
+        grille.addLayout(ligne3)
 
         widget.setLayout(grille)
         return widget

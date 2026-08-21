@@ -26,7 +26,7 @@ from GUI.Biblio.creer_projet import Creer
 from GUI.Biblio.export_projet import Exportation
 # app
 from GUI.sub_logi.librairie_jeux import Jeu
-from GUI.Biblio.preference import Preference
+from GUI.sub_logi.preference import Preference
 from GUI.affichage_projet import Affichage_projet
 from GUI.liste_projet import Projet
 from GUI.pybash import PyBash

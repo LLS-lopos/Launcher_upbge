@@ -91,6 +91,15 @@ class Projet(QWidget):
 
         for i in self.projets:
             ligne_rang = QHBoxLayout()
+            # 0
+            bouton_actif = QPushButton(pathlib.Path(i[4]).name)
+            bouton_actif.setFixedSize(70,30)
+            bouton_actif.setStatusTip(f"Rendre Actif Projet {pathlib.Path(i[4]).name} !!!")
+            bouton_actif.clicked.connect(lambda checked, actif=pathlib.Path(i[4]): self.defini_actif(valeur=actif))
+            # 1
+            sys_os = QLabel(i[0].capitalize())
+            sys_os.setFixedSize(70,30)
+            # 2
             icone = QLabel()
             icone.setFixedSize(25, 25)
             if i[2] == "Range":
@@ -98,27 +107,30 @@ class Projet(QWidget):
             else:
                 pixmap = QPixmap(self.data.get("icon")[i[0]]).scaled(25, 25, Qt.KeepAspectRatio, Qt.SmoothTransformation)
             icone.setPixmap(pixmap)
-            bouton_actif = QPushButton(pathlib.Path(i[4]).name)
-            bouton_actif.setFixedWidth(40)
-            bouton_actif.setStatusTip(f"Rendre Actif Projet {pathlib.Path(i[4]).name} !!!")
-            bouton_actif.clicked.connect(lambda checked, actif=pathlib.Path(i[4]): self.defini_actif(valeur=actif))
+            # 3
             bouton_editeur = QPushButton()
             bouton_editeur.setIcon(i[1])
-            bouton_editeur.setFixedSize(30,30)
+            bouton_editeur.setFixedSize(30, 30)
             bouton_editeur.setStatusTip(f"Ouvrir le projet {pathlib.Path(i[4]).name} dans ton éditeur de code préférer")
             bouton_editeur.clicked.connect(lambda checked, projet=pathlib.Path(i[4]): self.ouvrir_editeur_projet(valeur=projet))
+            # 4
+            version_moteur = QLabel(i[2])
+            version_moteur.setFixedSize(40, 30)
+            # 5
+            bouton_test = QPushButton()
+            bouton_test.setFixedSize(30, 30)
+            bouton_test.setIcon(QIcon(charger("config_launcher")["icon"]["game"]))
+            bouton_test.setIconSize(QSize(25, 25))
+            bouton_test.setStatusTip(f"Tester le Projet {pathlib.Path(i[4]).name} !!!")
+            bouton_test.clicked.connect(lambda checked, chemin=pathlib.Path(i[4]): self.test_le_projet(valeur=chemin))
+            # 6
             bouton_supprimer = QPushButton()
             bouton_supprimer.setFixedSize(30,30)
             bouton_supprimer.setIcon(QIcon(charger("config_launcher")["icon"]["Trash"]))
             bouton_supprimer.setIconSize(QSize(25,25))
             bouton_supprimer.setStatusTip(f"Supprimer {pathlib.Path(i[4]).name} !!!")
             bouton_supprimer.clicked.connect(lambda checked, texte=pathlib.Path(i[4]): self.supprimer_projet(valeur=texte))
-            bouton_test = QPushButton()
-            bouton_test.setFixedSize(30,30)
-            bouton_test.setIcon(QIcon(charger("config_launcher")["icon"]["game"]))
-            bouton_test.setIconSize(QSize(25,25))
-            bouton_test.setStatusTip(f"Tester le Projet {pathlib.Path(i[4]).name} !!!")
-            bouton_test.clicked.connect(lambda checked, chemin=pathlib.Path(i[4]): self.test_le_projet(valeur=chemin))
+            # 7
             bouton_export = QPushButton()
             bouton_export.setFixedSize(30,30)
             bouton_export.setIcon(QIcon(charger("config_launcher")["icon"]["export_projet"]))
@@ -126,11 +138,12 @@ class Projet(QWidget):
             bouton_export.setStatusTip(f"Exporter projet {pathlib.Path(i[4]).name} !!!")
             bouton_export.clicked.connect(lambda checked, chemin=pathlib.Path(i[4]), os_util=i[0], ver=i[2]: self.exporter_projet(valeur=chemin, os_util=os_util, version_utils=ver))
 
+            ###
             ligne_rang.addWidget(bouton_actif)
-            ligne_rang.addWidget(QLabel(i[0].capitalize()))
+            ligne_rang.addWidget(sys_os)
             ligne_rang.addWidget(icone)
             ligne_rang.addWidget(bouton_editeur)
-            ligne_rang.addWidget(QLabel(i[2]))
+            ligne_rang.addWidget(version_moteur)
             ligne_rang.addWidget(bouton_test)
             ligne_rang.addWidget(bouton_supprimer)
             ligne_rang.addWidget(bouton_export)
