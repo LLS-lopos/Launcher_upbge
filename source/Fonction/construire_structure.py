@@ -151,9 +151,12 @@ def structure_config():
     - Les répertoires de données pour différents moteurs de jeu et types de projets
     - Les fichiers de configuration JSON initiaux
     """
-    if platform.system() == "Windows": 
-        config_launcher.pop("linux")
-        config_launcher["icon"].pop("linux")
+    if platform.system() == "Windows":
+        try:
+            config_launcher.pop("linux")
+            config_launcher["icon"].pop("linux")
+        except:
+            pass
     mt_list = []
     # Créer le répertoire de configuration
     if not config.exists(): config.mkdir(exist_ok=True)
