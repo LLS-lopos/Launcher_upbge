@@ -45,6 +45,7 @@ jobs:
             program
             GUI.Biblio
             GUI.sub_logi
+            GUI.sub_logi.editeur_ui
             Fonction
             PIL
 
