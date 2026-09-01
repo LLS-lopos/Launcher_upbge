@@ -18,21 +18,20 @@ class LoposEditor(QMainWindow):
         editor.show()
         return editor
 
-    def __init__(self, titre="LPS éditeur", fichier=None, m_largeur=0, m_hauteur=0, largeur=700, hauteur=600):
+    def __init__(self, titre="LPS Texte éditeur", fichier=None, m_largeur=0, m_hauteur=0, largeur=700, hauteur=600):
         super().__init__()
-        self.titre = titre
+        self.setWindowTitle(titre)
         self.largeur = largeur
         self.hauteur = hauteur
         self.m_largeur = m_largeur 
-        self.m_hauteur = m_hauteur 
-        self.setWindowTitle(self.titre)
+        self.m_hauteur = m_hauteur
 
         moniteur = QGuiApplication.primaryScreen()
         taille_moniteur = moniteur.size()
-        calcul_l = (taille_moniteur.width()*0.5) - (self.largeur*0.5)
-        calcul_h = (taille_moniteur.height()*0.5) - (self.hauteur*0.5)
+        calcul_l = (taille_moniteur.width()*0.5) - (largeur*0.5)
+        calcul_h = (taille_moniteur.height()*0.5) - (hauteur*0.5)
         
-        self.setGeometry(int(calcul_l), int(calcul_h), self.largeur, self.hauteur)
+        self.setGeometry(int(calcul_l), int(calcul_h), largeur, hauteur)
 
         # Créer un widget central
         self.central_widget = QWidget(self)

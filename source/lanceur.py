@@ -27,6 +27,7 @@ from GUI.Biblio.export_projet import Exportation
 # app
 from GUI.sub_logi.librairie_jeux import Jeu
 from GUI.sub_logi.preference import Preference
+from GUI.sub_logi.editeur_UI import LoposUIeditor
 from GUI.affichage_projet import Affichage_projet
 from GUI.liste_projet import Projet
 from GUI.pybash import PyBash
@@ -54,12 +55,12 @@ class Lanceur(QMainWindow):
 
         moniteur = QGuiApplication.primaryScreen()
         taille_moniteur = moniteur.size()
-        calcul_l = (taille_moniteur.width() // 2) - (self.largeur // 2)
-        calcul_h = (taille_moniteur.height() // 2) - (self.hauteur // 2)
+        self.calcul_l = (taille_moniteur.width() // 2) - (self.largeur // 2)
+        self.calcul_h = (taille_moniteur.height() // 2) - (self.hauteur // 2)
         # Charger les icônes
         self.setWindowTitle("Lanceur UPBGE")
         self.setWindowIcon(QIcon(charger("config_launcher")["icon"]["upbge"]))
-        self.setGeometry(int(calcul_l), int(calcul_h), self.largeur, self.hauteur)
+        self.setGeometry(int(self.calcul_l), int(self.calcul_h), self.largeur, self.hauteur)
         self.centre()
 
     def centre(self):
@@ -128,12 +129,22 @@ class Lanceur(QMainWindow):
         b_lib_jeu.setIconSize(QSize(35, 35))
         b_lib_jeu.setStatusTip("Bibliothèque de jeux")
         b_lib_jeu.clicked.connect(self.lib_jeu_biblio)
+        
+        # Créer un bouton pour l'éditeur UI
+        b_ui_editor = QPushButton()
+        b_ui_editor.setFixedSize(40, 40)
+        b_ui_editor.setIcon(QIcon(charger("config_launcher")["icon"]["game"]))
+        b_ui_editor.setIconSize(QSize(35, 35))
+        b_ui_editor.setStatusTip("éditeur UI bgui")
+        b_ui_editor.clicked.connect(self.logi_editeur_ui)
+
 
         # Ajouter la barre d'outils à la fenêtre principale
         self.tool_barre = self.addToolBar("barre d'outil")
         self.tool_barre.addWidget(b_creer_p)
         self.tool_barre.addWidget(b_export_p)
         self.tool_barre.addWidget(b_lib_jeu)
+        self.tool_barre.addWidget(b_ui_editor)
 
     def barre_menu(self):
         """
@@ -213,6 +224,14 @@ class Lanceur(QMainWindow):
         """
         self.game = Jeu()
         self.game.show()
+
+    @Slot()
+    def logi_editeur_ui(self):
+        """
+        Lancher Editor UI
+        """
+        self.ui = LoposUIeditor()
+        self.ui.show()
         
     @Slot()
     def fonc_export_p(self):
@@ -243,9 +262,9 @@ class Lanceur(QMainWindow):
     @Slot()
     def msg_aide(self):
         aide = QMessageBox()
-        aide.resize(100, 100)
+        aide.resize(200, 80)
         aide.setWindowTitle("A Propos")
-        aide.setText("version 3.0")
+        aide.setText("version 3.1")
         aide.exec()
 
 
