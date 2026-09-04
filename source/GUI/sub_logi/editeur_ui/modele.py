@@ -48,7 +48,6 @@ DECLENCHEURS_EVENEMENTS = (
     "on_mouse_enter",
     "on_mouse_exit",
     "on_active",
-    "on_update",
 )
 
 # Types de propriétés custom d'un écran (source : Scripts/proprieter_screen.md).
@@ -138,24 +137,29 @@ PROP_BASE = {
 # Options disponibles des widgets (source : Scripts/info_bgui_option.md,
 # sections « option code »). ``sub_theme`` en est volontairement exclu : il
 # se définit via le champ dédié de l'inspecteur (voir _champ_sub_theme).
+# ``aspect`` (contrainte de ratio) : présent sur tous les widgets SAUF le
+# Label (BGUI n'en accepte pas dans sa signature). Défaut 0.0 = aucune
+# contrainte ; sinon la largeur est dérivée de la hauteur : largeur = hauteur
+# × aspect (formule BGUI, cf. bgui/widget.py).
 OPTIONS_PAR_TYPE = {
     TYPE_FRAME: {
         "border": 0,                       # bordure (0 = thème)
-        "aspect": 1.0,                     # contrainte de ratio
+        "aspect": 0.0,                     # contrainte de ratio
         "border_color": [0.0, 0.0, 0.0, 1.0],
     },
     TYPE_FRAME_BOUTON: {
         "font": "",
-        "aspect": 1.0,
+        "aspect": 0.0,
         "color": [1.0, 1.0, 1.0, 1.0],     # couleur du texte
     },
     TYPE_IMAGE: {
         "img": "",
+        "aspect": 0.0,
         "texco": [0.0, 0.0, 1.0, 1.0],     # coordonnées UV
-        "interp_mode": "GL_LINEAR",        # filtrage de texture
         "color": [1.0, 1.0, 1.0, 1.0],     # teinte du plan
     },
     TYPE_BOUTON_IMAGE: {
+        "aspect": 0.0,
         "default2_image": "",
         "hover_image": "",
         "click_image": "",
@@ -168,18 +172,28 @@ OPTIONS_PAR_TYPE = {
     },
     TYPE_LISTE: {
         "padding": 0,
+        "aspect": 0.0,
     },
-    TYPE_BARRE_PROGRES: {},
+    TYPE_BARRE_PROGRES: {
+        "aspect": 0.0,
+    },
     TYPE_BLOC_TEXTE: {
         "font": "",
         "overflow": 0,                     # BGUI_OVERFLOW_*
+        "aspect": 0.0,
     },
     TYPE_SAISIE_TEXTE: {
         "font": "",
+        "aspect": 0.0,
     },
     TYPE_VIDEO: {
         "play_audio": True,
         "repeat": -1,                      # -1 = boucle infinie
+        "aspect": 0.0,
+        "start": 0.0,                      # début de lecture (s ou image)
+        "end": 100.0,                      # fin de lecture (s ou image)
+        "use_frames": True,                # start/end exprimés en images
+        "fps": 30,                         # utilisé si use_frames
     },
     TYPE_SCREEN: {},
 }
@@ -295,6 +309,9 @@ class NoeudUI:
         #: Événements déclencheurs du widget (section « Fonctions » de
         #: l'inspecteur) : liste de ``{"declencheur", "fonction"}``.
         self.evenements = []
+        #: Corps de la « Mise à jour » du widget : lignes de code injectées
+        #: dans ``Layout.update()`` (exécutées à chaque frame).
+        self.update_code = []
 
     def __repr__(self):
         return f"NoeudUI(type={self.type!r}, nom={self.nom!r}, enfants={len(self.enfants)})"
@@ -315,6 +332,28 @@ def detacher(noeud):
     if noeud.parent is not None:
         noeud.parent.enfants.remove(noeud)
     noeud.parent = None
+
+
+def reparenter(noeud, nouveau_parent, calque=None):
+    """Change le parent d'un widget (le déplace dans l'arbre).
+
+    ``calque`` : nom du calque à assigner si le nouveau parent est le Screen
+    (sinon la clé ``calque`` est retirée : seuls les enfants directs d'un
+    Screen sont regroupés par calque). Retourne ``True`` si le déplacement a
+    réellement eu lieu (parents différents).
+    """
+    if noeud.parent is nouveau_parent:
+        return False
+    detacher(noeud)
+    if nouveau_parent.type == TYPE_SCREEN:
+        if calque:
+            noeud.prop["calque"] = calque
+        else:
+            noeud.prop.pop("calque", None)
+    else:
+        noeud.prop.pop("calque", None)
+    attacher(noeud, nouveau_parent)
+    return True
 
 
 def _valeur_egale(a, b):
@@ -368,8 +407,8 @@ def nouveau_noeud(type, nom=None):
 
 
 def est_conteneur(noeud):
-    """Un Screen ou Frame peut contenir d'autres widgets."""
-    return noeud.type in (TYPE_SCREEN, TYPE_FRAME)
+    """Tout widget (et le Screen) peut contenir d'autres widgets."""
+    return True
 
 
 def prochain_nom(racine, type):
@@ -518,6 +557,8 @@ def noeud_a_json(noeud):
     }
     if noeud.evenements:
         donnees["evenements"] = [dict(e) for e in noeud.evenements]
+    if getattr(noeud, "update_code", None):
+        donnees["update_code"] = list(noeud.update_code)
     if noeud.type == TYPE_SCREEN:
         donnees["calques"] = list(calques_ecran(noeud))
     return donnees
@@ -540,6 +581,7 @@ def noeud_depuis_json(donnees):
         enfant.parent = noeud
     noeud.proprietes = [dict(p) for p in donnees.get("proprietes", [])]
     noeud.evenements = [dict(e) for e in donnees.get("evenements", [])]
+    noeud.update_code = [str(l) for l in donnees.get("update_code", [])]
     return noeud
 
 

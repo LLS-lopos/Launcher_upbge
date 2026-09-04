@@ -9,67 +9,65 @@ sys.path.insert(0, source_dir)
 #: Chemin du thème BGUI chargé par défaut dans l'onglet « CODE ».
 CHEMIN_THEME = os.path.join(source_dir, "Scripts", "theme.cfg")
 
+#: Drapeaux « Widget options » d'un widget (constantes bgui/widget.py).
+#: ``BGUI_CENTERED`` est un méta-drapeau = CENTERX | CENTERY.
+DRAPEAUX_OPTIONS = [
+    (1, "BGUI_CENTERX", "Centrer horizontalement"),
+    (2, "BGUI_CENTERY", "Centrer verticalement"),
+    (4, "BGUI_NO_NORMALIZE", "Pas de normalisation des coordonnées"),
+    (8, "BGUI_NO_THEME", "Ignorer le thème du widget"),
+    (16, "BGUI_NO_FOCUS", "Ne pas accepter le focus clavier/souris"),
+    (32, "BGUI_CACHE", "Mettre le rendu du widget en cache"),
+]
+BIT_CENTERED = 1 | 2  # BGUI_CENTERED = BGUI_CENTERX | BGUI_CENTERY
+
 from PySide6.QtCore import Qt, Slot
 from PySide6.QtGui import QColor, QFont, QGuiApplication
-from PySide6.QtWidgets import (QAbstractItemView, QApplication, QCheckBox,
-                               QColorDialog, QComboBox, QDialog,
-                               QDialogButtonBox, QDoubleSpinBox,
-                               QFileDialog, QFormLayout, QGridLayout,
-                               QHBoxLayout, QLabel, QLineEdit,
-                               QMainWindow,
-                               QMessageBox, QPlainTextEdit, QPushButton,
-                               QSplitter, QSpinBox, QTabWidget,
-                               QToolBar, QTreeWidget,
-                               QTreeWidgetItem, QVBoxLayout, QWidget,
-                               QScrollArea)
+from PySide6.QtWidgets import (QAbstractItemView, QApplication, QCheckBox, QColorDialog, QComboBox, QDialog,
+                               QDialogButtonBox, QDoubleSpinBox, QFileDialog, QFormLayout, QGridLayout,
+                               QHBoxLayout, QLabel, QLineEdit, QMainWindow,
+                               QMenu, QMessageBox, QPlainTextEdit, QPushButton,
+                               QSplitter, QSpinBox, QTabWidget, QToolBar, QTreeWidget,
+                               QTreeWidgetItem, QVBoxLayout, QWidget, QScrollArea)
 
 from GUI.sub_logi.editeur_ui import theme_bgui as bgui_theme
 from GUI.sub_logi.editeur_ui.canvas import CanvasBGUI
 from GUI.sub_logi.editeur_ui.generateur_script import sauvegarder_script
 from GUI.sub_logi.editeur_ui.syntaxe_cfg import SyntaxeCfgCfg
-from GUI.sub_logi.editeur_ui.theme_bgui import (
-                                                THEME_BGUI,
-                                                THEME_BGUI_DEFAUT,
-                                                appliquer_theme,
-                                                charger_theme_fichier,
-                                                definir_base_projet,
-                                                lire_cfg_texte,
-                                                proprietes_depuis_donnees,
-                                                reinitialiser_theme,
-                                                resoudre_proprietes,
-                                                sauvegarder_theme_fichier,
-                                                sous_themes_disponibles,
-                                                theme_defaut_en_texte,
+from GUI.sub_logi.editeur_ui.theme_bgui import (THEME_BGUI, THEME_BGUI_DEFAUT, appliquer_theme,
+                                                charger_theme_fichier, definir_base_projet, lire_cfg_texte,
+                                                proprietes_depuis_donnees, reinitialiser_theme,
+                                                resoudre_proprietes, sauvegarder_theme_fichier,
+                                                sous_themes_disponibles, theme_defaut_en_texte,
                                                 valeur_rendu)
-from GUI.sub_logi.editeur_ui.modele import (CALQUE_BASE, CATALOGUE,
-                                            CHAMPS_DEDIES,
-                                            DECLENCHEURS_EVENEMENTS,
-                                            OPTIONS_PAR_TYPE,
-                                            TYPE_BARRE_PROGRES,
-                                            TYPE_BLOC_TEXTE, TYPE_BOUTON_IMAGE,
-                                            TYPE_FRAME_BOUTON,
-                                            TYPE_FRAME, TYPE_IMAGE,
-                                            TYPE_LABEL, TYPE_LISTE,
-                                            TYPE_SAISIE_TEXTE,
-                                            TYPE_SCREEN, TYPE_VIDEO,
-                                            TYPES_PROPRIETE,
-                                            NoeudUI,
-                                            ajouter_calque,
-                                            calque_de,
-                                            calques_ecran,
-                                            description_type_propriete,
-                                            enfants_calque,
-                                            libelle_type_propriete,
-                                            nouveau_noeud, prochain_nom,
-                                            renommer_calque,
-                                            retirer_calque,
-                                            sauvegarder_fichier,
-                                            charger_fichier,
-                                            scene_vide,
-                                            px_vers_normalise,
-                                            valeur_defaut_propriete,
-                                            valeur_depuis_texte,
-                                            valeur_typee_propriete)
+from GUI.sub_logi.editeur_ui.modele import (CALQUE_BASE, CATALOGUE, CHAMPS_DEDIES,
+                                            DECLENCHEURS_EVENEMENTS, OPTIONS_PAR_TYPE,
+                                            TYPE_BARRE_PROGRES, TYPE_BLOC_TEXTE, TYPE_BOUTON_IMAGE,
+                                            TYPE_FRAME_BOUTON, TYPE_FRAME, TYPE_IMAGE,
+                                            TYPE_LABEL, TYPE_LISTE, TYPE_SAISIE_TEXTE,
+                                            TYPE_SCREEN, TYPE_VIDEO, TYPES_PROPRIETE,
+                                            NoeudUI, ajouter_calque, calque_de,
+                                            calques_ecran, description_type_propriete,
+                                            enfants_calque, libelle_type_propriete,
+                                            nouveau_noeud, prochain_nom, renommer_calque,
+                                            retirer_calque, sauvegarder_fichier,
+                                            charger_fichier, scene_vide, px_vers_normalise,
+                                            reparenter, valeur_defaut_propriete,
+                                            valeur_depuis_texte, valeur_typee_propriete)
+
+#: Types de widgets proposés à l'ajout (barre d'outils + menus contextuels).
+#: `(Type, Libellé de création)`.
+TYPES_AJOUTABLES = [
+    (TYPE_LABEL, "Label"),
+    (TYPE_FRAME_BOUTON, "Bouton"),
+    (TYPE_FRAME, "Cadre"),
+    (TYPE_IMAGE, "Image"),
+    (TYPE_BOUTON_IMAGE, "ImageButton"),
+    (TYPE_LISTE, "ListBox"),
+    (TYPE_BARRE_PROGRES, "ProgressBar"),
+    (TYPE_BLOC_TEXTE, "TextBlock"),
+    (TYPE_SAISIE_TEXTE, "TextInput"),
+]
 
 
 class ProprietesSource:
@@ -151,7 +149,7 @@ class LoposUIeditor(QMainWindow):
     - à droite  : l'inspecteur de propriétés du widget sélectionné
     """
 
-    def __init__(self, titre="LPS UI éditeur", largeur=1180, hauteur=740):
+    def __init__(self, titre="LPS UI éditeur", largeur=1400, hauteur=900):
         super().__init__()
         self.setWindowTitle(titre)
 
@@ -181,6 +179,7 @@ class LoposUIeditor(QMainWindow):
         self.canvas.geo_changee.connect(self._geo_changee)
         self.canvas.souris_changee.connect(self._survol)
         self.canvas.modele_change.connect(self.rafraichir_calques)
+        self.canvas.menu_demande.connect(self._menu_contextuel_canvas)
 
         self.onglets = QTabWidget()
         self.onglets.addTab(self.creer_onglet_ui(), "UI")
@@ -515,20 +514,6 @@ class LoposUIeditor(QMainWindow):
         self.tool_barre.addWidget(self.spin_hauteur)
         self.tool_barre.addSeparator()
 
-        for type_w, libelle in [(TYPE_LABEL, "+ Label"),
-                                (TYPE_FRAME_BOUTON, "+ Bouton"),
-                                (TYPE_FRAME, "+ Cadre"),
-                                (TYPE_IMAGE, "+ Image"),
-                                (TYPE_BOUTON_IMAGE, "+ ImageButton"),
-                                (TYPE_LISTE, "+ ListBox"),
-                                (TYPE_BARRE_PROGRES, "+ ProgressBar"),
-                                (TYPE_BLOC_TEXTE, "+ TextBlock"),
-                                (TYPE_SAISIE_TEXTE, "+ TextInput")]:
-            bouton = QPushButton(libelle)
-            bouton.clicked.connect(lambda _, t=type_w: self.ajouter_widget(t))
-            self.tool_barre.addWidget(bouton)
-        self.tool_barre.addSeparator()
-
         b_ouvrir = QPushButton("Ouvrir")
         b_ouvrir.clicked.connect(self.open_projet)
         self.tool_barre.addWidget(b_ouvrir)
@@ -542,12 +527,29 @@ class LoposUIeditor(QMainWindow):
         b_gen = QPushButton("Générer code")
         b_gen.clicked.connect(self.generer_fichier)
         self.tool_barre.addWidget(b_gen)
+        self.tool_barre.addSeparator()
+
+        b_nouveau = QPushButton("Nouveau fichier")
+        b_nouveau.setToolTip("Créer une nouvelle interface vierge")
+        b_nouveau.clicked.connect(self.nouveau_projet)
+        self.tool_barre.addWidget(b_nouveau)
+        b_quitter = QPushButton("Quitter")
+        b_quitter.setToolTip("Quitter l'éditeur UI")
+        b_quitter.clicked.connect(self.quitter)
+        self.tool_barre.addWidget(b_quitter)
 
     def creer_outliner(self):
         boite = QWidget()
         disposition = QVBoxLayout(boite)
         disposition.setContentsMargins(4, 4, 4, 4)
         disposition.addWidget(QLabel("Outliner"))
+        grille = QGridLayout()
+        for i, (type_w, libelle) in enumerate(TYPES_AJOUTABLES):
+            bouton = QPushButton(f"+ {libelle}")
+            bouton.clicked.connect(
+                lambda _, t=type_w: self.ajouter_widget_sous(self.scene, t))
+            grille.addWidget(bouton, i // 2, i % 2)
+        disposition.addLayout(grille)
         self.arbre = ArbreWidgets(self)
         # Une seule colonne : le nom occupe toute la largeur du panneau
         # (avec deux colonnes, la 1re était figée à 100 px et les noms
@@ -555,6 +557,9 @@ class LoposUIeditor(QMainWindow):
         self.arbre.setColumnCount(1)
         self.arbre.setHeaderHidden(True)
         self.arbre.itemClicked.connect(self._arbre_clic)
+        self.arbre.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.arbre.customContextMenuRequested.connect(
+            self._menu_contextuel_outliner)
         disposition.addWidget(self.arbre)
         return boite
 
@@ -663,6 +668,55 @@ class LoposUIeditor(QMainWindow):
             return
         self.canvas.definir_selection(donnee)
 
+    @Slot(object, object)
+    def _menu_contextuel_canvas(self, noeud, pos_globale):
+        # Clic droit sur le canvas : cible le widget sous le curseur,
+        # sinon l'écran (celui-ci est re-sélectionné par le canvas).
+        self._ouvrir_menu_contextuel(noeud, pos_globale)
+
+    @Slot(object)
+    def _menu_contextuel_outliner(self, pos):
+        item = self.arbre.itemAt(pos)
+        if item is None:
+            return
+        donnee = item.data(0, Qt.UserRole)
+        if isinstance(donnee, tuple) and donnee[0] == _MARQUEUR_CALQUE:
+            noeud = self.scene
+        else:
+            noeud = donnee
+        if noeud is None:
+            return
+        self.arbre.setCurrentItem(item)
+        self.canvas.definir_selection(noeud)
+        self._ouvrir_menu_contextuel(
+            noeud, self.arbre.viewport().mapToGlobal(pos))
+
+    def _ouvrir_menu_contextuel(self, noeud, pos_globale):
+        """Ouvre le menu contextuel pour le nœud ciblé à l'écran.
+
+        Propose « Ajouter un enfant » pour tout nœud (tous les widgets
+        acceptent des enfants) ainsi que la suppression pour un widget.
+        """
+        if noeud is None:
+            noeud = self.scene
+        if noeud is None:
+            return
+        menu = QMenu(self)
+        titre = menu.addAction(f"{noeud.nom}")
+        titre.setEnabled(False)
+        menu.addSeparator()
+        sous = menu.addMenu("Ajouter un enfant")
+        for type_w, libelle in TYPES_AJOUTABLES:
+            action = sous.addAction(libelle)
+            action.triggered.connect(
+                lambda _=False, t=type_w, p=noeud:
+                self.ajouter_widget_sous(p, t))
+        if noeud.type != TYPE_SCREEN:
+            menu.addSeparator()
+            act_suppr = menu.addAction("Supprimer")
+            act_suppr.triggered.connect(self.supprimer_selection)
+        menu.exec(pos_globale)
+
     @Slot(object)
     def _selection_changee(self, noeud):
         self._verrou_arbre = True
@@ -678,17 +732,15 @@ class LoposUIeditor(QMainWindow):
     # Ajout / suppression de widgets
     # ------------------------------------------------------------------
 
-    def ajouter_widget(self, type_w):
-        cible = self.canvas.selection_actuelle() or self.scene
-        if cible is None:
-            return
-        if cible.type == TYPE_SCREEN:
-            domaine = cible
-        elif cible.type == TYPE_FRAME:
-            domaine = cible
-        else:
-            domaine = self.canvas.parent_de(self.scene, cible) or self.scene
+    def ajouter_widget_sous(self, domaine, type_w):
+        """Crée un widget du type donné et le rattache sous ``domaine``.
 
+        ``domaine`` peut être n'importe quel widget (tout type reçoit des
+        enfants) ou le Screen. Si le parent est le Screen, le nouveau widget
+        entre dans le calque actif.
+        """
+        if domaine is None or self.scene is None:
+            return
         noeud = nouveau_noeud(type_w, prochain_nom(self.scene, type_w))
         taille = CATALOGUE.get(type_w, {}).get("taille", [0.2, 0.1])
         noeud.prop["pos"] = [0.1, 0.1]
@@ -799,6 +851,7 @@ class LoposUIeditor(QMainWindow):
 
         # --- Section « Code » : propriétés du widget (non liées au thème) ---
         self._en_tete_section("Code")
+        self._champ_parent(noeud)
         self._champs_code(noeud)
         self._champ_options(noeud)
         self._champ_visible(noeud)
@@ -811,6 +864,9 @@ class LoposUIeditor(QMainWindow):
         # --- Section « Fonctions » : déclencheurs d'événements (Godot) ---
         self._champ_fonctions(noeud)
 
+        # --- Section « Mise à jour » : code exécuté à chaque frame ---
+        self._champ_mise_a_jour(noeud)
+
         b_suppr = QPushButton("Supprimer")
         b_suppr.clicked.connect(self.supprimer_selection)
         self.form_inspe.addWidget(b_suppr, self._ligne_suivante(), 0, 1, 3)
@@ -819,6 +875,65 @@ class LoposUIeditor(QMainWindow):
         """En-tête d'une section de l'inspecteur (Code, Thème...)."""
         ligne = self._ligne_suivante()
         self.form_inspe.addWidget(QLabel(f"<b>{libelle}</b>"), ligne, 0, 1, 3)
+
+    def _champ_parent(self, noeud):
+        """Sélecteur du parent d'un widget (tout type peut être parent).
+
+        Le déplacement se fait via :func:`modele.reparenter` : si le nouveau
+        parent est le Screen, le widget est rattaché au calque actif ; sinon
+        la clé ``calque`` est retirée (seuls les enfants directs d'un Screen
+        sont regroupés par calque).
+        """
+        if noeud.type == TYPE_SCREEN:
+            return
+        ligne = self._ligne_suivante()
+        self.form_inspe.addWidget(QLabel("Parent"), ligne, 0)
+
+        interdits = set()
+
+        def marquer(n):
+            interdits.add(id(n))
+            for e in n.enfants:
+                marquer(e)
+        marquer(noeud)   # soi + descendants (interdit : créer un cycle)
+
+        candidats = []
+
+        def parcourir(n, prof):
+            if id(n) not in interdits:
+                candidats.append(("  " * prof, n, f"  {n.nom} ({n.type})"))
+            for e in n.enfants:
+                parcourir(e, prof + 1)
+        parcourir(self.scene, 0)
+
+        combo = QComboBox()
+        parent_actuel = noeud.parent
+        index_courant = -1
+        for i, (indent, n, _) in enumerate(candidats):
+            combo.addItem(indent + n.nom, n)
+            if n is parent_actuel:
+                index_courant = i
+        if index_courant < 0:
+            combo.insertItem(0, "", None)
+            index_courant = 0
+        combo.setCurrentIndex(index_courant)
+        combo.setToolTip(
+            "Choisir le widget parent de cet élément.\n"
+            "Tout type de widget peut recevoir des enfants.")
+
+        def changer(index):
+            cible = combo.itemData(index)
+            if cible is None or cible is noeud or cible is parent_actuel:
+                return
+            calque = (self.canvas.calque_actif
+                      if cible.type == TYPE_SCREEN else None)
+            if reparenter(noeud, cible, calque):
+                self.canvas.rafraichir()
+                self.rafraichir_arbre()
+                self.rafraichir_inspecteur()
+
+        combo.currentIndexChanged.connect(changer)
+        self.form_inspe.addWidget(combo, ligne, 1, 1, 2)
 
     def _champs_code(self, noeud):
         """Champs propres au type du widget, rangés dans la section « Code »."""
@@ -1220,6 +1335,9 @@ class LoposUIeditor(QMainWindow):
         if type_propriete.startswith("vector "):
             return self._editeur_vecteur(source, index, type_propriete)
 
+        if type_propriete == "bpy.type.VectorFont":
+            return self._editeur_font_propriete(source, index)
+
         description = {
             "list": "Éléments séparés par des virgules :\n"
                     "ex. epee, bouclier, casque  →  "
@@ -1273,6 +1391,50 @@ class LoposUIeditor(QMainWindow):
     def _ecrire_texte_propriete(self, source, index, texte):
         source.liste[index]["valeur"] = texte
         source.maj()
+
+    def _editeur_font_propriete(self, source, index):
+        """Éditeur d'une propriété écran de type VectorFont : choix du fichier.
+
+        La valeur stockée est le **chemin du fichier de police** (.ttf/.otf)
+        utilisé uniquement pour l'aperçu dans l'éditeur. L'export, lui,
+        continue de passer par ``data["font"][i].filepath`` (référence UPBGE
+        résolue au runtime) — le chemin ici n'a donc aucun effet sur le code
+        généré.
+        """
+        propriete = source.liste[index]
+        valeur = str(propriete.get("valeur") or "")
+
+        boite = QWidget()
+        disposition = QHBoxLayout(boite)
+        disposition.setContentsMargins(0, 0, 0, 0)
+        disposition.setSpacing(2)
+
+        champ = QLineEdit(valeur)
+        champ.setPlaceholderText("Fichier de police (aperçu éditeur)")
+        champ.setToolTip(
+            "Chemin du fichier de police (.ttf/.otf) à afficher dans\n"
+            "l'éditeur. Sans effet sur l'export : celui-ci utilise\n"
+            "data['font'][i].filepath (référence UPBGE).\n"
+            "Une fois le fichier choisi, sélectionnez cette propriété dans\n"
+            "le champ « font » du widget pour voir le texte avec cette fonte.")
+        champ.textEdited.connect(
+            lambda t, s=source, i=index: self._ecrire_texte_propriete(s, i, t))
+        disposition.addWidget(champ, 1)
+
+        def parcourir():
+            chemin, _ = QFileDialog.getOpenFileName(
+                self, "Choisir une police (aperçu éditeur)",
+                champ.text(), "Polices (*.ttf *.otf)")
+            if chemin:
+                champ.setText(chemin)
+                self._ecrire_texte_propriete(source, index, chemin)
+
+        b_fichier = QPushButton("…")
+        b_fichier.setFixedWidth(28)
+        b_fichier.setToolTip("Parcourir le disque pour choisir le fichier de police")
+        b_fichier.clicked.connect(parcourir)
+        disposition.addWidget(b_fichier)
+        return boite
 
     def _couleur_effective(self, noeud, cle):
         """Couleur réellement affichée : propriété du nœud, sinon thème actif
@@ -1385,15 +1547,41 @@ class LoposUIeditor(QMainWindow):
             titre = "Choisir une image"
         chemin, _ = QFileDialog.getOpenFileName(self, titre, "", filtre)
         if chemin:
-            noeud.prop[cle] = chemin
-            champ.setText(chemin)
+            stocke = self._chemin_relatif_projet(chemin)
+            noeud.prop[cle] = stocke
+            champ.setText(stocke)
             self.canvas.update()
+
+    def _chemin_relatif_projet(self, chemin):
+        """Convertit un chemin absolu en chemin relatif « // » au projet.
+
+        Le résultat est stocké au format ``//data/logo.png`` (relatif au
+        répertoire de base du projet) et résolu au runtime par
+        ``bge.logic.expandPath``/``bpy.path.abspath``. Si le fichier n'est
+        pas sous la base du projet, le chemin absolu est conservé.
+        """
+        base = bgui_theme.CHEMIN_BASE_PROJET
+        if not base or not chemin:
+            return chemin
+        absolu = os.path.abspath(chemin)
+        base_abs = os.path.abspath(base)
+        try:
+            relatif = os.path.relpath(absolu, base_abs)
+        except ValueError:
+            return chemin
+        if relatif.startswith(".."):
+            return chemin
+        relatif = relatif.replace(os.sep, "/")
+        if os.altsep:
+            relatif = relatif.replace(os.altsep, "/")
+        return "//" + relatif
 
     def _champ_options(self, noeud):
         """Options « code » génériques du widget, rangées dans la section « Code ».
 
-        Rendu : `z_index`, `frozen`, `options` puis les options propres au
-        type (OPTIONS_PAR_TYPE) qui ne sont pas éditées par un champ dédié.
+        Rendu : `z_index`, `frozen`, `options` (drapeaux BGUI) puis les
+        options propres au type (OPTIONS_PAR_TYPE) qui ne sont pas éditées
+        par un champ dédié.
         « sub_theme » et les couleurs, eux, vivent dans la section « Thème ».
         """
         if noeud.type == TYPE_SCREEN:
@@ -1403,9 +1591,12 @@ class LoposUIeditor(QMainWindow):
             if valeur is None:
                 continue
             ligne = self._ligne_suivante()
-            self.form_inspe.addWidget(QLabel(cle), ligne, 0)
             self.form_inspe.addWidget(
-                self._editeur_option(noeud, cle, valeur), ligne, 1, 1, 2)
+                QLabel("Widget options" if cle == "options" else cle),
+                ligne, 0)
+            editeur = (self._editeur_options(noeud) if cle == "options"
+                       else self._editeur_option(noeud, cle, valeur))
+            self.form_inspe.addWidget(editeur, ligne, 1, 1, 2)
 
         dedies = CHAMPS_DEDIES.get(noeud.type, set())
         for cle, valeur in OPTIONS_PAR_TYPE.get(noeud.type, {}).items():
@@ -1416,17 +1607,51 @@ class LoposUIeditor(QMainWindow):
             self.form_inspe.addWidget(
                 self._editeur_option(noeud, cle, valeur), ligne, 1, 1, 2)
 
+    def _editeur_options(self, noeud):
+        """Éditeur des drapeaux « Widget options » du widget.
+
+        Un menu déroulant (QComboBox) listant les constantes BGUI
+        utilisables, ``BGUI_DEFAULT`` (0) étant la valeur proposée par
+        défaut. La valeur choisie est stockée telle quelle dans
+        ``noeud.prop["options"]``.
+        """
+        choix = [(0, "BGUI_DEFAULT (0)"),
+                 (BIT_CENTERED, "BGUI_CENTERED (CENTERX|CENTERY)")]
+        docs = {bit: doc for bit, _, doc in DRAPEAUX_OPTIONS}
+        choix += [(bit, f"{nom} ({bit})") for bit, nom, _ in DRAPEAUX_OPTIONS]
+
+        combo = QComboBox()
+        for bit, libelle in choix:
+            combo.addItem(libelle, bit)
+            combo.setItemData(combo.count() - 1, docs.get(bit, ""),
+                              Qt.ToolTipRole)
+
+        courant = int(noeud.prop.get("options") or 0)
+        indice = next((i for i, (bit, _) in enumerate(choix)
+                       if bit == courant), 0)
+        combo.setCurrentIndex(indice)
+
+        def maj(_indice):
+            noeud.prop["options"] = int(choix[combo.currentIndex()][0])
+            self.canvas.rafraichir()
+
+        combo.currentIndexChanged.connect(maj)
+        return combo
+
     def _champ_fonctions(self, noeud):
         """Section « Fonctions » : événements déclencheurs, façon Godot.
 
         Chaque événement relie un déclencheur BGUI (ex. ``on_click``) à la
         fonction à appeler (nom de méthode, à définir dans le code UPBGE).
-        Le bouton « + » ajoute un nouvel événement.
+        Le corps de la fonction est éditable directement dans le champ
+        multiline sous le nom.
         """
         ligne = self._ligne_suivante()
         self.form_inspe.addWidget(QLabel("<b>Fonctions</b>"), ligne, 0, 1, 3)
 
         for index, evenement in enumerate(list(noeud.evenements)):
+            if str(evenement.get("declencheur", "")) == "on_update":
+                continue
             ligne = self._ligne_suivante()
             champ = QComboBox()
             champ.addItems(DECLENCHEURS_EVENEMENTS)
@@ -1458,6 +1683,22 @@ class LoposUIeditor(QMainWindow):
                 self._supprimer_evenement(n, i))
             self.form_inspe.addWidget(b_suppr, ligne, 2)
 
+            corps = "\n".join(evenement.get("code", []))
+            champ_code = QPlainTextEdit(corps)
+            champ_code.setPlaceholderText("pass")
+            champ_code.setTabChangesFocus(True)
+            champ_code.setToolTip(
+                "Corps de la fonction à écrire.\n"
+                "Le code sera indenté sous le ``def`` dans le script généré.")
+            champ_code.setMaximumHeight(96)
+            champ_code.setPlainText(corps)
+            champ_code.textChanged.connect(
+                lambda _=False, n=noeud, i=index, w=champ_code:
+                self._modifier_evenement(
+                    n, i, "code", w.toPlainText().splitlines()))
+            ligne_code = self._ligne_suivante()
+            self.form_inspe.addWidget(champ_code, ligne_code, 0, 1, 3)
+
         ligne = self._ligne_suivante()
         b_ajout = QPushButton("+ Ajouter un événement")
         b_ajout.setToolTip(
@@ -1469,7 +1710,8 @@ class LoposUIeditor(QMainWindow):
     def _ajouter_evenement(self, noeud):
         """Ajoute un événement déclencheur vide au widget et réaffiche."""
         noeud.evenements.append(
-            {"declencheur": DECLENCHEURS_EVENEMENTS[0], "fonction": ""})
+            {"declencheur": DECLENCHEURS_EVENEMENTS[0], "fonction": "",
+             "code": []})
         self.canvas.rafraichir()
         self.rafraichir_inspecteur()
 
@@ -1484,6 +1726,39 @@ class LoposUIeditor(QMainWindow):
             del noeud.evenements[index]
         self.canvas.rafraichir()
         self.rafraichir_inspecteur()
+
+    def _champ_mise_a_jour(self, noeud):
+        """Section « Mise à jour » : code exécuté à chaque frame.
+
+        Le corps est injecté dans ``Layout.update()`` du calque contenant
+        le widget. Les lignes référencent le widget par son attribut
+        (ex. ``self.image_1.color = [1, 0, 0, 1]``).
+        """
+        ligne = self._ligne_suivante()
+        self.form_inspe.addWidget(
+            QLabel("<b>+ Mise à jour</b>"), ligne, 0, 1, 3)
+
+        corps = "\n".join(getattr(noeud, "update_code", None) or [])
+        champ_code = QPlainTextEdit(corps)
+        champ_code.setPlaceholderText(
+            "Code exécuté à chaque frame dans Layout.update() du calque.\n"
+            "Référez le widget par self.<attribut>\n"
+            "(ex. self.image_1.color = [1, 0, 0, 1])")
+        champ_code.setTabChangesFocus(True)
+        champ_code.setToolTip(
+            "Ces lignes sont injectées dans la méthode update() du Layout.\n"
+            "Utilisez self.<nom_du_widget>.<propriété> pour le modifier.")
+        champ_code.setMaximumHeight(96)
+        champ_code.setPlainText(corps)
+        champ_code.textChanged.connect(
+            lambda _=False, n=noeud, w=champ_code:
+            self._modifier_mise_a_jour(n, w.toPlainText().splitlines()))
+        ligne_code = self._ligne_suivante()
+        self.form_inspe.addWidget(champ_code, ligne_code, 0, 1, 3)
+
+    def _modifier_mise_a_jour(self, noeud, lignes):
+        """Stocke le corps « mise à jour » du widget sans reconstruire."""
+        noeud.update_code = lignes
 
     def _champ_sub_theme(self, noeud):
         """Champ « sub_theme » : sous-thème du widget (section « Type:Nom »).
@@ -1765,6 +2040,57 @@ class LoposUIeditor(QMainWindow):
         sauvegarder_script(self.scene, chemin)
         self.statusBar().showMessage(
             f"Script généré: {chemin}", 4000)
+
+    def _confirmer_perte(self, action):
+        """Demande de sauvegarder avant de perdre le projet courant.
+
+        Retourne ``True`` pour continuer, ``False`` pour annuler. Propose
+        trois choix : Enregistrer (puis continuer), Ne pas enregistrer,
+        Annuler.
+        """
+        if self.scene is None or self.scene_vierge_non_modifie():
+            return True
+        reponse = QMessageBox.question(
+            self, "Projet non enregistré",
+            f"Voulez-vous enregistrer le projet courant avant de {action} ?",
+            QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel,
+            QMessageBox.Save)
+        if reponse == QMessageBox.Cancel:
+            return False
+        if reponse == QMessageBox.Save:
+            self.save_projet()
+            if self.chemin_projet is None:
+                # Annulé à l'enregistrement sous
+                return False
+        return True
+
+    def scene_vierge_non_modifie(self):
+        """Le projet n'a rien à perdre (vierge et non modifié)."""
+        return (self.scene is not None
+                and not self.scene.enfants
+                and self.chemin_projet is None)
+
+    @Slot()
+    def nouveau_projet(self):
+        """Crée une interface vierge, après confirmation si besoin."""
+        if not self._confirmer_perte("créer un nouveau fichier"):
+            return
+        self.scene = scene_vide()
+        self.chemin_projet = None
+        self.canvas.definir_scene(self.scene)
+        self.canvas.definir_selection(None)
+        self._synchroniser_spins_ecran()
+        self.rafraichir_arbre()
+        self.rafraichir_inspecteur()
+        self._maj_status()
+        self.statusBar().showMessage("Nouveau fichier créé", 4000)
+
+    @Slot()
+    def quitter(self):
+        """Quitte l'éditeur, après confirmation si le projet est modifié."""
+        if not self._confirmer_perte("quitter l'éditeur"):
+            return
+        self.close()
 
     # ------------------------------------------------------------------
     # Alias conservés pour compatibilité (panneaux de l'éditeur)

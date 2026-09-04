@@ -105,14 +105,31 @@ _FLAGS_OPTIONS = {
     16: "BGUI_NO_FOCUS",
     32: "BGUI_CACHE",
 }
+#: Alias BGUI_CENTERED = BGUI_CENTERX | BGUI_CENTERY (bit 1|2).
+_BIT_CENTERED = 1 | 2
 
 
 def _expression_options(valeur):
-    """Expression Python des drapeaux options d'un widget (noms nus)."""
+    """Expression Python noms nus des drapeaux options d'un widget.
+
+    ``BGUI_CENTERX | BGUI_CENTERY`` est raccourci en ``BGUI_CENTERED``
+    (défini par BGUI comme l'alias des deux bits), les autres drapeaux
+    étant combinés par ``|``. Retourne ``(expression, noms_a_importer)``.
+    """
+    valeur = int(valeur or 0)
     if not valeur:
         return None, []
-    noms = [nom for bit, nom in sorted(_FLAGS_OPTIONS.items())
-            if isinstance(valeur, int) and valeur & bit]
+    noms = []
+    if valeur & _BIT_CENTERED == _BIT_CENTERED:
+        noms.append("BGUI_CENTERED")
+    else:
+        if valeur & 1:
+            noms.append("BGUI_CENTERX")
+        if valeur & 2:
+            noms.append("BGUI_CENTERY")
+    for bit in (4, 8, 16, 32):
+        if valeur & bit:
+            noms.append(_FLAGS_OPTIONS[bit])
     if not noms:
         return repr(valeur), []
     return " | ".join(noms), noms
@@ -225,6 +242,10 @@ def _params_constructeur(noeud, noms_proprietes=None, fonts=None,
     sous = str(noeud.prop.get("sub_theme", "") or "").strip()
     if sous:
         params.append(("sub_theme", sous))
+    # ``aspect`` (contrainte de ratio) : valable pour tout widget sauf le
+    # Label — le Screen ne passe pas ici (absent de BGUI_CLASSE_PAR_TYPE).
+    if noeud.type != TYPE_LABEL and _active(noeud, "aspect"):
+        params.append(("aspect", noeud.prop["aspect"]))
     options, drapeaux_options = _expression_options(
         noeud.prop.get("options", 0))
     if options:
@@ -235,8 +256,6 @@ def _params_constructeur(noeud, noms_proprietes=None, fonts=None,
     definit_apres = lambda cle, valeur: apres.append((cle, valeur))
 
     if noeud.type == TYPE_FRAME:
-        if _active(noeud, "aspect"):
-            retourne("aspect", noeud.prop["aspect"])
         if _defini_par_code(noeud, "border", TYPE_FRAME, "BorderSize", 0,
                             seulement_positif=True):
             retourne("border", noeud.prop["border"])
@@ -249,8 +268,6 @@ def _params_constructeur(noeud, noms_proprietes=None, fonts=None,
             definit_apres("colors", [couleur] * 4)
 
     elif noeud.type == TYPE_FRAME_BOUTON:
-        if _active(noeud, "aspect"):
-            retourne("aspect", noeud.prop["aspect"])
         if _defini_par_code(noeud, "base_color", TYPE_FRAME_BOUTON, "Color1",
                             _theme_defaut(TYPE_FRAME_BOUTON, "Color1",
                                           (0.4, 0.4, 0.4, 1))):
@@ -288,8 +305,6 @@ def _params_constructeur(noeud, noms_proprietes=None, fonts=None,
         retourne("img", noeud.prop.get("fichier", "") or "")
         if _active(noeud, "text"):
             retourne("text", noeud.prop["text"])
-        if _active(noeud, "interp_mode"):
-            retourne("interp_mode", noeud.prop["interp_mode"])
         if _active(noeud, "color"):
             definit_apres("color", noeud.prop["color"])
 
@@ -303,7 +318,8 @@ def _params_constructeur(noeud, noms_proprietes=None, fonts=None,
                                    ("click_image", "click_image")]:
             valeur = _image_etat(cle_prop)
             if cle_bgui == "default_image" or valeur:
-                retourne(cle_bgui, noeud.prop.get(cle_prop, ""))
+                # BGUI attend (img, u, v, w, h) : coordonnées de texture.
+                retourne(cle_bgui, (valeur, 0, 0, 1, 1))
 
     elif noeud.type == TYPE_LISTE:
         retourne("items", noeud.prop.get("items", []))
@@ -349,6 +365,35 @@ def _params_constructeur(noeud, noms_proprietes=None, fonts=None,
 # ---------------------------------------------------------------------------
 # args du component ui (propriétés de l'écran)
 # ---------------------------------------------------------------------------
+
+def _ligne_play(noeud, chemin):
+    """Ligne d'appel ``.play(...)`` pour une Video BGUI.
+
+    BGUI attend ``play(start, end, use_frames=True, fps=None)`` : ces deux
+    extrêmes deviennent ``range=`` du ``VideoFFmpeg`` (en secondes ; en
+    images si ``use_frames``, avec ``fps`` pour la conversion). La ligne
+    n'est émise que si une option de lecture a été réglée par le concepteur
+    (``start``, ``end``, ``use_frames`` ou ``fps``) et qu'un fichier existe ;
+    sinon ``None`` (la vidéo se lit alors par défaut via le ``repeat`` du
+    constructeur).
+    """
+    if not noeud.prop.get("fichier"):
+        return None
+    reglees = ["start", "end", "use_frames", "fps"]
+    if not any(_active(noeud, cle) for cle in reglees):
+        return None
+    defaut = {"start": 0.0, "end": 100.0, "use_frames": True, "fps": 30}
+    args = []
+    for cle in ("start", "end"):
+        valeur = noeud.prop.get(cle, defaut[cle])
+        args.append(repr(float(valeur)))
+    for cle in ("use_frames", "fps"):
+        if _active(noeud, cle):
+            valeur = noeud.prop[cle]
+            args.append(f"use_frames={_litteral_python(valeur)}"
+                        if cle == "use_frames" else f"fps={_litteral_python(valeur)}")
+    return f"        {chemin}.play({', '.join(args)})"
+
 
 def _valeur_args(propriete):
     """Littéral de la valeur par défaut d'une propriété dans ``args``.
@@ -448,13 +493,19 @@ def _lignes_widgets(widgets, noms_proprietes=None, fonts=None, imports=None):
         params, apres = _params_constructeur(
             noeud, noms_proprietes, fonts, imports)
         morceaux = "".join(
-            f", {cle}={_litteral_python(valeur)}" for cle, valeur in params)
+            f", {cle}={valeur if cle == 'options' else _litteral_python(valeur)}"
+            for cle, valeur in params)
         lignes.append(
             f"        self.{attr} = {classe}({parent}, "
             f"name={_litteral_python(noeud.nom)}{morceaux})")
         for prop, valeur in apres:
             lignes.append(
                 f"        {chemin}.{prop} = {_litteral_python(valeur)}")
+
+        if noeud.type == TYPE_VIDEO:
+            ligne_play = _ligne_play(noeud, chemin)
+            if ligne_play:
+                lignes.append(ligne_play)
 
         for evenement in getattr(noeud, "evenements", []):
             declencheur = str(evenement.get("declencheur", "") or "").strip()
@@ -466,7 +517,7 @@ def _lignes_widgets(widgets, noms_proprietes=None, fonts=None, imports=None):
                 declencheur = "on_" + declencheur
             if declencheur not in ("on_click", "on_release", "on_hover",
                                    "on_mouse_enter", "on_mouse_exit",
-                                   "on_active", "on_update"):
+                                   "on_active"):
                 continue
             raccords.setdefault(fonction, []).append(
                 (chemin, declencheur))
@@ -481,10 +532,26 @@ def _lignes_widgets(widgets, noms_proprietes=None, fonts=None, imports=None):
         if z_index:
             lignes.append(f"        self.{attr}.z_index = {int(z_index)}")
 
+    # stubs : {nom_fonction: [lignes_code]} pour les corps non vides
+    stubs = {}
     for fonction, raccords_fonction in raccords.items():
         for chemin, declencheur in raccords_fonction:
             lignes.append(
                 f"        {chemin}.{declencheur} = self.{fonction}")
+        # Chercher le premier événement référençant cette fonction pour
+        # récupérer son corps éditable (clé « code »).
+        corps = []
+        for noeud, _, _ in widgets:
+            for ev in getattr(noeud, "evenements", []):
+                if nom_python(ev.get("fonction", ""),
+                              minuscules=False) == fonction:
+                    corps = ev.get("code", []) or []
+                    if corps:
+                        break
+            if corps:
+                break
+        if fonction not in stubs:
+            stubs[fonction] = corps
 
     return lignes, stubs
 
@@ -551,11 +618,12 @@ def script_ui_en_texte(racine):
                 classes_utilisees.add(classe)
 
     classes_bgui = sorted(classes_utilisees)
-    import_bgui = "from bgui import bgui_utils"
-    if classes_bgui:
-        import_bgui += ", " + ", ".join(classes_bgui)
+    noms_bgui = list(classes_bgui)
     if imports:
-        import_bgui += ", " + ", ".join(sorted(imports))
+        noms_bgui += sorted(imports)
+    import_bgui = "from bgui import bgui_utils"
+    if noms_bgui:
+        import_bgui += ", " + ", ".join(noms_bgui)
 
     lignes = []
     lignes.append("import bge, bgui, bpy, pathlib")
@@ -615,11 +683,24 @@ def script_ui_en_texte(racine):
         lignes.extend(lignes_widgets)
         lignes.append("")
         lignes.append("    def update(self):")
-        lignes.append("        pass")
+        lignes_update = []
+        for noeud, _parent_attr, _attr in widgets:
+            for ligne_code in (getattr(noeud, "update_code", None) or []):
+                if str(ligne_code).strip():
+                    lignes_update.append(f"        {ligne_code}")
+        if lignes_update:
+            lignes.extend(lignes_update)
+        else:
+            lignes.append("        pass")
         for fonction in stubs:
             lignes.append("")
             lignes.append(f"    def {fonction}(self, widget):")
-            lignes.append("        pass")
+            corps = stubs[fonction]
+            if corps:
+                for ligne_code in corps:
+                    lignes.append(f"        {ligne_code}")
+            else:
+                lignes.append("        pass")
 
     return "\n".join(lignes) + "\n"
 

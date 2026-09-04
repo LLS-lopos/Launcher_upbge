@@ -56,6 +56,11 @@ TYPE_PAR_SECTION = {
 }
 SECTION_PAR_TYPE = {v: k for k, v in TYPE_PAR_SECTION.items()}
 
+#: Drapeau BGUI « masquer le thème » (bgui/widget.py : BGUI_NO_THEME = 8).
+#: Quand il est posé sur un widget, le thème (section du type et même le
+#: sous-thème) est ignoré : seul le défaut intégré (THEME_BGUI_DEFAUT) rend.
+BGUI_NO_THEME = 8
+
 THEME_BGUI_DEFAUT = {
     TYPE_SCREEN: {"fond": (0.0, 0.0, 0.0, 1.0)},
     TYPE_LABEL: {
@@ -310,17 +315,44 @@ CHEMIN_BASE_PROJET = os.getcwd()
 #: Cache des familles de polices chargées depuis des fichiers (.ttf/.otf).
 _cache_polices = {}
 
+#: Nom de propriété écran VectorFont -> chemin du fichier de police choisi
+#: pour l'aperçu dans l'éditeur (sans effet sur l'export, qui reste sur
+#: ``data["font"][i].filepath``). Mis à jour par le canvas à chaque rendu.
+_polices_proprietes = {}
+
+
+def definir_polices_proprietes(proprietes):
+    """Enregistre la table des propriétés VectorFont (nom -> fichier).
+
+    ``proprietes`` : liste des propriétés de l'écran (``{"nom","type",
+    "valeur"}``). Seules les ``bpy.type.VectorFont`` ayant une valeur
+    (chemin de fichier pour l'aperçu éditeur) sont mémorisées.
+    """
+    _polices_proprietes.clear()
+    for p in proprietes or []:
+        nom = str(p.get("nom", "")).strip()
+        if nom and str(p.get("type", "")).strip() == "bpy.type.VectorFont" \
+                and str(p.get("valeur") or "").strip():
+            _polices_proprietes[nom] = str(p.get("valeur")).strip()
+
 
 def _famille_police(noeud):
     """Famille de police à utiliser pour un widget.
 
-    Renvoie la famille de la police choisie (fichier ``font`` du widget,
-    résolu « // »/« ~/ » ou absolu) si elle existe, sinon ``None`` (sans-
-    serif). La police n'est chargée qu'une seule fois (cache global Qt).
+    Renvoie la famille de la police choisie si elle existe, sinon ``None``
+    (sans-serif). ``font`` peut être :
+      - le **nom** d'une propriété écran VectorFont (sélectionnée dans
+        l'inspecteur) : on utilise alors le fichier de police mémorisé pour
+        l'aperçu (voir :func:`definir_polices_proprietes`) ;
+      - un **chemin** de fichier direct (résolu « // »/« ~/ » ou absolu).
+    La police n'est chargée qu'une seule fois (cache global Qt).
     """
     if not (noeud_defini(noeud, "font") and noeud.prop.get("font")):
         return None
-    chemin = resoudre_chemin_fichier(str(noeud.prop.get("font", "")))
+    nom_font = str(noeud.prop.get("font", "")).strip()
+    fichier_propriete = _polices_proprietes.get(nom_font)
+    chemin = (fichier_propriete if fichier_propriete
+              else resoudre_chemin_fichier(nom_font))
     if not os.path.isfile(chemin):
         return None
     if chemin not in _cache_polices:
@@ -463,11 +495,22 @@ def _pc_err(noeud, cle_noeud, type_widget, cle_theme, defaut):
     sinon la section de base du type sert de référence. Atténuation : une
     bordure explicite à 0 (« non précisée ») laisse le thème fournir son
     ``BorderSize``, comme le fait BGUI.
+
+    Le drapeau ``BGUI_NO_THEME`` (``options`` bit 8) court-circuite tout le
+    thème (sous-thème et section du type) : seuls le défaut intégré et une
+    propriété explicitement définie restent appliqués, comme dans
+    ``bgui.Widget._generate_theme``.
     """
-    sous = _valeur_sous_theme(noeud, type_widget, cle_theme)
     cfg = THEME_BGUI.get(type_widget, {}).get(cle_theme, defaut)
     if cle_theme == "Size" and noeud_defini(noeud, "pt_size", cfg):
         return noeud.prop["pt_size"]
+    if int(noeud.prop.get("options") or 0) & BGUI_NO_THEME:
+        if noeud_defini(noeud, cle_noeud, defaut):
+            valeur = noeud.prop[cle_noeud]
+            if not (cle_theme in ("BorderSize", "Size") and not valeur):
+                return valeur
+        return defaut
+    sous = _valeur_sous_theme(noeud, type_widget, cle_theme)
     if sous is not None:
         return sous
     if noeud_defini(noeud, cle_noeud, cfg):

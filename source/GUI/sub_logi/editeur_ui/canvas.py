@@ -21,7 +21,8 @@ from PySide6.QtWidgets import QWidget
 
 from .modele import CALQUE_BASE, TYPE_SCREEN, NoeudUI
 from .modele import calques_ecran
-from .theme_bgui import THEME_BGUI, couleur, peindre_widget
+from .theme_bgui import (THEME_BGUI, couleur, definir_polices_proprietes,
+                         peindre_widget)
 
 TAILLE_POIGNEE = 8.0
 ACCENT = QColor(74, 144, 217)
@@ -35,6 +36,7 @@ class CanvasBGUI(QWidget):
     geo_changee = Signal(object)            # pos/size modifiés (nœud)
     souris_changee = Signal(float, float, float, float)
                                             # px_x, px_y, norm_x, norm_y
+    menu_demande = Signal(object, object)   # (noeud, position globale QPoint)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -193,9 +195,25 @@ class CanvasBGUI(QWidget):
         `pos` est le coin bas-gauche du widget, `size` s'étend en x vers la
         droite et en y vers le haut. Qt, lui, travaille en y descendant : on
         retourne donc le rectangle converti.
+
+        Reproduit les drapeaux BGUI qui jouent sur la géométrie :
+        - ``BGUI_CENTERX`` (bit 1) : centré horizontalement dans le parent ;
+        - ``BGUI_CENTERY`` (bit 2) : centré verticalement dans le parent.
         """
-        pos = noeud.prop.get("pos", [0.0, 0.0])
-        size = noeud.prop.get("size", [1.0, 1.0])
+        pos = list(noeud.prop.get("pos", [0.0, 0.0]))
+        size = list(noeud.prop.get("size", [1.0, 1.0]))
+        aspect = float(noeud.prop.get("aspect") or 0.0)
+        if aspect > 0:
+            # Contrainte de ratio BGUI (bgui/widget.py) : largeur = hauteur
+            # × aspect, la hauteur restant inchangée. On ramène la largeur en
+            # coordonnées normalisées (relatives au parent).
+            size[0] = size[1] * rect_parent.height() * aspect \
+                / rect_parent.width()
+        options = int(noeud.prop.get("options") or 0)
+        if options & 1:   # BGUI_CENTERX
+            pos[0] = 0.5 - size[0] / 2.0
+        if options & 2:   # BGUI_CENTERY
+            pos[1] = 0.5 - size[1] / 2.0
         haut = (1.0 - pos[1] - size[1]) * rect_parent.height()
         return QRectF(rect_parent.x() + pos[0] * rect_parent.width(),
                       rect_parent.y() + haut,
@@ -259,7 +277,18 @@ class CanvasBGUI(QWidget):
         return None
 
     def mousePressEvent(self, event):
-        if event.button() != Qt.LeftButton or self.scene is None:
+        if self.scene is None:
+            return super().mousePressEvent(event)
+
+        if event.button() == Qt.RightButton:
+            # Menu contextuel : cible = widget sous le curseur
+            pt_scene = self._widget_a_scene(QPointF(event.position()))
+            noeud = self._noeud_sous_souris(pt_scene)
+            self.definir_selection(noeud)
+            self.menu_demande.emit(noeud, event.globalPosition().toPoint())
+            return
+
+        if event.button() != Qt.LeftButton:
             return super().mousePressEvent(event)
 
         pos_widget = QPointF(event.position())
@@ -391,6 +420,11 @@ class CanvasBGUI(QWidget):
 
         ec_l, ec_h = self.taille_ecran()
         self._calculer_affichage()
+
+        # Synchronise les propriétés VectorFont de l'écran (nom -> fichier de
+        # police) pour que l'aperçu charge la bonne police, sans toucher à
+        # l'export (qui reste sur data["font"][i].filepath).
+        definir_polices_proprietes(getattr(self.scene, "proprietes", []))
 
         # écran + widgets (espace scène)
         painter.setRenderHint(QPainter.Antialiasing, True)
