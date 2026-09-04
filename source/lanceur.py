@@ -133,7 +133,7 @@ class Lanceur(QMainWindow):
         # Créer un bouton pour l'éditeur UI
         b_ui_editor = QPushButton()
         b_ui_editor.setFixedSize(40, 40)
-        b_ui_editor.setIcon(QIcon(charger("config_launcher")["icon"]["game"]))
+        b_ui_editor.setIcon(QIcon(charger("config_launcher")["icon"]["UX"]))
         b_ui_editor.setIconSize(QSize(35, 35))
         b_ui_editor.setStatusTip("éditeur UI bgui")
         b_ui_editor.clicked.connect(self.logi_editeur_ui)
