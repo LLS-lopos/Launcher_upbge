@@ -39,7 +39,7 @@ from GUI.sub_logi.editeur_ui.theme_bgui import (THEME_BGUI, THEME_BGUI_DEFAUT, a
                                                 proprietes_depuis_donnees, reinitialiser_theme,
                                                 resoudre_proprietes, sauvegarder_theme_fichier,
                                                 sous_themes_disponibles, theme_defaut_en_texte,
-                                                valeur_rendu)
+                                                taille_label, valeur_rendu)
 from GUI.sub_logi.editeur_ui.modele import (CALQUE_BASE, CATALOGUE, CHAMPS_DEDIES,
                                             DECLENCHEURS_EVENEMENTS, OPTIONS_PAR_TYPE,
                                             TYPE_BARRE_PROGRES, TYPE_BLOC_TEXTE, TYPE_BOUTON_IMAGE,
@@ -108,6 +108,17 @@ class ArbreWidgets(QTreeWidget):
         self._source_glissee = self.currentItem()
         super().startDrag(actions)
 
+    def dragEnterEvent(self, event):
+        """Refuse les dépôts de fichiers externes.
+
+        Ils remontent ainsi à la fenêtre principale qui les ouvre dans leur
+        éditeur respectif ; seuls les glisser-déposer internes sont gardés.
+        """
+        if event.mimeData().hasUrls():
+            event.ignore()
+            return
+        super().dragEnterEvent(event)
+
     def dropEvent(self, event):
         editeur = self._editeur
         source = self._source_glissee
@@ -140,6 +151,27 @@ class ArbreWidgets(QTreeWidget):
         event.accept()
 
 
+class EditeurThemeDepot(QPlainTextEdit):
+    """Éditeur de thème acceptant les dépôts de fichiers.
+
+    Un dépôt de fichier (``.cfg``) est refusé ici pour remonter jusqu'à la
+    fenêtre principale, qui l'ouvre dans l'éditeur de thème ; le dépôt de
+    texte garde le comportement standard.
+    """
+
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasUrls():
+            event.ignore()
+            return
+        super().dragEnterEvent(event)
+
+    def dropEvent(self, event):
+        if event.mimeData().hasUrls():
+            event.ignore()
+            return
+        super().dropEvent(event)
+
+
 class LoposUIeditor(QMainWindow):
     """Éditeur de conception d'interface BGUI (simulation type Godot).
 
@@ -164,6 +196,7 @@ class LoposUIeditor(QMainWindow):
         self._verrou_arbre = False
         self._noeud_vers_item = {}
         self.champ = {}                     # champs de l'inspecteur en cours
+        self.setAcceptDrops(True)
         self._initialiser_interface()
 
     # ------------------------------------------------------------------
@@ -189,6 +222,56 @@ class LoposUIeditor(QMainWindow):
         self.barre_status()
         self.rafraichir_arbre()
         self.initialiser_theme_generer()
+
+    # ------------------------------------------------------------------
+    # Glisser-déposer de fichiers (projet JSON / thème *.cfg)
+    # ------------------------------------------------------------------
+
+    #: Extension des fichiers ouverts au dépôt, vers l'onglet cible.
+    FICHIERS_DEPOSES = {".json": "projet", ".cfg": "theme"}
+
+    def dragEnterEvent(self, event):
+        """Accepte le dépôt si l'un des fichiers est un projet ou un thème."""
+        if self._fichiers_deposes(event):
+            event.acceptProposedAction()
+        else:
+            event.ignore()
+
+    def dropEvent(self, event):
+        """Ouvre les fichiers déposés dans leur éditeur respectif."""
+        for chemin in self._fichiers_deposes(event):
+            try:
+                self._ouvrir_fichier_depose(chemin)
+            except Exception as e:
+                self.statusBar().showMessage(
+                    f"Impossible d'ouvrir {chemin}: {e}", 6000)
+        event.acceptProposedAction()
+
+    def _fichiers_deposes(self, event):
+        """Chemins locaux des fichiers déposés dont l'extension est connue."""
+        if not event.mimeData().hasUrls():
+            return []
+        acceptable = []
+        for url in event.mimeData().urls():
+            if not url.isLocalFile():
+                continue
+            chemin = url.toLocalFile()
+            if (os.path.isfile(chemin)
+                    and os.path.splitext(chemin)[1].lower()
+                    in self.FICHIERS_DEPOSES):
+                acceptable.append(chemin)
+        return acceptable
+
+    def _ouvrir_fichier_depose(self, chemin):
+        """Route un fichier déposé vers l'éditeur adapté, onglet ouvert."""
+        cible = self.FICHIERS_DEPOSES.get(
+            os.path.splitext(chemin)[1].lower())
+        if cible == "projet":
+            self._ouvrir_projet(chemin)
+            self.onglets.setCurrentIndex(0)
+        elif cible == "theme":
+            self._ouvrir_theme(chemin)
+            self.onglets.setCurrentIndex(1)
 
     def creer_onglet_ui(self):
         outliner = self.creer_outliner()
@@ -289,7 +372,7 @@ class LoposUIeditor(QMainWindow):
         corps = QHBoxLayout()
         disposition.addLayout(corps, 1)
 
-        self.texte_theme = QPlainTextEdit()
+        self.texte_theme = EditeurThemeDepot()
         self.texte_theme.setFont(QFont("monospace"))
         self.texte_theme.setStyleSheet(
             "QPlainTextEdit { background-color: #1e1e1e; color: #e6e6e6;"
@@ -376,6 +459,10 @@ class LoposUIeditor(QMainWindow):
             "Fichier de thème (*.cfg);;Tous les fichiers (*)")
         if not chemin:
             return
+        self._ouvrir_theme(chemin)
+
+    def _ouvrir_theme(self, chemin):
+        """Charge un fichier de thème dans l'éditeur (dialogue ou dépôt)."""
         self.chemin_theme = chemin
         self.lbl_theme.setText(chemin)
         self.charger_theme_dans_editeur(chemin)
@@ -820,10 +907,27 @@ class LoposUIeditor(QMainWindow):
                                       lambda v: self._modifier_prop(noeud, "pos", 0, v, p_l))
         self.champ["py"] = self._spin(pos[1], p_h, 0.0, p_h,
                                       lambda v: self._modifier_prop(noeud, "pos", 1, v, p_h))
-        self.champ["pw"] = self._spin(size[0], p_l, 1.0, p_l,
-                                      lambda v: self._modifier_prop(noeud, "size", 0, v, p_l))
-        self.champ["ph"] = self._spin(size[1], p_h, 1.0, p_h,
-                                      lambda v: self._modifier_prop(noeud, "size", 1, v, p_h))
+        if noeud.type == TYPE_LABEL:
+            # Le Label BGUI calcule sa taille depuis le texte + pt_size :
+            # le size stocké ne sert à rien, on affiche la taille réelle
+            # (calculée) sans permettre de la modifier à la main.
+            w_px, h_px = taille_label(noeud, parent_px)
+            self.champ["pw"] = self._spin(w_px / (p_l or 1.0), p_l, 1.0, p_l,
+                                          lambda v: None)
+            self.champ["ph"] = self._spin(h_px / (p_h or 1.0), p_h, 1.0, p_h,
+                                          lambda v: None)
+            self.champ["pw"].setEnabled(False)
+            self.champ["ph"].setEnabled(False)
+            self.champ["pw"].setToolTip(
+                "Taille calculée depuis le texte et la police (pt) : "
+                "le redimensionnement direct n'a pas d'effet sur un Label.")
+            self.champ["ph"].setToolTip(
+                self.champ["pw"].toolTip())
+        else:
+            self.champ["pw"] = self._spin(size[0], p_l, 1.0, p_l,
+                                          lambda v: self._modifier_prop(noeud, "size", 0, v, p_l))
+            self.champ["ph"] = self._spin(size[1], p_h, 1.0, p_h,
+                                          lambda v: self._modifier_prop(noeud, "size", 1, v, p_h))
         ligne_geo = self._ligne_suivante()
         self.form_inspe.addWidget(QLabel("Position"), ligne_geo, 0)
         self.form_inspe.addWidget(self.champ["px"], ligne_geo, 1)
@@ -956,7 +1060,8 @@ class LoposUIeditor(QMainWindow):
     def _champs_couleurs(self, noeud):
         """Couleurs du widget (résolues depuis le thème) : section « Thème »."""
         if noeud.type == TYPE_FRAME_BOUTON:
-            self._champ_couleur(noeud, "base_color", "Couleur fond")
+            for i in range(1, 5):
+                self._champ_couleur(noeud, f"base_color{i}", f"Fond coin {i}")
             self._champ_couleur(noeud, "color", "Couleur texte")
         elif noeud.type in (TYPE_FRAME, TYPE_LABEL, TYPE_BLOC_TEXTE,
                             TYPE_SAISIE_TEXTE):
@@ -1074,7 +1179,8 @@ class LoposUIeditor(QMainWindow):
         champ_texte = QLineEdit(str(noeud.prop.get("text", "")))
         champ_texte.textChanged.connect(
             lambda t, n=noeud: (n.prop.__setitem__("text", t),
-                                self.canvas.update()))
+                                self.canvas.rafraichir(),
+                                self._maj_champs_geo(n)))
         self.form_inspe.addWidget(champ_texte, ligne, 1, 1, 2)
 
         ligne = self._ligne_suivante()
@@ -1085,7 +1191,8 @@ class LoposUIeditor(QMainWindow):
                                           THEME_BGUI_DEFAUT[TYPE_LABEL]["Size"])))
         spin_pt.valueChanged.connect(
             lambda v, n=noeud: (n.prop.__setitem__("pt_size", v),
-                                self.canvas.update()))
+                                self.canvas.rafraichir(),
+                                self._maj_champs_geo(n)))
         self.form_inspe.addWidget(spin_pt, ligne, 1, 1, 2)
 
     def _champ_texte_libre(self, noeud):
@@ -1440,10 +1547,12 @@ class LoposUIeditor(QMainWindow):
         """Couleur réellement affichée : propriété du nœud, sinon thème actif
         (section du type, ou du sous-thème du widget si ``sub_theme``)."""
         if noeud.type == TYPE_FRAME_BOUTON:
-            if cle == "base_color":
+            if cle in ("base_color1", "base_color2", "base_color3",
+                       "base_color4"):
+                coin = cle[-1]
                 return valeur_rendu(
-                    noeud, cle, TYPE_FRAME_BOUTON, "Color1",
-                    THEME_BGUI_DEFAUT[TYPE_FRAME_BOUTON]["Color1"])
+                    noeud, cle, TYPE_FRAME_BOUTON, f"Color{coin}",
+                    THEME_BGUI_DEFAUT[TYPE_FRAME_BOUTON][f"Color{coin}"])
             return valeur_rendu(
                 noeud, cle, TYPE_FRAME_BOUTON, "Color",
                 THEME_BGUI_DEFAUT[TYPE_FRAME_BOUTON]["Color"])
@@ -1699,6 +1808,50 @@ class LoposUIeditor(QMainWindow):
             ligne_code = self._ligne_suivante()
             self.form_inspe.addWidget(champ_code, ligne_code, 0, 1, 3)
 
+            ligne = self._ligne_suivante()
+            chk_lambda = QCheckBox("Lambda (widget, *args)")
+            chk_lambda.setChecked(bool(evenement.get("lambda")))
+            chk_lambda.setToolTip(
+                "Coché : raccord via ``lambda widget, *args: ...``.\n"
+                "Décoché : raccord direct ``self.<fonction>`` (actuel).")
+            chk_lambda.toggled.connect(
+                lambda v, n=noeud, i=index:
+                self._modifier_evenement(n, i, "lambda", v))
+            self.form_inspe.addWidget(chk_lambda, ligne, 0, 1, 3)
+
+            ligne = self._ligne_suivante()
+            self.form_inspe.addWidget(QLabel("Arguments"), ligne, 0)
+            b_arg = QPushButton("+ Argument")
+            b_arg.setFixedWidth(96)
+            b_arg.setToolTip(
+                "Ajouter un nom d'argument passé à la fonction.\n"
+                "Le stub généré accepte alors ``*args``.")
+            b_arg.clicked.connect(
+                lambda _=False, n=noeud, i=index:
+                self._ajouter_argument(n, i))
+            self.form_inspe.addWidget(b_arg, ligne, 1, 1, 2)
+
+            for idx_arg, nom_arg in enumerate(
+                    evenement.get("args", []) or []):
+                ligne_arg = self._ligne_suivante()
+                champ_arg = QLineEdit(str(nom_arg))
+                champ_arg.setPlaceholderText("nom")
+                champ_arg.setToolTip(
+                    "Nom de l'argument reçu dans la fonction (``*args``).\n"
+                    "Donnez-lui une valeur par défaut dans le corps.")
+                champ_arg.textChanged.connect(
+                    lambda t, n=noeud, i=index, a=idx_arg:
+                    self._modifier_argument(n, i, a, "nom", t))
+                self.form_inspe.addWidget(champ_arg, ligne_arg, 0, 1, 2)
+
+                b_suppr_arg = QPushButton("✕")
+                b_suppr_arg.setFixedWidth(26)
+                b_suppr_arg.setToolTip("Retirer cet argument")
+                b_suppr_arg.clicked.connect(
+                    lambda _=False, n=noeud, i=index, a=idx_arg:
+                    self._supprimer_argument(n, i, a))
+                self.form_inspe.addWidget(b_suppr_arg, ligne_arg, 2)
+
         ligne = self._ligne_suivante()
         b_ajout = QPushButton("+ Ajouter un événement")
         b_ajout.setToolTip(
@@ -1711,7 +1864,7 @@ class LoposUIeditor(QMainWindow):
         """Ajoute un événement déclencheur vide au widget et réaffiche."""
         noeud.evenements.append(
             {"declencheur": DECLENCHEURS_EVENEMENTS[0], "fonction": "",
-             "code": []})
+             "code": [], "lambda": False, "args": []})
         self.canvas.rafraichir()
         self.rafraichir_inspecteur()
 
@@ -1725,6 +1878,37 @@ class LoposUIeditor(QMainWindow):
         if 0 <= index < len(noeud.evenements):
             del noeud.evenements[index]
         self.canvas.rafraichir()
+        self.rafraichir_inspecteur()
+
+    def _ajouter_argument(self, noeud, index):
+        """Ajoute un argument vide à l'événement d'index `index`."""
+        if 0 <= index < len(noeud.evenements):
+            evenement = noeud.evenements[index]
+            evenement.setdefault("args", []).append("")
+            # Un argument n'a de sens qu'avec le lambda : on le coche.
+            evenement["lambda"] = True
+            self.canvas.update()
+        self.rafraichir_inspecteur()
+
+    def _modifier_argument(self, noeud, index, idx_arg, cle, valeur):
+        """Met à jour un champ d'un argument sans reconstruire l'inspecteur."""
+        try:
+            evenement = noeud.evenements[index]
+            evenement.setdefault("args", [])
+            if 0 <= idx_arg < len(evenement["args"]):
+                evenement["args"][idx_arg] = valeur
+        except (IndexError, KeyError):
+            pass
+
+    def _supprimer_argument(self, noeud, index, idx_arg):
+        """Retire un argument d'un événement et réaffiche l'inspecteur."""
+        try:
+            evenement = noeud.evenements[index]
+            if 0 <= idx_arg < len(evenement.get("args", [])):
+                del evenement["args"][idx_arg]
+            self.canvas.update()
+        except IndexError:
+            pass
         self.rafraichir_inspecteur()
 
     def _champ_mise_a_jour(self, noeud):
@@ -1922,13 +2106,28 @@ class LoposUIeditor(QMainWindow):
             self._maj_champs_geo(noeud)
             self._maj_status()
 
+    def _taille_affichage(self, noeud, parent_px):
+        """Taille affichée (px) d'un widget dans son parent.
+
+        Pour un Label, la taille réelle est calculée depuis le texte +
+        pt_size (le ``size`` stocké n'ayant aucun effet BGUI) ; les autres
+        widgets utilisent leur ``size`` normalisé.
+        """
+        p_l = parent_px.width() or 1.0
+        p_h = parent_px.height() or 1.0
+        if noeud.type == TYPE_LABEL:
+            w_px, h_px = taille_label(noeud, parent_px)
+            return w_px, h_px
+        size = noeud.prop.get("size", [1.0, 1.0])
+        return size[0] * p_l, size[1] * p_h
+
     def _maj_champs_geo(self, noeud):
         parent_px = self.canvas.rect_parent_scene(noeud)
         p_l, p_h = parent_px.width(), parent_px.height()
         pos = noeud.prop.get("pos", [0.0, 0.0])
-        size = noeud.prop.get("size", [1.0, 1.0])
+        w_px, h_px = self._taille_affichage(noeud, parent_px)
         for cle, valeur in (("px", pos[0] * p_l), ("py", pos[1] * p_h),
-                            ("pw", size[0] * p_l), ("ph", size[1] * p_h)):
+                            ("pw", w_px), ("ph", h_px)):
             champ = self.champ.get(cle)
             if champ is not None:
                 champ.blockSignals(True)
@@ -1943,13 +2142,13 @@ class LoposUIeditor(QMainWindow):
         parent_px = self.canvas.rect_parent_scene(noeud)
         p_l, p_h = parent_px.width(), parent_px.height()
         pos = noeud.prop.get("pos", [0.0, 0.0])
-        size = noeud.prop.get("size", [1.0, 1.0])
+        w_px, h_px = self._taille_affichage(noeud, parent_px)
         self.lbl_selection.setText(
             f"{noeud.nom} ({noeud.type})  ·  position: "
             f"{pos[0] * p_l:.0f}, {pos[1] * p_h:.0f}px  "
             f"({pos[0]:.3f}, {pos[1]:.3f})  ·  taille: "
-            f"{size[0] * p_l:.0f} × {size[1] * p_h:.0f}px  "
-            f"({size[0]:.3f} × {size[1]:.3f})")
+            f"{w_px:.0f} × {h_px:.0f}px  "
+            f"({w_px / p_l:.3f} × {h_px / p_h:.3f})")
 
     @Slot(float, float, float, float)
     def _survol(self, px_x, px_y, norm_x, norm_y):
@@ -2014,7 +2213,16 @@ class LoposUIeditor(QMainWindow):
             self, "Ouvrir un projet UI", "", "Projet UI (*.json)")
         if not chemin:
             return
-        self.scene = charger_fichier(chemin)
+        self._ouvrir_projet(chemin)
+
+    def _ouvrir_projet(self, chemin):
+        """Ouvre un projet UI depuis un fichier (dialogue ou dépôt)."""
+        try:
+            self.scene = charger_fichier(chemin)
+        except (OSError, ValueError) as e:
+            self.statusBar().showMessage(
+                f"Impossible d'ouvrir le projet {chemin}: {e}", 6000)
+            return
         self.chemin_projet = chemin
         definir_base_projet(chemin)
         self.canvas.definir_scene(self.scene)

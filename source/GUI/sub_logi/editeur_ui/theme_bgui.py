@@ -26,8 +26,9 @@ import copy
 import os
 
 from PySide6.QtCore import Qt, QRect, QRectF, QPointF
-from PySide6.QtGui import (QColor, QFont, QFontDatabase, QPainter,
-                           QPainterPath, QPixmap, QPolygonF)
+from PySide6.QtGui import (QBrush, QColor, QFont, QFontDatabase, QFontMetrics,
+                           QLinearGradient, QPainter, QPainterPath, QPixmap,
+                           QPolygonF)
 
 from .modele import (TYPE_BARRE_PROGRES, TYPE_BLOC_TEXTE, TYPE_BOUTON_IMAGE,
                      TYPE_FRAME, TYPE_FRAME_BOUTON, TYPE_IMAGE, TYPE_LABEL,
@@ -366,9 +367,31 @@ def _famille_police(noeud):
     return _cache_polices[chemin]
 
 
+def taille_label(noeud, rect_parent):
+    """Taille d'un Label telle que BGUI la calcule.
+
+    BGUI (bgui/label.py) ne stocke jamais ``size`` pour un Label : le
+    constructeur reçoit ``[0, 0]`` et le setter ``text`` recalcule la taille
+    depuis ``pt_size`` (largeur du texte, hauteur de la ligne « Mj ») puis la
+    normalise par la taille du parent. ``size`` manipulé directement n'a donc
+    aucun effet au runtime : on reproduit ici le même calcul pour l'affichage.
+
+    ``rect_parent`` : rectangle (pixels de scène) du parent. Retourne un
+    ``(w, h)`` en pixels de scène.
+    """
+    texte = str(noeud.prop.get("text", ""))
+    pt = int(_pc_err(noeud, "pt_size", TYPE_LABEL, "Size",
+                     THEME_BGUI_DEFAUT[TYPE_LABEL]["Size"]))
+    police_ = police(pt, _famille_police(noeud))
+    fm = QFontMetrics(police_)
+    lignes = texte.split("\n") if texte else [""]
+    w_px = max(fm.horizontalAdvance(ligne) for ligne in lignes)
+    h_px = fm.height() * len(lignes)
+    return w_px, h_px
+
+
 def definir_base_projet(chemin):
     """Fixer le répertoire de base utilisé pour résoudre les chemins « // »."""
-    global CHEMIN_BASE_PROJET
     if not chemin:
         CHEMIN_BASE_PROJET = os.getcwd()
         return
@@ -446,18 +469,22 @@ def police(pt_size, famille=None):
     return police_
 
 
-def _valeur_sous_theme(noeud, type_widget, cle_theme):
-    """Valeur fournie par le sous-thème du widget, sinon ``None``.
+def _valeur_sous_theme(noeud, type_widget, cle_theme, sous=None):
+    """Valeur fournie par un sous-thème, sinon ``None``.
 
-    Un widget dont ``sub_theme`` vaut « Titre » a sa valeur — si la clé est
-    définie dans la section « Type:Titre » (ex. ``[Label:Titre]``) du thème
-    actif — renvoyée telle quelle ; le sous-thème cible la section du type
-    du widget lui-même, comme en BGUI. ``None`` = aucune clé de sous-thème
-    pertinente (pas de ``sub_theme``, section absente ou clé absente).
+    La section cible est « Type:sous » (ex. ``[Label:Titre]``) du thème
+    actif, où Type est la section de `type_widget`. ``sous`` optionnel :
+    autre nom de sous-thème à appliquer (ex. le ``LabelSubTheme`` d'un
+    FrameButton au texte interne) ; ``None`` = le ``sub_theme`` déclaré sur
+    le widget lui-même. ``None`` = aucune clé de sous-thème pertinente
+    (pas de sous-thème, section absente ou clé absente).
     """
-    section = TYPE_PAR_SECTION.get(noeud.type)
-    sous = str(noeud.prop.get("sub_theme", "") or "").strip()
-    if sous and section:
+    section = TYPE_PAR_SECTION.get(type_widget)
+    if not section:
+        return None
+    if sous is None:
+        sous = str(noeud.prop.get("sub_theme", "") or "").strip()
+    if sous:
         valeurs = THEME_CRU.get(f"{section}:{sous}")
         if valeurs and cle_theme in valeurs:
             return valeurs[cle_theme]
@@ -581,20 +608,50 @@ def peindre_cadre(painter, rect, noeud):
         _bevel(painter, rect, base, bord)
 
 
+def _peindre_fond_coins(painter, rect, coins):
+    """Remplit `rect` du dégradé 4 coins d'un FrameButton.
+
+    BGUI rend 2 triangles (un dégradé lissé entre les 4 sommets) ; QPainter
+    ne coloriant que par surface uniforme/gradient linéaire, chaque triangle
+    est rempli d'un dégradé entre ses deux sommets horizontaux. Un fond
+    uniforme (4 coins identiques) reste un simple remplissage.
+    """
+    hg, hd, bd, bg = coins
+    if hg == hd == bd == bg:
+        painter.fillRect(rect, hg)
+        return
+    r = QRectF(rect)
+    tl, tr = r.topLeft(), r.topRight()
+    bl, br = r.bottomLeft(), r.bottomRight()
+    haut = QLinearGradient(tl, tr)
+    haut.setColorAt(0.0, hg)
+    haut.setColorAt(1.0, hd)
+    bas = QLinearGradient(bl, br)
+    bas.setColorAt(0.0, bg)
+    bas.setColorAt(1.0, bd)
+    for tri, degrade in [(QPolygonF([tl, tr, bl]), haut),
+                         (QPolygonF([bl, tr, br]), bas)]:
+        chemin = QPainterPath()
+        chemin.addPolygon(tri)
+        painter.fillPath(chemin, QBrush(degrade))
+
+
 def peindre_bouton(painter, rect, noeud):
-    """Dessine un FrameButton BGUI : fond + bord + label centré."""
-    base = couleur(_pc_err(noeud, "base_color", TYPE_FRAME_BOUTON, "Color1",
-                           THEME_BGUI_DEFAUT[TYPE_FRAME_BOUTON]["Color1"]))
+    """Dessine un FrameButton BGUI : fond dégradé 4 coins + bord + label."""
+    coins = [couleur(
+        _pc_err(noeud, f"base_color{i}", TYPE_FRAME_BOUTON, f"Color{i}",
+                THEME_BGUI_DEFAUT[TYPE_FRAME_BOUTON][f"Color{i}"]))
+        for i in range(1, 5)]
     bord = int(_pc_err(noeud, "border", TYPE_FRAME_BOUTON, "BorderSize", 1) or 0)
-    painter.fillRect(rect, base)
+    _peindre_fond_coins(painter, rect, coins)
     if bord > 0:
         _peindre_bordure(painter, rect, bord, couleur(
             _pc_err(noeud, "border_color", TYPE_FRAME_BOUTON, "BorderColor",
                     THEME_BGUI_DEFAUT[TYPE_FRAME_BOUTON]["BorderColor"])))
         _bevel(painter, rect.adjusted(bord + 1, bord + 1, -bord, -bord),
-               base, bord)
+               coins[0], bord)
     else:
-        _bevel(painter, rect, base, bord)
+        _bevel(painter, rect, coins[0], bord)
 
     pt = int(_pc_err(noeud, "pt_size", TYPE_LABEL, "Size",
                      THEME_BGUI_DEFAUT[TYPE_LABEL]["Size"]))
@@ -679,7 +736,14 @@ def peindre_bouton_image(painter, rect, noeud):
 
 
 def peindre_liste(painter, rect, noeud):
-    """Dessine une ListBox BGUI : fond, éléments, ligne sélectionnée."""
+    """Dessine une ListBox BGUI : items empilés + cadre de sélection.
+
+    BGUI (bgui/list_box.py) ne peint ni fond ni bordure externe : chaque item
+    est un Label de hauteur de ligne (il s'empile depuis le haut, ``padding``
+    entre les lignes) et l'élément sélectionné reçoit un cadre Frame aux 4
+    couleurs ``HighlightColor1..4`` bordé de ``Border``. Un léger fond sombre
+    matérialise ici la zone du widget dans l'éditeur.
+    """
     painter.fillRect(rect, QColor(25, 25, 28))
     items = noeud.prop.get("items", [])
     if isinstance(items, str):
@@ -690,29 +754,33 @@ def peindre_liste(painter, rect, noeud):
         painter.drawText(rect, Qt.AlignCenter, "(liste vide)")
         return
 
-    sel = max(0, min(len(items) - 1, int(noeud.prop.get("selected", 0))))
-    hauteur_ligne = rect.height() / len(items)
-    highlight = couleur(_pc_err(noeud, "highlight_color", TYPE_LISTE,
-                                "HighlightColor1",
-                                THEME_BGUI_DEFAUT[TYPE_LISTE]["HighlightColor1"]))
-    painter.fillRect(QRectF(rect.left(), rect.top() + sel * hauteur_ligne,
-                            rect.width(), hauteur_ligne), highlight)
-
     pt = int(_pc_err(noeud, "pt_size", TYPE_LABEL, "Size",
                      THEME_BGUI_DEFAUT[TYPE_LABEL]["Size"]))
-    painter.setFont(police(pt, _famille_police(noeud)))
+    police_ = police(pt, _famille_police(noeud))
+    hauteur_ligne = QFontMetrics(police_).height()
+    pad_px = float(noeud.prop.get("padding", 0) or 0) * rect.height()
+
+    sel = max(0, min(len(items) - 1, int(noeud.prop.get("selected", 0))))
+    cadre_sel = QRectF(rect.left(), rect.top() + sel * (hauteur_ligne + pad_px),
+                       rect.width(), hauteur_ligne)
+    _peindre_fond_coins(painter, cadre_sel, [couleur(
+        _pc_err(noeud, f"highlight_color{i}", TYPE_LISTE,
+                f"HighlightColor{i}",
+                THEME_BGUI_DEFAUT[TYPE_LISTE][f"HighlightColor{i}"]))
+        for i in range(1, 5)])
+    bord_sel = int(_pc_err(noeud, "border", TYPE_LISTE, "Border", 1) or 0)
+    if bord_sel > 0:
+        _peindre_bordure(painter, cadre_sel, bord_sel, couleur(
+            _pc_err(noeud, "border_color", TYPE_LISTE, "BorderColor",
+                    (0.0, 0.0, 0.0, 1.0))))
+
+    painter.setFont(police_)
     painter.setPen(couleur(_pc_err(noeud, "color", TYPE_LISTE, "Color",
                                    THEME_BGUI_DEFAUT[TYPE_LISTE]["Color"])))
     for i, item in enumerate(items):
-        painter.drawText(QRectF(rect.left() + 4, rect.top() + i * hauteur_ligne,
-                                rect.width() - 8, hauteur_ligne),
-                         Qt.AlignLeft | Qt.AlignVCenter, item)
-
-    bord = int(_pc_err(noeud, "border", TYPE_LISTE, "Border", 1) or 0)
-    if bord > 0:
-        _peindre_bordure(painter, rect, bord, couleur(
-            _pc_err(noeud, "border_color", TYPE_LISTE, "BorderColor",
-                    THEME_BGUI_DEFAUT[TYPE_LISTE]["BorderColor"])))
+        ligne = QRectF(rect.left(), rect.top() + i * (hauteur_ligne + pad_px),
+                       rect.width(), hauteur_ligne)
+        painter.drawText(ligne, Qt.AlignLeft | Qt.AlignVCenter, item)
 
 
 def peindre_barre_progres(painter, rect, noeud):

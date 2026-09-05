@@ -162,6 +162,36 @@ def _defini_par_code(noeud, cle, type_widget, cle_theme, defaut,
     return True
 
 
+def _base_colors_par_code(noeud):
+    """Couleurs des 4 coins d'un FrameButton, si l'une est écrite par le code.
+
+    BGUI attend ``base_colors`` = une couleur par sommet (liste de 4 RGBA, le
+    dégradé du cadre), pas un simple RGBA. Les coins non explicitement écrits
+    reprennent la valeur du thème (section ``[FrameButton]``) ; si l'un est
+    gouverné par un sous-thème, rien n'est émis (le thème rendra au runtime).
+    """
+    if any(_valeur_sous_theme(noeud, TYPE_FRAME_BOUTON, f"Color{i}") is not None
+           for i in range(1, 5)):
+        return None
+    if not any(_defini_par_code(noeud, f"base_color{i}", TYPE_FRAME_BOUTON,
+                                f"Color{i}",
+                                _theme_defaut(TYPE_FRAME_BOUTON, f"Color{i}",
+                                              (0.4, 0.4, 0.4, 1)))
+               for i in range(1, 5)):
+        return None
+    couleurs = []
+    for i in range(1, 5):
+        cle = f"base_color{i}"
+        cle_theme = f"Color{i}"
+        defaut = _theme_defaut(TYPE_FRAME_BOUTON, cle_theme, (0.4, 0.4, 0.4, 1))
+        cfg = THEME_BGUI.get(TYPE_FRAME_BOUTON, {}).get(cle_theme, defaut)
+        if noeud_defini(noeud, cle, None) and noeud_defini(noeud, cle, cfg):
+            couleurs.append(noeud.prop[cle])
+        else:
+            couleurs.append(cfg)
+    return couleurs
+
+
 # ---------------------------------------------------------------------------
 # Correspondance type de nœud -> constructeur BGUI + paramètres
 # ---------------------------------------------------------------------------
@@ -268,10 +298,9 @@ def _params_constructeur(noeud, noms_proprietes=None, fonts=None,
             definit_apres("colors", [couleur] * 4)
 
     elif noeud.type == TYPE_FRAME_BOUTON:
-        if _defini_par_code(noeud, "base_color", TYPE_FRAME_BOUTON, "Color1",
-                            _theme_defaut(TYPE_FRAME_BOUTON, "Color1",
-                                          (0.4, 0.4, 0.4, 1))):
-            retourne("base_color", noeud.prop["base_color"])
+        couleurs_base = _base_colors_par_code(noeud)
+        if couleurs_base is not None:
+            definit_apres("base_colors", couleurs_base)
         retourne("text", noeud.prop.get("text", ""))
         if _pt_size_defini(noeud, TYPE_FRAME_BOUTON):
             retourne("pt_size", noeud.prop["pt_size"])
@@ -467,6 +496,37 @@ def _inventaire_attributs(racines):
     return resultat
 
 
+def _parser_argument(texte):
+    """Décompose ``nom | type = défaut`` en ``(nom, type_, défaut)``.
+
+    Seul le nom est obligatoire ; le type et la valeur par défaut sont
+    optionnels.  Exemples : ``val``, ``val | int()``, ``val | int() = 5``,
+    ``val = 5``.  Retourne ``None`` si rien d'utilisable.
+    """
+    texte = str(texte).strip()
+    if not texte:
+        return None
+    nom, _sep, reste = texte.partition("|")
+    nom = nom.strip()
+    if not nom:
+        return None
+    type_ = None
+    defaut = None
+    if _sep:
+        reste = reste.strip()
+        if "=" in reste:
+            type_, _, defaut = reste.partition("=")
+            type_ = type_.strip() or None
+            defaut = defaut.strip() or None
+        else:
+            type_ = reste or None
+    elif "=" in nom:
+        nom, _, defaut = nom.partition("=")
+        nom = nom.strip()
+        defaut = defaut.strip() or None
+    return nom, type_, defaut
+
+
 def _lignes_widgets(widgets, noms_proprietes=None, fonts=None, imports=None):
     """Lignes de création des widgets + attributs comportementaux.
 
@@ -481,6 +541,7 @@ def _lignes_widgets(widgets, noms_proprietes=None, fonts=None, imports=None):
     lignes = []
     raccords = {}
     stubs = []
+    args_lambda = {}
 
     for noeud, parent_attr, attr in widgets:
         classe = BGUI_CLASSE_PAR_TYPE.get(noeud.type)
@@ -521,6 +582,11 @@ def _lignes_widgets(widgets, noms_proprietes=None, fonts=None, imports=None):
                 continue
             raccords.setdefault(fonction, []).append(
                 (chemin, declencheur))
+            if evenement.get("lambda"):
+                infos = [_parser_argument(a) for a in
+                         (evenement.get("args", []) or [])]
+                infos = [i for i in infos if i is not None]
+                args_lambda.setdefault(fonction, infos)
             if fonction not in stubs:
                 stubs.append(fonction)
 
@@ -536,8 +602,21 @@ def _lignes_widgets(widgets, noms_proprietes=None, fonts=None, imports=None):
     stubs = {}
     for fonction, raccords_fonction in raccords.items():
         for chemin, declencheur in raccords_fonction:
-            lignes.append(
-                f"        {chemin}.{declencheur} = self.{fonction}")
+            if fonction in args_lambda:
+                infos = args_lambda.get(fonction, [])
+                params_lambda = ", ".join(
+                    ["widget"] + [
+                        f"{nom}={defaut}" if defaut is not None else
+                        f"{nom}=None"
+                        for nom, _type_, defaut in infos])
+                appel = ", ".join(["widget"] + [nom for nom, _, _ in infos])
+                lignes.append(
+                    f"        {chemin}.{declencheur} = "
+                    f"lambda {params_lambda}: "
+                    f"self.{fonction}({appel})")
+            else:
+                lignes.append(
+                    f"        {chemin}.{declencheur} = self.{fonction}")
         # Chercher le premier événement référençant cette fonction pour
         # récupérer son corps éditable (clé « code »).
         corps = []
@@ -553,7 +632,7 @@ def _lignes_widgets(widgets, noms_proprietes=None, fonts=None, imports=None):
         if fonction not in stubs:
             stubs[fonction] = corps
 
-    return lignes, stubs
+    return lignes, stubs, args_lambda
 
 
 def _bloc_etat_calque(calque, fonts=None):
@@ -678,7 +757,7 @@ def script_ui_en_texte(racine):
         lignes.append("        super().__init__(sys, data)")
         widgets = _inventaire_attributs(_enfants_calque(racine, calque))
 
-        lignes_widgets, stubs = _lignes_widgets(
+        lignes_widgets, stubs, args_lambda = _lignes_widgets(
             widgets, noms_proprietes, fonts)
         lignes.extend(lignes_widgets)
         lignes.append("")
@@ -694,7 +773,19 @@ def script_ui_en_texte(racine):
             lignes.append("        pass")
         for fonction in stubs:
             lignes.append("")
-            lignes.append(f"    def {fonction}(self, widget):")
+            if fonction in args_lambda:
+                infos = list(args_lambda.get(fonction, []))
+                params = ", ".join(
+                    ["self", "widget"] + [
+                        (f"{nom}: {type_} = {defaut}" if type_
+                         else f"{nom} = {defaut}")
+                        if defaut is not None else
+                        (f"{nom}: {type_} = None" if type_
+                         else f"{nom} = None")
+                        for nom, type_, defaut in infos])
+                lignes.append(f"    def {fonction}({params}):")
+            else:
+                lignes.append(f"    def {fonction}(self, widget):")
             corps = stubs[fonction]
             if corps:
                 for ligne_code in corps:

@@ -19,10 +19,10 @@ from PySide6.QtCore import QPointF, QRectF, QSize, Qt, Signal
 from PySide6.QtGui import QColor, QPainter, QPen
 from PySide6.QtWidgets import QWidget
 
-from .modele import CALQUE_BASE, TYPE_SCREEN, NoeudUI
+from .modele import CALQUE_BASE, TYPE_LABEL, TYPE_SCREEN, NoeudUI
 from .modele import calques_ecran
 from .theme_bgui import (THEME_BGUI, couleur, definir_polices_proprietes,
-                         peindre_widget)
+                         peindre_widget, taille_label)
 
 TAILLE_POIGNEE = 8.0
 ACCENT = QColor(74, 144, 217)
@@ -202,13 +202,21 @@ class CanvasBGUI(QWidget):
         """
         pos = list(noeud.prop.get("pos", [0.0, 0.0]))
         size = list(noeud.prop.get("size", [1.0, 1.0]))
-        aspect = float(noeud.prop.get("aspect") or 0.0)
-        if aspect > 0:
-            # Contrainte de ratio BGUI (bgui/widget.py) : largeur = hauteur
-            # × aspect, la hauteur restant inchangée. On ramène la largeur en
-            # coordonnées normalisées (relatives au parent).
-            size[0] = size[1] * rect_parent.height() * aspect \
-                / rect_parent.width()
+        if noeud.type == TYPE_LABEL:
+            # Un Label BGUI calcule sa taille depuis le texte + pt_size
+            # (size manipulé n'a aucun effet au runtime) : on reproduit ce
+            # calcul pour afficher la « vraie » taille du widget.
+            w_px, h_px = taille_label(noeud, rect_parent)
+            size = [w_px / (rect_parent.width() or 1.0),
+                    h_px / (rect_parent.height() or 1.0)]
+        else:
+            aspect = float(noeud.prop.get("aspect") or 0.0)
+            if aspect > 0:
+                # Contrainte de ratio BGUI (bgui/widget.py) : largeur = hauteur
+                # × aspect, la hauteur restant inchangée. On ramène la largeur
+                # en coordonnées normalisées (relatives au parent).
+                size[0] = size[1] * rect_parent.height() * aspect \
+                    / rect_parent.width()
         options = int(noeud.prop.get("options") or 0)
         if options & 1:   # BGUI_CENTERX
             pos[0] = 0.5 - size[0] / 2.0
@@ -298,7 +306,7 @@ class CanvasBGUI(QWidget):
             return
 
         rect_sel = self.rect_scene(self.selection)
-        if rect_sel is not None:
+        if rect_sel is not None and self.selection.type != TYPE_LABEL:
             coin = self._poignee_sous_souris(pos_widget, rect_sel)
             if coin:
                 parent = self.rect_parent_scene(self.selection)
@@ -326,7 +334,7 @@ class CanvasBGUI(QWidget):
 
         rect_sel = self.rect_scene(self.selection)
         poignee = None
-        if rect_sel is not None:
+        if rect_sel is not None and self.selection.type != TYPE_LABEL:
             poignee = self._poignee_sous_souris(pos_widget, rect_sel)
         if poignee and self.interaction is None:
             self.setCursor(Qt.SizeFDiagCursor if poignee in ("hg", "bd")
@@ -379,6 +387,10 @@ class CanvasBGUI(QWidget):
         ]
 
     def _redimensionner(self, noeud, info, dx, dy, p_l, p_h):
+        if noeud.type == TYPE_LABEL:
+            # La taille d'un Label est dérivée de la police (pt_size) :
+            # redimensionner n'a aucun effet BGUI.
+            return
         ndx = (dx / p_l) if p_l else 0.0
         ndy = (dy / p_h) if p_h else 0.0
         px0, py0 = info["pos_debut"]
@@ -463,6 +475,11 @@ class CanvasBGUI(QWidget):
         painter.setPen(QPen(ACCENT, 2))
         painter.setBrush(Qt.NoBrush)
         painter.drawRect(rect_widget.adjusted(1, 1, -1, -1))
+
+        # Un Label ne peut pas être redimensionné (taille dérivée de la
+        # police) : pas de poignées.
+        if self.selection.type == TYPE_LABEL:
+            return
 
         for nom, pt in self._poignees(rect_widget).items():
             poignee = QRectF(pt.x() - TAILLE_POIGNEE / 2,

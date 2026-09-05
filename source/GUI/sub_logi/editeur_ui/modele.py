@@ -202,7 +202,9 @@ OPTIONS_PAR_TYPE = {
 # pas répétés dans la section « Options BGUI ».
 CHAMPS_DEDIES = {
     TYPE_FRAME: {"color"},
-    TYPE_FRAME_BOUTON: {"text", "pt_size", "base_color", "color"},
+    TYPE_FRAME_BOUTON: {"text", "pt_size",
+                        "base_color1", "base_color2", "base_color3",
+                        "base_color4", "color"},
     TYPE_IMAGE: {"fichier"},
     TYPE_BOUTON_IMAGE: {"fichier", "default2_image", "hover_image",
                         "click_image"},
@@ -653,7 +655,23 @@ def sauvegarder_fichier(racine, chemin):
 def charger_fichier(chemin):
     """Charge une scène depuis un fichier JSON de conception."""
     with open(chemin, encoding="utf-8") as f:
-        return noeud_depuis_json(json.load(f))
+        scene = noeud_depuis_json(json.load(f))
+    _migrer_boutons_couleurs(scene)
+    return scene
+
+
+def _migrer_boutons_couleurs(noeud):
+    """Migre les anciens projets : ``base_color`` unique d'un FrameButton
+    est réparti sur ses 4 coins (``base_color1..4``), BGUI attendant une
+    couleur par sommet du cadre."""
+    if noeud.type == TYPE_FRAME_BOUTON:
+        ancien = noeud.prop.pop("base_color", None)
+        if ancien and not any(f"base_color{i}" in noeud.prop
+                              for i in range(1, 5)):
+            for i in range(1, 5):
+                noeud.prop[f"base_color{i}"] = list(ancien)
+    for enfant in noeud.enfants:
+        _migrer_boutons_couleurs(enfant)
 
 
 # ----------------------------------------------------------------------
