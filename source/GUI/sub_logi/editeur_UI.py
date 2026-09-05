@@ -172,6 +172,55 @@ class EditeurThemeDepot(QPlainTextEdit):
         super().dropEvent(event)
 
 
+class ChampCheminDepot(QLineEdit):
+    """Champ de chemin acceptant le dépôt d'un fichier local.
+
+    Un fichier déposé (image, ou vidéo pour un champ « Vidéo ») remplace le
+    contenu du champ ; ``stocker`` convertit son chemin absolu en la valeur
+    à afficher/stocker (``//relative`` via l'éditeur). Les dépôts d'autres
+    types de fichiers sont ignorés (les URLs remontent jusqu'à la fenêtre).
+    """
+
+    EXTENSIONS_IMAGE = frozenset({".png", ".jpg", ".jpeg", ".bmp", ".tga"})
+    EXTENSIONS_VIDEO = frozenset(
+        {".ogg", ".ogv", ".webm", ".mp4", ".avi", ".mpeg", ".mpg", ".wmv"})
+
+    def __init__(self, stocker=None, libelle="Image", parent=None):
+        super().__init__(parent)
+        self._stocker = stocker or (lambda c: c)
+        self._extensions = (self.EXTENSIONS_VIDEO if libelle == "Vidéo"
+                            else self.EXTENSIONS_IMAGE)
+        self.setAcceptDrops(True)
+
+    def _fichier_depose(self, event):
+        """Chemin local d'un fichier accepté dans le dépôt (None sinon)."""
+        if not event.mimeData().hasUrls():
+            return None
+        for url in event.mimeData().urls():
+            if not url.isLocalFile():
+                continue
+            chemin = url.toLocalFile()
+            if (os.path.isfile(chemin)
+                    and os.path.splitext(chemin)[1].lower()
+                    in self._extensions):
+                return chemin
+        return None
+
+    def dragEnterEvent(self, event):
+        if self._fichier_depose(event):
+            event.acceptProposedAction()
+        else:
+            event.ignore()
+
+    def dropEvent(self, event):
+        chemin = self._fichier_depose(event)
+        if chemin is None:
+            event.ignore()
+            return
+        self.setText(self._stocker(chemin))
+        event.acceptProposedAction()
+
+
 class LoposUIeditor(QMainWindow):
     """Éditeur de conception d'interface BGUI (simulation type Godot).
 
@@ -941,6 +990,8 @@ class LoposUIeditor(QMainWindow):
             self._champ_calques(noeud)
             self._champ_resolution(noeud)
             self._champ_couleur(noeud, "color", "Couleur de fond")
+            self._champ_chemin_image(noeud, "Fond (aperçu éditeur)",
+                                     "fond_image", avec_efface=True)
             self.source_inspe = ProprietesSource(
                 noeud.proprietes,
                 maj=lambda: self.canvas.update(),
@@ -1623,10 +1674,12 @@ class LoposUIeditor(QMainWindow):
                              ("Clic", "click_image")]:
             self._champ_chemin_image(noeud, libelle, cle)
 
-    def _champ_chemin_image(self, noeud, libelle="Image", cle="fichier"):
+    def _champ_chemin_image(self, noeud, libelle="Image", cle="fichier",
+                            avec_efface=False):
         ligne = self._ligne_suivante()
         self.form_inspe.addWidget(QLabel(libelle), ligne, 0)
-        champ = QLineEdit(str(noeud.prop.get(cle, "")))
+        champ = ChampCheminDepot(stocker=self._chemin_relatif_projet,
+                                 libelle=libelle)
         champ.setToolTip(
             "Chemins acceptés :\n"
             "//data/logo.png  relatif au projet (UPBGE)\n"
@@ -1644,7 +1697,17 @@ class LoposUIeditor(QMainWindow):
         b_parcourir.clicked.connect(
             lambda _=False, n=noeud, c=champ, l=libelle, k=cle:
             self._choisir_fichier(n, c, l, k))
-        self.form_inspe.addWidget(b_parcourir, self._ligne_suivante(), 1, 1, 2)
+        ligne = self._ligne_suivante()
+        if avec_efface:
+            b_effacer = QPushButton("Effacer")
+            b_effacer.setToolTip(
+                "Retirer la valeur actuelle (le widget/image d'origine "
+                "reste affiché).")
+            b_effacer.clicked.connect(lambda _=False, c=champ: c.clear())
+            self.form_inspe.addWidget(b_effacer, ligne, 1)
+            self.form_inspe.addWidget(b_parcourir, ligne, 2)
+        else:
+            self.form_inspe.addWidget(b_parcourir, ligne, 1, 1, 2)
 
     def _choisir_fichier(self, noeud, champ, libelle, cle="fichier"):
         if libelle == "Vidéo":

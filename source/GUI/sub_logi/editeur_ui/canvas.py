@@ -15,14 +15,17 @@ stockées dans le modèle.
 
 from __future__ import annotations
 
-from PySide6.QtCore import QPointF, QRectF, QSize, Qt, Signal
+import os
+
+from PySide6.QtCore import QPointF, QRect, QRectF, QSize, Qt, Signal
 from PySide6.QtGui import QColor, QPainter, QPen
 from PySide6.QtWidgets import QWidget
 
 from .modele import CALQUE_BASE, TYPE_LABEL, TYPE_SCREEN, NoeudUI
 from .modele import calques_ecran
-from .theme_bgui import (THEME_BGUI, couleur, definir_polices_proprietes,
-                         peindre_widget, taille_label)
+from .theme_bgui import (THEME_BGUI, _charger_image, couleur,
+                         definir_polices_proprietes, peindre_widget,
+                         resoudre_chemin_fichier, taille_label)
 
 TAILLE_POIGNEE = 8.0
 ACCENT = QColor(74, 144, 217)
@@ -101,6 +104,26 @@ class CanvasBGUI(QWidget):
         if isinstance(c, (list, tuple)) and len(c) >= 3:
             return couleur(tuple(float(v) for v in c[:4]))
         return couleur(THEME_BGUI[TYPE_SCREEN]["fond"])
+
+    def _peindre_fond_image_ecran(self, painter, ec_l, ec_h):
+        """Image de fond de l'écran dans l'aperçu (propriété « fond_image »).
+
+        Pure référence de calage, propre à l'éditeur : le Screen BGUI n'a
+        pas d'image de fond, et cette clé n'est jamais émise dans le script
+        généré. L'image est étirée sur l'intégralité de l'écran simulé pour
+        servir de gabarit de positionnement des widgets.
+        """
+        if self.scene is None:
+            return
+        chemin = resoudre_chemin_fichier(
+            str(self.scene.prop.get("fond_image", "")))
+        if not os.path.isfile(chemin):
+            return
+        pix = _charger_image(chemin)
+        if pix is None:
+            return
+        painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
+        painter.drawPixmap(QRect(0, 0, ec_l, ec_h), pix)
 
     def rafraichir(self):
         """Reconstruit l'ordre de peinture et redessine."""
@@ -445,6 +468,7 @@ class CanvasBGUI(QWidget):
         painter.scale(self.scale, self.scale)
         painter.fillRect(QRectF(0, 0, ec_l, ec_h),
                          self._couleur_fond_ecran())
+        self._peindre_fond_image_ecran(painter, ec_l, ec_h)
         for noeud, rect in self.ordre_peinture:
             peindre_widget(painter, rect, noeud)
         painter.restore()
