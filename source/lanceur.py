@@ -13,6 +13,13 @@
 
 import os, sys
 
+try:
+    from . import bootstrap
+except ImportError:
+    import bootstrap
+
+bootstrap.install()
+
 from PySide6.QtCore import Slot, QSize
 from PySide6.QtGui import QAction, QIcon, QGuiApplication
 from PySide6.QtWidgets import QApplication, QMainWindow, QPushButton, QWidget, QGridLayout, QCheckBox, QWidgetAction, QMessageBox, QSizePolicy
@@ -30,7 +37,9 @@ from GUI.sub_logi.preference import Preference
 from GUI.sub_logi.editeur_UI import LoposUIeditor
 from GUI.affichage_projet import Affichage_projet
 from GUI.liste_projet import Projet
-from GUI.pybash import PyBash
+from PromPt_Editeur.cli import FenetreTerminal
+from PromPt_Editeur.editeur import EditeurTexte
+from PromPt_Editeur.terminal_widget import TerminalWidget
 
 
 # élément graphique
@@ -91,9 +100,10 @@ class Lanceur(QMainWindow):
         grille.addWidget(projet_widget, 0, 1, 1, 2)
 
         app_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        pybash = PyBash(start_dir=app_dir)
-        pybash.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        grille.addWidget(pybash, 1, 1, 1, 2)
+        self.terminal = TerminalWidget()
+        self.terminal.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.terminal.start_shell(app_dir)
+        grille.addWidget(self.terminal, 1, 1, 1, 2)
 
         grille.setColumnStretch(0, 2)
         grille.setColumnStretch(1, 3)
@@ -103,7 +113,7 @@ class Lanceur(QMainWindow):
         """
         Créer et configurer la barre d'outils de la fenêtre principale.
 
-        Ajoute un bouton '+' pour créer de nouveaux projets, connecté à la 
+        Ajoute un bouton '+' pour créer de nouveaux projets, connecté à la
         fonction de création de projet.
         """
         # Créer un bouton pour ajouter un nouveau projet
@@ -129,7 +139,7 @@ class Lanceur(QMainWindow):
         b_lib_jeu.setIconSize(QSize(35, 35))
         b_lib_jeu.setStatusTip("Bibliothèque de jeux")
         b_lib_jeu.clicked.connect(self.lib_jeu_biblio)
-        
+
         # Créer un bouton pour l'éditeur UI
         b_ui_editor = QPushButton()
         b_ui_editor.setFixedSize(40, 40)
@@ -170,6 +180,14 @@ class Lanceur(QMainWindow):
         act_quitter.setShortcut("Ctrl+Q")
         act_quitter.triggered.connect(self.fonc_Quitter)
 
+        act_terminal = QAction(QIcon(""), "&Terminal PTY", self)
+        act_terminal.setStatusTip("Ouvrir un terminal PTY")
+        act_terminal.triggered.connect(self.ouvrir_terminal)
+
+        act_editeur_texte = QAction(QIcon(""), "&Éditeur de texte", self)
+        act_editeur_texte.setStatusTip("Ouvrir l'éditeur de texte")
+        act_editeur_texte.triggered.connect(self.ouvrir_editeur)
+
         # Créer l'action de Configuration des préférences
         act_preference = QAction(QIcon(""), "&Préférence", self)
         act_preference.setStatusTip("Configuration des préférence")
@@ -186,12 +204,21 @@ class Lanceur(QMainWindow):
         about.setStatusTip("A Propos")
         about.triggered.connect(self.msg_aide)
 
+        # QT Version
+        version_qt = QAction(QIcon(""), "&Info", self)
+        version_qt.setStatusTip("Info Qt Version")
+        version_qt.triggered.connect(self.qt_version)
+
         # Associer les actions au menu
+        Menu_fichier.addAction(act_terminal)
+        Menu_fichier.addAction(act_editeur_texte)
+        Menu_fichier.addSeparator()
         Menu_fichier.addAction(act_preference)
         Menu_fichier.addSeparator()
         Menu_fichier.addAction(act_quitter)
         Menu_option.addAction(act_commande_secourre)
         Menu_about.addAction(about)
+        Menu_about.addAction(version_qt)
         # Lier
         self.setMenuBar(self.barreMenu)  # instancier la barre de menu
 
@@ -199,7 +226,7 @@ class Lanceur(QMainWindow):
         """
         Configurer la barre de statut de la fenêtre principale.
 
-        Actuellement une méthode de réserve pour une personnalisation potentielle 
+        Actuellement une méthode de réserve pour une personnalisation potentielle
         de la barre de statut.
         """
         # Méthode pour configurer la barre de status si nécessaire
@@ -226,13 +253,24 @@ class Lanceur(QMainWindow):
         self.game.show()
 
     @Slot()
+    def ouvrir_terminal(self):
+        app_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        self.fenetre_terminal = FenetreTerminal(cwd=app_dir)
+        self.fenetre_terminal.show()
+
+    @Slot()
+    def ouvrir_editeur(self):
+        self.fenetre_editeur = EditeurTexte()
+        self.fenetre_editeur.show()
+
+    @Slot()
     def logi_editeur_ui(self):
         """
         Lancher Editor UI
         """
         self.ui = LoposUIeditor()
         self.ui.show()
-        
+
     @Slot()
     def fonc_export_p(self):
         """
@@ -256,17 +294,20 @@ class Lanceur(QMainWindow):
 
         Détruit la fenêtre principale et quitte l'application.
         """
+        if hasattr(self, "terminal"):
+            self.terminal.shutdown()
         self.destroy()
         sys.exit()
 
     @Slot()
     def msg_aide(self):
         aide = QMessageBox()
-        aide.resize(200, 80)
-        aide.setWindowTitle("A Propos")
-        aide.setText("version 3.1")
-        aide.exec()
+        aide.about(self,"A Propos","Développé par Lopos-Production\nUtilisation de PySide6\nEst un logiciel libre et opensource\nversion 3.2")
 
+    @Slot()
+    def qt_version(self):
+        info = QMessageBox()
+        info.aboutQt(self, "Version QT")
 
 if __name__ == "__main__":
     app = QApplication([])

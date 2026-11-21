@@ -1,1 +1,3 @@
-# source/__init__.py
+from . import bootstrap as bootstrap
+
+__all__ = ["bootstrap"]

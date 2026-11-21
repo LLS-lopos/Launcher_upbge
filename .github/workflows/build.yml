@@ -48,6 +48,7 @@ jobs:
             GUI.sub_logi.editeur_ui
             Fonction
             PIL
+            PromPt_Editeur
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
